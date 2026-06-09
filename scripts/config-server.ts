@@ -134,6 +134,15 @@ async function validateQlik(
 // a warning pill so operators know to investigate.
 // ---------------------------------------------------------------------------
 
+interface ExtractorDiagnostic {
+  source_name: string;
+  dir: string;
+  verdict: string;
+  logging_enabled: boolean;
+  file_count: number;
+  detail: string;
+}
+
 interface ExtractorAgentHeartbeat {
   hostname: string;
   ip?: string;
@@ -143,6 +152,7 @@ interface ExtractorAgentHeartbeat {
   sources?: Array<{ name: string; dir: string }>;
   agentVersion?: string;
   ts?: string;
+  diagnostics?: ExtractorDiagnostic[];
 }
 
 interface RegisteredAgent extends ExtractorAgentHeartbeat {
@@ -172,6 +182,22 @@ function normalizeHeartbeat(raw: unknown): ExtractorAgentHeartbeat | null {
       }
     }
   }
+  const diagnostics: ExtractorDiagnostic[] = [];
+  if (Array.isArray(r.diagnostics)) {
+    for (const d of r.diagnostics) {
+      if (d && typeof d === "object") {
+        const o = d as Record<string, unknown>;
+        diagnostics.push({
+          source_name: String(o.source_name ?? ""),
+          dir: String(o.dir ?? ""),
+          verdict: String(o.verdict ?? "unknown"),
+          logging_enabled: !!o.logging_enabled,
+          file_count: Number(o.file_count ?? 0),
+          detail: String(o.detail ?? ""),
+        });
+      }
+    }
+  }
   return {
     hostname,
     ip: typeof r.ip === "string" ? r.ip : undefined,
@@ -181,6 +207,7 @@ function normalizeHeartbeat(raw: unknown): ExtractorAgentHeartbeat | null {
     sources,
     agentVersion: typeof r.agentVersion === "string" ? r.agentVersion : undefined,
     ts: typeof r.ts === "string" ? r.ts : undefined,
+    diagnostics,
   };
 }
 
@@ -1911,6 +1938,31 @@ async function loadAgents() {
     if (s < 3600) return Math.round(s / 60) + "m ago";
     return Math.round(s / 3600) + "h ago";
   };
+  // Per-source preflight verdicts (pickup-path + logging-enabled). Each gets
+  // a coloured pill so a misconfigured engine is obvious at a glance.
+  const verdictPill = (v) => {
+    const map = {
+      ok: ["running", "logging ON"],
+      no_path: ["stopped", "pickup path missing"],
+      no_files: ["stopped", "no log files"],
+      stale: ["unknown", "logs stale"],
+      no_job_status: ["stopped", "job logging OFF"],
+    };
+    // Only the five known verdicts render a styled label. An unrecognized
+    // verdict (e.g. a malicious/buggy heartbeat) renders as an escaped
+    // literal under the neutral "unknown" class — never as raw HTML.
+    const known = map[v];
+    const cls = known ? known[0] : "unknown";
+    const label = known ? known[1] : esc(String(v));
+    return \`<span class="pill \${cls}" style="vertical-align:middle;">\${label}</span>\`;
+  };
+  window.renderDiagnostics = (diags) => {
+    if (!diags || !diags.length) return "";
+    const rows = diags.map(d =>
+      \`<div class="exp-meta">diagnostic <code>\${esc(d.source_name)}</code> \${verdictPill(d.verdict)} <span style="color:var(--muted)">\${esc(d.detail || "")}</span></div>\`
+    ).join("");
+    return rows;
+  };
   root.innerHTML = j.agents.map(a => \`
     <div class="exp-card">
       <div>
@@ -1921,6 +1973,7 @@ async function loadAgents() {
           ? \` · <b>\${a.lastMetricsScrape.sampleCount}</b> series\`
           : \` · <span style="color:var(--err)">scrape error: \${esc(a.lastMetricsScrape.error||"")}</span>\`) : ""}</div>
         <div class="exp-meta">sources: \${a.sources && a.sources.length ? a.sources.map(s => \`<code>\${esc(s.name)}</code>=<code>\${esc(s.dir)}</code>\`).join(", ") : "<i>none configured</i>"}</div>
+        \${renderDiagnostics(a.diagnostics)}
       </div>
       <div class="controls">
         <button data-act="forget-agent" data-host="\${esc(a.hostname)}" class="danger">Forget</button>

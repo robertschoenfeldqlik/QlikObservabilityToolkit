@@ -94,7 +94,12 @@ async function deployDocker() {
     );
   }
   if (!args["skip-build"]) {
-    const buildRc = await runStream("docker", ["compose", "-f", compose, "build"], { env });
+    // Build under the SAME profile we're about to bring up. `docker compose
+    // build` without a profile skips profiled services, which would leave
+    // the shared Python exporter image stale for the profiled exporters.
+    const buildRc = await runStream("docker", ["compose", "-f", compose, "--profile", profile, "build"], {
+      env,
+    });
     if (buildRc !== 0) return buildRc;
   }
   return await runStream("docker", ["compose", "-f", compose, "--profile", profile, "up", "-d"], { env });

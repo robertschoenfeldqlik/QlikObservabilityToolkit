@@ -89,6 +89,7 @@ from prometheus_client.exposition import start_http_server
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logging import configure_logging  # noqa: E402
+from common.engine_diagnostics import diagnose_source  # noqa: E402
 from common.tenants import RemoteEngineRec, load_remote_engines  # noqa: E402
 
 
@@ -160,6 +161,27 @@ scraper_sources = Gauge(
     "One row per configured log source (value always 1) so operators "
     "can see what feeds this scraper is reading.",
     ["source_name", "dir"],
+    registry=registry,
+)
+source_path_exists = Gauge(
+    "talend_engine_source_path_exists",
+    "1 if the source's pickup directory exists and is readable, else 0.",
+    ["source_name"],
+    registry=registry,
+)
+logging_enabled = Gauge(
+    "talend_engine_logging_enabled",
+    "1 if job-management logging appears ON for this source (fresh files + "
+    "JOB_STATUS events present), else 0. See talend_engine_logging_verdict "
+    "info for the reason.",
+    ["source_name"],
+    registry=registry,
+)
+logging_verdict = Gauge(
+    "talend_engine_logging_verdict",
+    "Diagnostic verdict per source (value always 1). The `verdict` label is "
+    "one of: ok, no_path, no_files, stale, no_job_status.",
+    ["source_name", "verdict"],
     registry=registry,
 )
 build_info = Gauge(
@@ -415,6 +437,41 @@ def _globs_for(source: RemoteEngineRec) -> list[str]:
     ]
 
 
+def _glob_spec(source: RemoteEngineRec) -> str:
+    """The raw colon-separated glob spec (relative), for the diagnostics module."""
+    return source.log_glob
+
+
+def run_doctor() -> int:
+    """`doctor` entrypoint — run diagnostics for every configured source and
+    print a human-readable report. Exits 0 only if every source is `ok`.
+    Used by `qlik-engine-extractor doctor`."""
+    log = configure_logging("talend-engine-doctor")
+    from_beginning = os.environ.get("TALEND_ENGINE_FROM_BEGINNING", "0") == "1"
+    sources = _resolve_sources(log, from_beginning)
+    print("Talend Remote Engine — extractor doctor\n")
+    worst = 0
+    for s in sources:
+        d = diagnose_source(s.id, s.log_dir, _glob_spec(s))
+        icon = "OK " if d.verdict == "ok" else "!! "
+        print(f"[{icon}] {s.id}")
+        print(f"       dir:      {s.log_dir}")
+        print(f"       glob:     {s.log_glob}")
+        print(f"       verdict:  {d.verdict}")
+        print(f"       files:    {d.file_count}" + (f" (newest {int(d.newest_age_seconds)}s old)" if d.newest_age_seconds is not None else ""))
+        print(f"       logging:  {'ENABLED' if d.logging_enabled else 'NOT DETECTED'}")
+        print(f"       detail:   {d.detail}\n")
+        if d.verdict != "ok":
+            worst = 1
+    if worst:
+        print("One or more sources are not healthy. See details above.")
+        print("Remote Engine job logging docs: "
+              "https://help.qlik.com/talend/en-US/remote-engine-user-guide-linux/Cloud/job-management-logs")
+    else:
+        print("All sources healthy.")
+    return worst
+
+
 def main() -> int:
     log = configure_logging("talend-engine-log-scraper")
     port = int(os.environ.get("TMC_EXPORTER_PORT", "9466"))
@@ -493,6 +550,25 @@ def main() -> int:
         for sid, count in per_source_count.items():
             files_followed.labels(source_name=sid).set(count)
 
+    def _run_diagnostics():
+        """Per-source preflight: pickup-path + logging-enabled checks. Updates
+        the diagnostic gauges and logs a WARN for any non-ok verdict so a
+        misconfigured engine is obvious in the logs as well as the metrics."""
+        for source in sources:
+            diag = diagnose_source(source.id, source.log_dir, _glob_spec(source))
+            source_path_exists.labels(source_name=source.id).set(1 if diag.path_exists and diag.readable else 0)
+            logging_enabled.labels(source_name=source.id).set(1 if diag.logging_enabled else 0)
+            # Reset the verdict family for this source, then set the live one,
+            # so only one verdict row is ever 1 per source.
+            for v in ("ok", "no_path", "no_files", "stale", "no_job_status"):
+                logging_verdict.labels(source_name=source.id, verdict=v).set(1 if v == diag.verdict else 0)
+            if diag.verdict != "ok":
+                log.warning(
+                    "source diagnostic", source=source.id, verdict=diag.verdict, detail=diag.detail
+                )
+            else:
+                log.debug("source diagnostic", source=source.id, verdict="ok")
+
     stopping = False
 
     def _on_signal(signum, _frame):
@@ -504,8 +580,10 @@ def main() -> int:
     signal.signal(signal.SIGINT, _on_signal)
 
     try:
+        _run_diagnostics()  # surface config problems immediately at startup
         while not stopping:
             _refresh_files()
+            _run_diagnostics()
             # Iterate sources, then files within each source — keeps the
             # tail order deterministic across feeds.
             for source in sources:
@@ -524,4 +602,7 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # `doctor` runs the one-shot diagnostic report; default runs the scraper.
+    if len(sys.argv) > 1 and sys.argv[1] == "doctor":
+        raise SystemExit(run_doctor())
     raise SystemExit(main())

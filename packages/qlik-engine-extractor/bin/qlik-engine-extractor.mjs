@@ -81,6 +81,10 @@ function help() {
 Commands:
   bootstrap [--auto]               Set up the Python venv + install deps.
   run                              Run the scraper in the foreground.
+  doctor                           Preflight: check each source's pickup dir
+                                   exists, has fresh files, and job logging is
+                                   ON (JOB_STATUS events present). Exit 0 only
+                                   if every source is healthy.
   install --service [--user=NAME]  Generate + enable a systemd service.
   uninstall --service              Stop + disable the systemd service.
   heartbeat [--once]               Register + send heartbeats to the central UI.
@@ -160,6 +164,56 @@ function run() {
   child.on("exit", (code) => process.exit(code ?? 0));
 }
 
+/**
+ * doctor — run the standalone, stdlib-only diagnostic report. Works on a
+ * bare host (no venv / prometheus_client needed) so you can validate your
+ * pickup-path + logging config BEFORE installing the service. Exits with
+ * the script's code (0 = all sources healthy).
+ */
+function doctor() {
+  // Prefer the venv python if present, else system python — but the doctor
+  // script is stdlib-only so system python is enough.
+  const py = pythonExe();
+  const script = join(PY_ROOT, "exporters", "engine_doctor.py");
+  if (!existsSync(script)) {
+    console.error(`engine_doctor.py not found at ${script}`);
+    return 1;
+  }
+  const child = spawn(py, [script], { stdio: "inherit", env: { ...process.env } });
+  child.on("exit", (code) => process.exit(code ?? 0));
+}
+
+/**
+ * Run the Python diagnostics and return the parsed per-source verdicts as
+ * JSON. Used to enrich the heartbeat payload. Synchronous + best-effort —
+ * returns [] if Python isn't available so a heartbeat never fails on this.
+ */
+function collectDiagnostics() {
+  const py = pythonExe();
+  const snippet =
+    "import sys,os,json; sys.path.insert(0, os.path.join(os.getcwd(),'python') if os.path.isdir(os.path.join(os.getcwd(),'python')) else r'" +
+    PY_ROOT.replace(/\\/g, "\\\\") +
+    "'); " +
+    "from common.engine_diagnostics import diagnose_source; " +
+    "from common.tenants import load_remote_engines; " +
+    "srcs=[]; " +
+    "env=os.environ.get('TALEND_ENGINE_SOURCES','').strip(); " +
+    "import re; \n" +
+    "items=[p for p in env.split(',') if p.strip()] if env else []; \n" +
+    "for it in items:\n name,_,d=it.partition(':'); srcs.append((name.strip(), d.strip(), '*.log:*.json'))\n" +
+    "for e in load_remote_engines():\n srcs.append((e.id, e.log_dir, e.log_glob))\n" +
+    "if not srcs and os.environ.get('TALEND_ENGINE_LOG_DIR'):\n srcs.append(('default', os.environ['TALEND_ENGINE_LOG_DIR'], os.environ.get('TALEND_ENGINE_LOG_GLOB','*.log:*.json')))\n" +
+    "print(json.dumps([diagnose_source(n,d,g).to_dict() for (n,d,g) in srcs]))";
+  const r = spawnSync(py, ["-c", snippet], { stdio: "pipe", cwd: PKG_ROOT, encoding: "utf8" });
+  if (r.status !== 0) return [];
+  try {
+    const lastLine = String(r.stdout).trim().split("\n").pop();
+    return JSON.parse(lastLine);
+  } catch {
+    return [];
+  }
+}
+
 // ----------------------------------------------------------------------------
 // install --service — write a systemd unit pointing at `qlik-engine-extractor run`.
 // ----------------------------------------------------------------------------
@@ -223,8 +277,8 @@ function pickPrimaryIp() {
   return "127.0.0.1";
 }
 
-function buildHeartbeatPayload() {
-  return {
+function buildHeartbeatPayload({ withDiagnostics = true } = {}) {
+  const payload = {
     hostname: hostname(),
     ip: pickPrimaryIp(),
     platform: platform(),
@@ -234,6 +288,12 @@ function buildHeartbeatPayload() {
     agentVersion: readPackageVersion(),
     ts: new Date().toISOString(),
   };
+  if (withDiagnostics) {
+    // Per-source preflight verdicts so the central UI shows "logging OFF on
+    // engine-prod-us" without anyone SSHing to the box.
+    payload.diagnostics = collectDiagnostics();
+  }
+  return payload;
 }
 
 function parseSources() {
@@ -363,6 +423,9 @@ switch (cmd) {
     break;
   case "run":
     run();
+    break;
+  case "doctor":
+    doctor();
     break;
   case "install":
     if (flags.service) process.exit(installService());
