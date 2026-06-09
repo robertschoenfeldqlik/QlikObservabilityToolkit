@@ -404,26 +404,122 @@ function agentCard(a) {
 }
 
 /* ---- HELP ---- */
+const codeBlock = (txt) => `<pre class="mono" style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;overflow:auto;font-size:12px;line-height:1.55">${esc(txt)}</pre>`;
+const helpNote = (txt) => `<p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">${txt}</p>`;
+const extLink = (href, label) => `<a href="${href}" target="_blank" rel="noopener" style="color:var(--primary);font-weight:500;text-decoration:none">${esc(label)}</a>`;
+
 function renderHelp() {
-  $("#view").innerHTML = `<div class="panel-wrap">
-    <div class="block" style="margin-bottom:16px"><h3>Connect the MCP server</h3><p class="sub">stdio, no network port. Point Claude Desktop at the built server.</p>
-      <pre class="mono" style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;overflow:auto;font-size:12px">{
+  const gh = "https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit";
+  const block = (title, sub, body, mb = true) =>
+    `<div class="block"${mb ? ' style="margin-bottom:16px"' : ""}><h3>${title}</h3>${sub ? `<p class="sub">${sub}</p>` : ""}${body}</div>`;
+
+  const overview = block("What this toolkit does", "Read-only observability for Talend Cloud and Qlik Cloud — nothing here mutates your pipelines or apps.", `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <span class="tag primary"><span class="gdot"></span>MCP tools for AI agents</span>
+      <span class="tag"><span class="gdot" style="background:var(--teal)"></span>Prometheus metrics</span>
+      <span class="tag"><span class="gdot" style="background:var(--blue)"></span>Grafana + Loki</span>
+      <span class="tag"><span class="gdot" style="background:var(--purple)"></span>Qlik Cloud Analytics via QVD</span>
+      <span class="tag"><span class="gdot" style="background:var(--cyan)"></span>OpenTelemetry → Datadog / Splunk</span>
+    </div>
+    <p style="font-size:13px;color:var(--text-2);margin:0">It watches <b>Talend Cloud</b> (task/plan runs, execution logs &amp; history, Remote Engine job logs) and <b>Qlik Cloud</b> (apps, reloads, audits, quotas, spaces, users) across <b>multiple tenants of each</b>, and surfaces everything to an MCP client, Prometheus/Grafana, and a Qlik Cloud Analytics app.</p>`);
+
+  const quickStart = block("Quick start", "Four steps from zero to dashboards.", `
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">1</span><span style="font-size:13px"><b>Add a Talend tenant</b> — <span class="mono">Talend Cloud</span> tab → Add tenant. PAT from Talend Cloud → Profile preferences → Personal Access Tokens.</span></div>
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">2</span><span style="font-size:13px"><b>Add a Qlik tenant</b> — <span class="mono">Qlik Cloud</span> tab → Add tenant. API key from Qlik Cloud → Settings → API keys. Add a Data Files connection ID to enable QVD upload.</span></div>
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">3</span><span style="font-size:13px"><b>Start the stack</b> — ${codeInline("npm run deploy -- --target docker --profile all")} brings up Prometheus, Grafana, Loki and the four exporters.</span></div>
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">4</span><span style="font-size:13px"><b>Connect an MCP client</b> — see the next section. Then ask Claude: <i>"list my configured environments"</i>.</span></div>`);
+
+  const connect = block("Connect the MCP server", "The server speaks MCP over stdio — there is no network port to open. Build once with <span class='mono'>npm run build</span>.", `
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Claude Desktop — <span class="mono" style="font-weight:400">claude_desktop_config.json</span></p>
+    ${codeBlock(`{
   "mcpServers": {
-    "qlik-observability": { "command": "node", "args": ["dist/index.js"], "env": { "TMC_REGION": "us" } }
+    "qlik-observability": {
+      "command": "node",
+      "args": ["C:/path/to/QlikObservabilityToolkit/dist/index.js"],
+      "env": { "TMC_REGION": "us" }
+    }
   }
-}</pre>
-      <p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">8 Talend + 8 Qlik observability tools + <span class="mono">tmc_list_environments</span>. Pass <span class="mono">tenant: "&lt;id&gt;"</span> to target a tenant.</p></div>
-    <div class="block" style="margin-bottom:16px"><h3>Dashboards &amp; metrics</h3><p class="sub">Reachable once the docker stack is up.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a class="btn" href="http://localhost:3000" target="_blank" rel="noopener">Grafana :3000</a>
-        <a class="btn" href="http://localhost:9090" target="_blank" rel="noopener">Prometheus :9090</a>
-        <a class="btn" href="http://localhost:3100/ready" target="_blank" rel="noopener">Loki :3100</a></div></div>
-    <div class="block"><h3>Export to Datadog &amp; Splunk (OpenTelemetry)</h3><p class="sub">Collector fans metrics/logs/traces to Datadog + Splunk Observability Cloud.</p>
-      <pre class="mono" style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;overflow:auto;font-size:12px">export DD_API_KEY=...  SPLUNK_ACCESS_TOKEN=...  SPLUNK_REALM=us0
-npm run deploy -- --target docker --profile otel</pre>
-      <p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">Config: <span class="mono">deploy/otel-collector.yaml</span> · guide: <span class="mono">docs/otel-export.md</span>.</p></div>
-  </div>`;
+}`)}
+    <p style="font-size:12.5px;font-weight:600;margin:14px 0 6px">Claude Code (CLI)</p>
+    ${codeBlock(`claude mcp add qlik-observability -- node "C:/path/to/QlikObservabilityToolkit/dist/index.js"`)}
+    ${helpNote(`Use the <b>absolute path</b> to <span class="mono">dist/index.js</span>. The server reads the same config file this console writes (<span class="mono">${esc(state.snap.configPath)}</span>) — set <span class="mono">TMC_OTLP_ENDPOINT</span> for traces, <span class="mono">TMC_APIS_PRESET=logging</span> to add Talend audit events. Restart the client after editing.`)}`);
+
+  const toolRow = (name, what) => `<tr class="row"><td><span class="mono" style="font-size:12px">${esc(name)}</span></td><td style="color:var(--muted);font-size:12.5px">${esc(what)}</td></tr>`;
+  const tools = block("MCP tool surface", "Everything is read-only and tenancy-aware: every tool accepts an optional <span class='mono'>tenant</span> id.", `
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Talend Cloud — observability preset (default)</p>
+    <div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl"><thead><tr><th>Tool prefix</th><th>What it answers</th></tr></thead><tbody>
+      ${toolRow("observability_metrics__*", "Execution metrics for tasks and plans (counts, status, timing).")}
+      ${toolRow("execution_logs__*", "Fetch the logs of a specific execution.")}
+      ${toolRow("execution_history_search__*", "Search historical executions across workspaces / environments.")}
+      ${toolRow("tmc_list_environments", "Meta-tool — lists every configured Talend + Qlik tenant and this console's settings.")}
+    </tbody></table></div>
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Qlik Cloud — when "observability" is enabled on a tenant</p>
+    <div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl"><thead><tr><th>Tool</th><th>What it answers</th></tr></thead><tbody>
+      ${toolRow("qlik_observability__list_apps", "Apps visible to the API key, by space.")}
+      ${toolRow("qlik_observability__list_reloads / get_reload", "Reload runs, outcomes and durations.")}
+      ${toolRow("qlik_observability__list_audits", "Audit events — who did what, when.")}
+      ${toolRow("qlik_observability__get_quotas", "Tenant quota usage and limits.")}
+      ${toolRow("qlik_observability__list_spaces / list_users", "Spaces and users in the tenant.")}
+      ${toolRow("qlik_observability__list_reload_tasks", "Scheduled reloads and their cadence.")}
+    </tbody></table></div>
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Targeting a tenant</p>
+    ${codeBlock(`// "show failed reloads in our EU Qlik tenant"
+{ "name": "qlik_observability__list_reloads",
+  "arguments": { "tenant": "qlik-eu", "limit": 50 } }`)}
+    ${helpNote(`Omit <span class="mono">tenant</span> to use the default (★ in the tenant lists). Discover ids with <span class="mono">tmc_list_environments</span>.`)}`);
+
+  const portRow = (port, what) => `<tr class="row"><td class="num" style="text-align:left">${esc(port)}</td><td style="color:var(--muted);font-size:12.5px">${esc(what)}</td></tr>`;
+  const dashboards = block("Dashboards, metrics & ports", "Reachable once the docker stack is up. Everything binds to localhost.", `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <a class="btn" href="http://localhost:3000" target="_blank" rel="noopener">Grafana :3000</a>
+      <a class="btn" href="http://localhost:9090" target="_blank" rel="noopener">Prometheus :9090</a>
+      <a class="btn" href="http://localhost:3100/ready" target="_blank" rel="noopener">Loki :3100</a>
+    </div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Port</th><th>Service</th></tr></thead><tbody>
+      ${portRow(":8788", "This configuration console (loopback only).")}
+      ${portRow(":9464", "MCP server /metrics + /health (Prometheus format).")}
+      ${portRow(":9465 – :9468", "Python exporters /metrics — business · engine-logs · qvd · qlik-obs.")}
+      ${portRow(":9090 / :3000 / :3100", "Prometheus · Grafana (admin/admin on first run) · Loki.")}
+      ${portRow(":4317 / :4318", "OpenTelemetry Collector OTLP (gRPC / HTTP) — otel profile only.")}
+    </tbody></table></div>
+    ${helpNote(`The MCP server itself has <b>no</b> network port — it speaks stdio to the client that spawns it.`)}`);
+
+  const extractor = block("Remote Engine extractor", "A headless agent on each Talend Remote Engine host ships job-management logs and self-diagnoses.", `
+    ${codeBlock(`npm i -g qlik-engine-extractor
+qlik-engine-extractor doctor   # checks the log pickup path + that job logging is ON
+qlik-engine-extractor run      # starts scraping + heartbeating`)}
+    ${helpNote(`Agents heartbeat to this console every 30s — watch them under <b>Exporters → Registered extractor agents</b>, including their per-source verdicts (path exists? logging enabled? files fresh?). The agent is headless by design: this console is its only control plane.`)}`);
+
+  const otel = block("Export to Datadog & Splunk (OpenTelemetry)", "An optional collector fans metrics, logs and traces out to Datadog and Splunk Observability Cloud — alongside Prometheus/Grafana/Qlik, not instead of them.", `
+    ${codeBlock(`export DD_API_KEY=...            DD_SITE=datadoghq.com
+export SPLUNK_ACCESS_TOKEN=...   SPLUNK_REALM=us0
+npm run deploy -- --target docker --profile otel`)}
+    <p style="font-size:12.5px;font-weight:600;margin:12px 0 6px">Optional — traces from the MCP server</p>
+    ${codeBlock(`npm i @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node @opentelemetry/exporter-trace-otlp-http
+export TMC_OTLP_ENDPOINT=http://localhost:4318`)}
+    ${helpNote(`Metrics need no app changes (the collector scrapes the same /metrics). Config: <span class="mono">deploy/otel-collector.yaml</span> · full guide: ${extLink(gh + "/blob/main/docs/otel-export.md", "docs/otel-export.md")}. Using Splunk Enterprise instead? Swap the <span class="mono">signalfx</span> exporter for <span class="mono">splunk_hec</span>.`)}`);
+
+  const fixRow = (q, a) => `<div class="kv" style="align-items:flex-start"><span class="k" style="width:230px;flex:0 0 230px;font-weight:600;color:var(--text)">${q}</span><span style="font-size:12.5px;color:var(--muted)">${a}</span></div>`;
+  const trouble = block("Troubleshooting", "", `
+    ${fixRow("Console didn't come up on :8788", `Port busy — usually a previous instance. The server prints a NOTE with the fallback URL it actually bound; open that, or kill the old <span class="mono">node … config-server</span> process and rerun <span class="mono">npm run config-ui</span>.`)}
+    ${fixRow("No Remote Engine metrics", `Run <span class="mono">qlik-engine-extractor doctor</span> on the engine host. It verifies the pickup directory exists and that job-management logging is enabled — the same verdicts shown on the Exporters tab.`)}
+    ${fixRow("MCP tools seem to be missing", `The server is observability-scoped by design (8 Talend + meta). Widen with <span class="mono">TMC_APIS_PRESET=logging</span> or an explicit <span class="mono">TMC_APIS</span> list, then restart the MCP client.`)}
+    ${fixRow("Qlik tools absent", `Edit the Qlik tenant here and make sure <b>Expose observability tools</b> is checked, then restart the MCP client.`)}
+    ${fixRow("Exporter shows stopped", `Start it from the Exporters tab (runs <span class="mono">docker compose --profile … up -d</span>), or check <span class="mono">docker compose ps</span> for the underlying container error.`)}
+    ${fixRow("Saved a token but the MCP can't auth", `The MCP server reads credentials at startup — restart your MCP client after changing tenants here.`)}`);
+
+  const refs = block("Reference", "", `
+    <div class="kv"><span class="k">Repository</span><span class="v">${extLink(gh, "github.com/robertschoenfeldqlik/QlikObservabilityToolkit")}</span></div>
+    <div class="kv"><span class="k">Capabilities</span><span class="v">${extLink(gh + "/blob/main/docs/observability-capabilities.md", "docs/observability-capabilities.md")} — every tool + metric, both clouds</span></div>
+    <div class="kv"><span class="k">OTel export</span><span class="v">${extLink(gh + "/blob/main/docs/otel-export.md", "docs/otel-export.md")} — Datadog + Splunk setup</span></div>
+    <div class="kv"><span class="k">Talend APIs</span><span class="v">${extLink("https://talend.qlik.dev/apis/", "talend.qlik.dev/apis")}</span></div>
+    <div class="kv"><span class="k">Engine job logs</span><span class="v">${extLink("https://help.qlik.com/talend/en-US/remote-engine-user-guide-linux/Cloud/job-management-logs", "help.qlik.com — job-management logs")}</span></div>
+    <div class="kv"><span class="k">Qlik Cloud APIs</span><span class="v">${extLink("https://qlik.dev/apis/", "qlik.dev/apis")} · ${extLink("https://qlik.dev/apis/rest/data-files/", "Data Files API")}</span></div>
+    <div class="kv"><span class="k">All references</span><span class="v"><span class="mono">HELP.md</span> at the repo root — master index of every external doc</span></div>`, false);
+
+  $("#view").innerHTML = `<div class="panel-wrap">${overview}${quickStart}${connect}${tools}${dashboards}${extractor}${otel}${trouble}${refs}</div>`;
 }
+const codeInline = (t) => `<span class="mono" style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px">${esc(t)}</span>`;
 
 /* ---- ABOUT ---- */
 function renderAbout() {

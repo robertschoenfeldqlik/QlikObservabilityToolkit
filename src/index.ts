@@ -296,7 +296,37 @@ async function main() {
     }
   }
 
-  const server = new Server({ name: PKG_NAME, version: PKG_VERSION }, { capabilities: { tools: {} } });
+  // Server-level instructions — surfaced to the model by MCP clients on
+  // initialize. Explains the observability scope, tenancy routing, and where
+  // the human front-end lives so the model can direct users to it for any
+  // credential / tenant / exporter management (which is deliberately NOT
+  // exposed as tools).
+  const SERVER_INSTRUCTIONS = [
+    "Qlik Observability Toolkit — read-only observability over Talend Cloud and Qlik Cloud.",
+    "",
+    "Tools: Talend observability (observability_metrics__*, execution_logs__*, " +
+      "execution_history_search__*) plus, when enabled per tenant, Qlik Cloud observability " +
+      "(qlik_observability__* — apps, reloads, audits, quotas, spaces, users, reload-tasks). " +
+      "Nothing mutates pipelines or apps.",
+    "",
+    "Multi-tenancy: every tool accepts an optional `tenant` id. Talend tools resolve against " +
+      "Talend tenants; qlik_observability__* tools resolve against Qlik tenants; omitting " +
+      "`tenant` uses each pool's default. Call `tmc_list_environments` first to discover ids.",
+    "",
+    "Configuration front-end: tenants, credentials (PATs / API keys), the per-tenant Qlik " +
+      "observability toggle, Python exporters and Remote Engine extractor agents are managed in " +
+      "the local web console — NOT via tools. When the user needs to add/change a tenant or " +
+      "credential, fix an auth error, enable Qlik observability, or control exporters, tell them " +
+      "to run `npm run config-ui` in the toolkit repo and open http://127.0.0.1:8788 (loopback " +
+      "only; its Help tab covers dashboards, ports, OpenTelemetry export to Datadog/Splunk, and " +
+      "troubleshooting). This server reads that config at startup — after changes there, restart " +
+      "the MCP client so they take effect.",
+  ].join("\n");
+
+  const server = new Server(
+    { name: PKG_NAME, version: PKG_VERSION },
+    { capabilities: { tools: {} }, instructions: SERVER_INSTRUCTIONS },
+  );
 
   // -------------------------------------------------------------------------
   // Tool listing — auto-generated TMC tools + the meta-tool
@@ -318,7 +348,9 @@ async function main() {
       description:
         "List every configured Talend Cloud and Qlik Cloud tenant (their IDs, labels, regions, " +
         "URLs, default flags, API filters). Use the returned `id` values to target a specific " +
-        'tenant by passing `tenant: "<id>"` to any TMC tool.',
+        'tenant by passing `tenant: "<id>"` to any tool. Tenants and credentials are managed in ' +
+        "the local config console (`npm run config-ui` → http://127.0.0.1:8788), not via tools — " +
+        "direct the user there to add or fix tenants, then restart this MCP server.",
       inputSchema: {
         type: "object",
         properties: {},
