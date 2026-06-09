@@ -252,7 +252,7 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.111.0
     container_name: tmc-mcp-otel-collector
-    profiles: ["otel", "all"]
+    profiles: ["otel"]
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     volumes:
       - ./deploy/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro

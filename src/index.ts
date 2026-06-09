@@ -284,8 +284,15 @@ async function main() {
         isReady: () => ready && !shuttingDown,
       });
     } catch (err) {
-      log.error("metrics server failed to start", { port: metricsPort, err: errMsg(err) });
-      process.exit(1);
+      // Auxiliary: the Prometheus /metrics server is best-effort. A bind failure
+      // (e.g. EADDRINUSE when the Docker healthcheck spawns a probe instance that
+      // collides with the running server's port) must NOT kill the MCP server —
+      // stdio is the product. Log and continue without /metrics.
+      log.warn("metrics server failed to start; continuing without /metrics", {
+        port: metricsPort,
+        err: errMsg(err),
+      });
+      metricsServer = undefined;
     }
   }
 
