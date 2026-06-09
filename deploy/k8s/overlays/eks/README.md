@@ -1,6 +1,6 @@
 # EKS overlay
 
-Production-ish deployment of the Talend TMC MCP observability stack on
+Production-ish deployment of the Qlik Observability Toolkit observability stack on
 Amazon EKS. The overlay adds:
 
 - **gp3 StorageClass** marked as cluster default

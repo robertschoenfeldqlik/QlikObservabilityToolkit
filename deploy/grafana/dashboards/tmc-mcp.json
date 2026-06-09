@@ -12,7 +12,7 @@
       }
     ]
   },
-  "description": "Talend TMC MCP server — request rate, latency, errors, retries, and a correlated log stream from Loki.",
+  "description": "Qlik Observability Toolkit server — request rate, latency, errors, retries, and a correlated log stream from Loki.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -304,7 +304,7 @@
   "time": { "from": "now-30m", "to": "now" },
   "timepicker": {},
   "timezone": "",
-  "title": "Talend TMC MCP",
+  "title": "Qlik Observability Toolkit",
   "uid": "tmc-mcp",
   "version": 1,
   "weekStart": ""

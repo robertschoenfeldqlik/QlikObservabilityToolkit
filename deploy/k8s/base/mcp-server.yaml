@@ -1,4 +1,4 @@
-# The Talend TMC MCP server.
+# The Qlik Observability Toolkit server.
 #
 # Note on protocol: the MCP server is stdio-first. In a Kubernetes pod there
 # is no stdio peer to talk to, so this Deployment exists ONLY so that the

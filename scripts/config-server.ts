@@ -1026,7 +1026,13 @@ async function main() {
   const server = http.createServer((req, res) => handle(req, res, shutdown));
   const port = await listenWithFallback(server, PORT_DEFAULT);
   const url = `http://${HOST}:${port}/`;
-  console.log("Talend TMC MCP — Configuration UI");
+  console.log("Qlik Observability Toolkit — Configuration UI");
+  if (port !== PORT_DEFAULT) {
+    console.log(
+      `  NOTE: port ${PORT_DEFAULT} was already in use (a previous instance may still be running) —` +
+        ` started on ${port} instead. Open the URL below, not :${PORT_DEFAULT}.`,
+    );
+  }
   console.log(`  ${url}`);
   console.log("  Press Ctrl-C to stop.\n");
   if (AUTO_OPEN) openInBrowser(url);
@@ -1048,7 +1054,7 @@ const PAGE_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Talend TMC MCP — Configuration</title>
+<title>Qlik Observability Toolkit — Configuration</title>
 <link rel="preconnect" href="https://rsms.me/">
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 <style>
@@ -1350,7 +1356,7 @@ const PAGE_HTML = `<!DOCTYPE html>
 </head>
 <body>
 <header class="app">
-  <h1>Talend TMC MCP — Configuration</h1>
+  <h1>Qlik Observability Toolkit — Configuration</h1>
   <div class="sub">Multi-tenant config for Talend Cloud + Qlik Cloud, with Python exporter control. Bound to <code style="background:rgba(255,255,255,.15);color:white;">127.0.0.1</code> only.</div>
 </header>
 

@@ -1,5 +1,5 @@
-// Build the Talend TMC MCP architecture deck.
-// Output: Talend-TMC-MCP-Architecture.pptx (at the project root).
+// Build the Qlik Observability Toolkit architecture deck.
+// Output: Qlik-Observability-Toolkit-Architecture.pptx (at the project root).
 //
 // Styled with the Qlik dev-portal palette extracted from the .potx template:
 //   Qlik green   #009845 (primary accent)
@@ -31,8 +31,8 @@ const FONT = "Inter";
 
 const pres = new pptxgenjs();
 pres.layout = "LAYOUT_WIDE"; // 13.333 x 7.5
-pres.title = "Talend TMC MCP Architecture";
-pres.author = "Talend TMC MCP Server";
+pres.title = "Qlik Observability Toolkit Architecture";
+pres.author = "Qlik Observability Toolkit Server";
 pres.company = "Built on the Qlik stack";
 
 // ============================================================================
@@ -649,7 +649,7 @@ pres.company = "Built on the Qlik stack";
 
   // Footer
   s.addShape("rect", { x: 0, y: 7.1, w: 13.333, h: 0.4, fill: { color: QLIK_GREEN } });
-  s.addText("Talend TMC MCP · built on the Qlik stack · Inter typeface · #009845 / #006580 / #19416C", {
+  s.addText("Qlik Observability Toolkit · built on the Qlik stack · Inter typeface · #009845 / #006580 / #19416C", {
     x: 0.5,
     y: 7.16,
     w: 12.5,
@@ -660,6 +660,6 @@ pres.company = "Built on the Qlik stack";
   });
 }
 
-const out = "Talend-TMC-MCP-Architecture.pptx";
+const out = "Qlik-Observability-Toolkit-Architecture.pptx";
 await pres.writeFile({ fileName: out });
 console.log("wrote", out);

@@ -1,6 +1,6 @@
 # Kubernetes deployment guide
 
-The Talend TMC MCP project ships with Kustomize-based Kubernetes manifests
+The Qlik Observability Toolkit project ships with Kustomize-based Kubernetes manifests
 under `deploy/k8s/`. A `base/` folder holds the protocol-agnostic
 manifests; two overlays (`minikube/`, `eks/`) layer on environment-specific
 patches.

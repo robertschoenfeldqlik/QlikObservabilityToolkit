@@ -17,7 +17,7 @@ open http://localhost:9464/metrics  # Raw exposition from the MCP server
 open http://localhost:9464/health   # Readiness probe
 ```
 
-The Grafana dashboard "Talend TMC MCP" lands in the default folder
+The Grafana dashboard "Qlik Observability Toolkit" lands in the default folder
 automatically — no import step.
 
 ## Metrics endpoint
@@ -116,7 +116,7 @@ tool call across retries.
 
 ## Dashboard tour
 
-The provisioned **Talend TMC MCP** dashboard has four sections:
+The provisioned **Qlik Observability Toolkit** dashboard has four sections:
 
 1. **Overview** — six headline stats: tools loaded, in-flight, calls/sec,
    error %, p95 latency, retries/sec.

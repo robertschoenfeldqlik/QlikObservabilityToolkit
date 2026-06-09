@@ -13,7 +13,7 @@ npm run config-ui
 Output:
 
 ```
-Talend TMC MCP — Configuration UI
+Qlik Observability Toolkit — Configuration UI
   http://127.0.0.1:8788/
   Press Ctrl-C to stop.
 ```

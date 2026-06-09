@@ -1,4 +1,4 @@
-# Talend TMC MCP — Documentation
+# Qlik Observability Toolkit — Documentation
 
 An [MCP](https://modelcontextprotocol.io) server that exposes the **Talend
 Cloud (TMC) REST API** as 315 strongly-typed tools, auto-generated from the

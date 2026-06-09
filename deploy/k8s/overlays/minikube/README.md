@@ -1,6 +1,6 @@
 # Minikube overlay
 
-Local dev deployment of the Talend TMC MCP observability stack on a single
+Local dev deployment of the Qlik Observability Toolkit observability stack on a single
 minikube VM. Total memory ask is ~2 GB; allocate at least 4 GB to the VM.
 
 ## 1. Start minikube with the ingress addon

@@ -33,7 +33,7 @@ TMC_PAT=... QLIK_CLOUD_TENANT_URL=... QLIK_CLOUD_API_KEY=... QLIK_CLOUD_CONNECTI
 
 Grafana auto-loads two dashboards:
 
-- **Talend TMC MCP** — server/infra (already covered in [observability.md](./observability.md))
+- **Qlik Observability Toolkit** — server/infra (already covered in [observability.md](./observability.md))
 - **Talend TMC Business + Engine** — the metrics from this doc
 
 ## business-exporter

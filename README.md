@@ -113,7 +113,7 @@ It will call the right Talend tool with `tenant: "dev-eu"`.
                                                        (qvd-exporter)
 ```
 
-There's a 5-slide PowerPoint version too: [`Talend-TMC-MCP-Architecture-Qlik.pptx`](Talend-TMC-MCP-Architecture-Qlik.pptx) (built on the Qlik corporate template).
+There's a 5-slide PowerPoint version too: [`Qlik-Observability-Toolkit-Architecture-Qlik.pptx`](Qlik-Observability-Toolkit-Architecture-Qlik.pptx) (built on the Qlik corporate template).
 
 ---
 
@@ -229,8 +229,8 @@ QlikObservabilityToolkit/
 ├── docker-compose.observability.yml
 ├── Dockerfile                    # multi-stage, alpine, non-root, dumb-init
 ├── HELP.md                       # every external doc reference
-├── Talend-TMC-MCP-Architecture.pptx       # standalone deck
-└── Talend-TMC-MCP-Architecture-Qlik.pptx  # with Qlik corporate template
+├── Qlik-Observability-Toolkit-Architecture.pptx       # standalone deck
+└── Qlik-Observability-Toolkit-Architecture-Qlik.pptx  # with Qlik corporate template
 ```
 
 ---

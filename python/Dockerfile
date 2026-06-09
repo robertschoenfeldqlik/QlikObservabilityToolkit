@@ -41,5 +41,5 @@ ENTRYPOINT ["/usr/bin/tini", "--", "python", "-u"]
 CMD ["exporters/business_exporter.py"]
 
 LABEL org.opencontainers.image.title="Talend TMC Python exporters"
-LABEL org.opencontainers.image.description="Business / Remote Engine / Qlik Cloud QVD exporters for the Talend TMC MCP observability stack."
+LABEL org.opencontainers.image.description="Business / Remote Engine / Qlik Cloud QVD exporters for the Qlik Observability Toolkit observability stack."
 LABEL org.opencontainers.image.licenses="MIT"

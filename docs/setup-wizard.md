@@ -29,7 +29,7 @@ npm run setup
 You'll see a session like this:
 
 ```
-Talend TMC MCP — Setup
+Qlik Observability Toolkit — Setup
 
 This wizard writes credentials to:
   C:\Users\you\AppData\Roaming\talend-tmc-mcp\config.json

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 #
-# Multi-stage build for the Talend TMC MCP server.
+# Multi-stage build for the Qlik Observability Toolkit server.
 #
 # Stage 1 (builder): install all deps, fetch the upstream OpenAPI specs,
 # and compile TypeScript.
@@ -93,8 +93,8 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=10s --retries=3 \
 ENTRYPOINT ["dumb-init", "--", "node", "dist/index.js"]
 
 # Image labels for `docker inspect` / registry metadata.
-LABEL org.opencontainers.image.title="Talend TMC MCP Server"
+LABEL org.opencontainers.image.title="Qlik Observability Toolkit Server"
 LABEL org.opencontainers.image.description="MCP server exposing the Talend Cloud REST API as 315 tools, auto-generated from OpenAPI specs."
 LABEL org.opencontainers.image.source="https://github.com/<owner>/<repo>"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.vendor="Talend TMC MCP contributors"
+LABEL org.opencontainers.image.vendor="Qlik Observability Toolkit contributors"

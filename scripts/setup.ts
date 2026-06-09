@@ -46,7 +46,7 @@ async function main() {
   }
 
   const path = configPath();
-  console.log("Talend TMC MCP — Setup\n");
+  console.log("Qlik Observability Toolkit — Setup\n");
   console.log("This wizard writes credentials to:");
   console.log(`  ${path}`);
   console.log("The MCP server reads this on startup. TMC_PAT / TMC_REGION / TMC_APIS");
@@ -183,7 +183,7 @@ function parseApisFlag(value: string): TmcApi[] | undefined {
 }
 
 function printHelp() {
-  console.log(`Talend TMC MCP — Setup
+  console.log(`Qlik Observability Toolkit — Setup
 
 Usage:
   npm run setup                              # interactive wizard

@@ -1,4 +1,4 @@
-# Full observability stack for the Talend TMC MCP server.
+# Full observability stack for the Qlik Observability Toolkit server.
 #
 #   docker compose -f docker-compose.observability.yml up -d
 #
