@@ -2,7 +2,7 @@
 
 The `qvd-exporter` is the bridge between Prometheus and Qlik Cloud
 Analytics. **The goal is to pull raw observability time-series out of
-Prometheus and land them in a Qlik Sense app so an analyst can do deep
+Prometheus and land them in a Qlik Cloud Analytics app so an analyst can do deep
 BI, correlation, and historical trend analysis** — without giving them a
 PromQL learning curve or asking them to scrape Prometheus from Qlik.
 
@@ -18,7 +18,7 @@ PromQL learning curve or asking them to scrape Prometheus from Qlik.
                                        └──────────────────┘                                     │
                                                                                                 ▼
                                                                                         ┌────────────────┐
-                                                                                        │  Qlik Sense    │
+                                                                                        │  Qlik Cloud Analytics    │
                                                                                         │  Cloud app     │
                                                                                         │  (load script  │
                                                                                         │   reads QVD)   │
@@ -26,7 +26,7 @@ PromQL learning curve or asking them to scrape Prometheus from Qlik.
 ```
 
 The QVD is rewritten and re-uploaded on every tick (default every
-15 min) using the same filename. The Qlik Sense app reloads on its own
+15 min) using the same filename. The Qlik Cloud Analytics app reloads on its own
 schedule.
 
 ## QVD schema — long-form, analyst-friendly
@@ -59,9 +59,9 @@ Timestamp,Metric,tool,status,workspace,reason,engine,environment,Value
 2026-06-09T10:01:00Z,engine_jobs_failed_rate,,,ws-B,,engine-demo-01,,0.03
 ```
 
-## Loading into a Qlik Sense app
+## Loading into a Qlik Cloud Analytics app
 
-In your Qlik Sense Cloud app's data load editor:
+In your Qlik Cloud Analytics app's data load editor:
 
 ```qlik
 SET vQvd = 'lib://DataFiles/talend_observability.qvd';
@@ -132,7 +132,7 @@ into a specific data connection.
 
 ### 1. Generate an API key
 
-Qlik Sense Cloud hub → **Profile → Settings → API keys → Generate new
+Qlik Cloud Analytics hub → **Profile → Settings → API keys → Generate new
 key**. Default lifetime is 30 days; bump it. Treat the key like a PAT —
 once generated, it's only visible once.
 
@@ -176,7 +176,7 @@ curl http://127.0.0.1:9467/metrics | grep qvd_exporter
 # qvd_exporter_runs_total{outcome="success"} >= 1
 ```
 
-In the Qlik Sense hub, **Catalog → My data files** should list
+In the Qlik Cloud Analytics hub, **Catalog → My data files** should list
 `talend_observability.qvd` with a fresh modified timestamp.
 
 ## What to build in the Qlik app

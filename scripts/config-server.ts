@@ -1103,9 +1103,9 @@ const PAGE_HTML = `<!DOCTYPE html>
     --text: #F6F7F8;
     --muted: #A9B3B6;
     --muted-2: #7d8a8e;
-    --accent: #10CFC9;
-    --accent-fg: #1B2128;
-    --accent-dark: #0aa8a3;
+    --accent: #15B85F;
+    --accent-fg: #11181F;
+    --accent-dark: #11A050;
     --teal: #006580;
     --teal-bright: #10CFC9;
     --deep-blue: #19416C;
@@ -1365,6 +1365,14 @@ const PAGE_HTML = `<!DOCTYPE html>
   <div class="sub">Multi-tenant config for Talend Cloud + Qlik Cloud, with Python exporter control. Bound to <code style="background:rgba(255,255,255,.15);color:white;">127.0.0.1</code> only.</div>
 </header>
 
+<div id="statusbar" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:7px 18px;background:var(--panel);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);">
+  <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--accent);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;"></span>loopback only</span>
+  <span>config:&nbsp;<code id="sbPath" style="color:var(--text);background:var(--code-bg);padding:1px 6px;border-radius:4px;">…</code></span>
+  <span>keyring:&nbsp;<span id="sbKeyring" style="color:var(--text);font-weight:600;">…</span></span>
+  <span style="flex:1;"></span>
+  <button id="sbThemeBtn" title="Cycle theme (light → dark → high-contrast)" style="background:transparent;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 11px;cursor:pointer;font-size:12px;font-weight:600;">◐ Theme</button>
+</div>
+
 <main>
   <div class="tabs">
     <button class="tab active" data-tab="talend">Talend Cloud</button>
@@ -1429,7 +1437,7 @@ const PAGE_HTML = `<!DOCTYPE html>
   <div id="tab-help" class="tab-panel">
     <div class="panel">
       <h2 style="margin-top:0;">Qlik Observability Toolkit — help</h2>
-      <p class="lead" style="margin-top:4px;">An observability toolkit for Talend Cloud and Qlik Cloud. It surfaces read-only operational signals — task/job runs, execution logs, execution history, Remote Engine job logs, and Qlik app reloads — to an MCP client, to Prometheus + Grafana, and to Qlik Sense via QVD.</p>
+      <p class="lead" style="margin-top:4px;">An observability toolkit for Talend Cloud and Qlik Cloud. It surfaces read-only operational signals — task/job runs, execution logs, execution history, Remote Engine job logs, and Qlik app reloads — to an MCP client, to Prometheus + Grafana, and to Qlik Cloud Analytics via QVD.</p>
       <p class="hint" style="margin-bottom:0;">Everything here is scoped to <strong>observability</strong>. The MCP server loads only the observability endpoints by default — 8 read-only tools plus the <code>tmc_list_environments</code> tenant-discovery tool. No orchestration or admin endpoints are exposed.</p>
     </div>
 
@@ -1498,6 +1506,24 @@ const PAGE_HTML = `<!DOCTYPE html>
 qlik-engine-extractor doctor   # checks the log path + that job logging is ON
 qlik-engine-extractor run</pre>
       <p class="hint" style="margin:0;">Agents heartbeat to this UI every 30s — watch them under <strong>Exporters → Registered extractor agents</strong>. The agent is headless; manage it only from this control plane.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Export to Datadog &amp; Splunk (OpenTelemetry)</h2>
+      <p>An optional <strong>OpenTelemetry Collector</strong> fans the toolkit's signals out to <strong>Datadog</strong> and <strong>Splunk Observability Cloud</strong> — in addition to Prometheus/Grafana/Qlik. Metrics need no app changes (the collector scrapes the same <code>/metrics</code>); logs come from container logs; traces are opt-in.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px;">
+        <span class="pill running">metrics → datadog · signalfx</span>
+        <span class="pill running">logs → datadog · splunk_hec</span>
+        <span class="pill running">traces (OTLP) → datadog · signalfx</span>
+      </div>
+      <p style="margin:0 0 4px;">1 · Set credentials, then bring up the collector behind the <code>otel</code> profile:</p>
+      <pre style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0;">export DD_API_KEY=...   DD_SITE=datadoghq.com
+export SPLUNK_ACCESS_TOKEN=...   SPLUNK_REALM=us0
+npm run deploy -- --target docker --profile otel</pre>
+      <p style="margin:0 0 4px;">2 · (Optional) emit traces from the MCP server:</p>
+      <pre style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0;">npm i @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node @opentelemetry/exporter-trace-otlp-http
+export TMC_OTLP_ENDPOINT=http://localhost:4318</pre>
+      <p class="hint" style="margin:0;">Collector config: <code>deploy/otel-collector.yaml</code> (OTLP on 4317/4318, health on 13133). Full guide: <a href="https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit/blob/main/docs/otel-export.md" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">docs/otel-export.md</a>. Prefer Splunk Enterprise (HEC)? Swap the <code>signalfx</code> exporter for <code>splunk_hec</code>.</p>
     </div>
 
     <div class="panel">
@@ -1678,6 +1704,9 @@ function renderAbout() {
   $("aboutPath").textContent = _snap.configPath;
   const kc = _snap.keychain;
   $("aboutKeychain").textContent = kc.available ? \`available (\${kc.backend})\` : \`unavailable — \${kc.reason || "no backend"}\`;
+  // Mirror key facts into the status top bar.
+  const sbPath = $("sbPath"); if (sbPath) sbPath.textContent = _snap.configPath;
+  const sbKc = $("sbKeyring"); if (sbKc) sbKc.textContent = kc.available ? kc.backend : "off · encrypted file";
 }
 
 function baseUrlForRegion(region) {
@@ -1788,6 +1817,11 @@ function initThemePicker() {
     r.addEventListener("change", () => { if (r.checked) applyTheme(r.value); });
   });
 }
+function cycleTheme() {
+  const next = VALID_THEMES[(VALID_THEMES.indexOf(getStoredTheme()) + 1) % VALID_THEMES.length];
+  applyTheme(next);
+  initThemePicker();
+}
 
 // Tab switching
 document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
@@ -1797,6 +1831,9 @@ document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", (
   if (btn.dataset.tab === "exporters") { loadExporters(); loadAgents(); }
   if (btn.dataset.tab === "about") initThemePicker();
 }));
+
+// Status-bar theme toggle.
+{ const _sbt = $("sbThemeBtn"); if (_sbt) _sbt.addEventListener("click", cycleTheme); }
 
 // Card action dispatch
 document.addEventListener("click", async (e) => {

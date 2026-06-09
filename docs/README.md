@@ -27,7 +27,7 @@ with an explicit `TMC_APIS` list.
 | Tune logging, retries, signals, exit codes | [operations.md](./operations.md) |
 | Scrape metrics into Prometheus + Grafana, ship logs to Loki | [observability.md](./observability.md) |
 | Pull Talend business + Remote Engine job metrics into Prometheus | [business-metrics.md](./business-metrics.md) |
-| Land Prometheus time-series into a Qlik Sense Cloud app as a QVD | [qlik-export.md](./qlik-export.md) |
+| Land Prometheus time-series into a Qlik Cloud Analytics app as a QVD | [qlik-export.md](./qlik-export.md) |
 | Fix something that's broken | [troubleshooting.md](./troubleshooting.md) |
 | See / re-run security scans (Trivy, npm audit) | [security-scans.md](./security-scans.md) |
 | Hack on the server, refresh specs, add features | [development.md](./development.md) |

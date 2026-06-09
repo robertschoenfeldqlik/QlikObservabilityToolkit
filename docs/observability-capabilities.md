@@ -7,7 +7,7 @@ The Qlik Observability Toolkit observes two domains — **Talend Cloud** (orches
 | **MCP tools** | Read-only tools an AI agent (Claude, etc.) calls over stdio to ask live questions ("which reloads failed today?", "show the last 10 task runs"). |
 | **Prometheus** | Time-series metrics scraped from the MCP server and the Python exporters. |
 | **Grafana + Loki** | Dashboards over those metrics + a correlated log stream. |
-| **Qlik Sense (via QVD)** | The QVD bridge lands Prometheus data in a Qlik app for BI-style trend analysis. |
+| **Qlik Cloud Analytics (via QVD)** | The QVD bridge lands Prometheus data in a Qlik app for BI-style trend analysis. |
 
 Everything is **read-only** and **multi-tenant**: every MCP tool and every exporter is keyed by a `tenant` id, so one deployment can watch many Talend and many Qlik tenants at once.
 
@@ -104,7 +104,7 @@ Discover ids with the `tmc_list_environments` meta-tool, then pass `tenant: "<id
 
 ---
 
-## 4. How it reaches a Qlik Sense app
+## 4. How it reaches a Qlik Cloud Analytics app
 
 The QVD bridge turns Prometheus series into long-form rows (`timestamp, metric, labels, value`), writes a QVD with `pyqvd`, and uploads it through the Qlik Cloud **Data Files API** to a connection in your Qlik tenant — where an analyst app can chart Talend + Qlik observability trends side by side. See [qlik-export.md](./qlik-export.md).
 

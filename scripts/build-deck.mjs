@@ -68,7 +68,7 @@ pres.company = "Built on the Qlik stack";
     color: SLATE,
     bold: true,
   });
-  s.addText("MCP server · Prometheus · Loki · Grafana · Python exporters · OpenTelemetry · Qlik Sense", {
+  s.addText("MCP server · Prometheus · Loki · Grafana · Python exporters · OpenTelemetry · Qlik Cloud Analytics", {
     x: 1.0,
     y: 3.5,
     w: 11.5,
@@ -202,7 +202,7 @@ pres.company = "Built on the Qlik stack";
   // Sink plane
   card(9.5, rowY(0), 3.15, cardH, "prometheus.png", "Prometheus", "scrape all /metrics · 14d", SLATE);
   card(9.5, rowY(1), 3.15, cardH, "grafana.png", "Loki + Grafana", "logs + 2 dashboards", TEAL_BRIGHT);
-  card(9.5, rowY(2), 3.15, cardH, "qlik-app.png", "Qlik Sense Cloud app", "QVD-driven trend / BI", QLIK_GREEN);
+  card(9.5, rowY(2), 3.15, cardH, "qlik-app.png", "Qlik Cloud Analytics app", "QVD-driven trend / BI", QLIK_GREEN);
 
   // ---- Connector arrows between planes ----
   const arrow = (x1, y1, x2, y2, color) => {

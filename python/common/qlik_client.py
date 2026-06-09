@@ -11,7 +11,7 @@ Endpoint:
 
 Connection ID is mandatory when uploading a NEW file (which data connection
 should own it). For most tenants the default personal connection is
-"DataFiles". Discover yours from the Qlik Sense Hub or via the
+"DataFiles". Discover yours from the Qlik Cloud Analytics Hub or via the
 data-files-connections API.
 
 References:

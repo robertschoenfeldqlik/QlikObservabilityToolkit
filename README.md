@@ -3,7 +3,7 @@
 
 # Qlik Observability Toolkit
 
-**One-stop observability for Talend Cloud, Talend Remote Engines, and Qlik Cloud — with MCP integration for Claude and a bridge into Qlik Sense apps.**
+**One-stop observability for Talend Cloud, Talend Remote Engines, and Qlik Cloud — with MCP integration for Claude and a bridge into Qlik Cloud Analytics apps.**
 
 [![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF)](.github/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-009845)](LICENSE)
@@ -17,7 +17,7 @@
 
 ## What's in the box
 
-A complete, production-shaped observability stack for **Talend Cloud + Talend Remote Engine + Qlik Cloud**, deployable on Docker Compose, minikube, or EKS, and wired into Claude through MCP. Designed for organizations that run Talend pipelines and want their pipeline health visible in Grafana **and** their Qlik Sense analysts able to correlate it with business data.
+A complete, production-shaped observability stack for **Talend Cloud + Talend Remote Engine + Qlik Cloud**, deployable on Docker Compose, minikube, or EKS, and wired into Claude through MCP. Designed for organizations that run Talend pipelines and want their pipeline health visible in Grafana **and** their Qlik Cloud Analytics analysts able to correlate it with business data.
 
 | Layer | What it does |
 |---|---|
@@ -103,8 +103,8 @@ It will call the right Talend tool with `tenant: "dev-eu"`.
                                                 │
                                   ┌─────────────┼─────────────┐
                                   ▼             ▼             ▼
-                              Grafana         Loki        Qlik Sense
-                          (2 dashboards) (structured     Cloud app
+                              Grafana         Loki        Qlik Cloud
+                          (2 dashboards) (structured     Analytics app
                                           JSON logs)    (QVD-driven
                                                          trend/BI)
                                                             ▲
