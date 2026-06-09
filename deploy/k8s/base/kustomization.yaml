@@ -1,0 +1,52 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Every resource lands in talend-tmc-mcp. Overlays may patch this if you
+# want to deploy into a different namespace.
+namespace: talend-tmc-mcp
+
+# Note: we deliberately do NOT use `commonLabels` here. kustomize injects
+# common labels into selectors as well, and Service/Deployment selectors
+# are immutable post-create — so a future label tweak would force a
+# delete-and-recreate. Each manifest sets app.kubernetes.io/part-of
+# explicitly instead.
+
+resources:
+  - namespace.yaml
+  - mcp-server.yaml
+  - business-exporter.yaml
+  - engine-log-scraper.yaml
+  - qvd-exporter.yaml
+  - qlik-obs-exporter.yaml
+  - prometheus.yaml
+  - loki.yaml
+  - promtail.yaml
+  - grafana.yaml
+  # secrets.example.yaml is intentionally NOT included. It's a template.
+  # Overlays bring in their own real Secret (manifest, sealed-secret,
+  # ExternalSecret, etc.).
+
+# Pull the Grafana dashboard JSON straight out of deploy/grafana/dashboards/
+# rather than duplicating ~600 lines of dashboard payload in YAML. The
+# generated ConfigMap name `grafana-dashboards` matches the volume in
+# grafana.yaml.
+configMapGenerator:
+  - name: grafana-dashboards
+    files:
+      - ../../grafana/dashboards/tmc-mcp.json
+      - ../../grafana/dashboards/tmc-business.json
+    options:
+      # Without this, kustomize appends a hash suffix to the ConfigMap name
+      # for immutable rollout. Convenient for prod, but it means the
+      # Deployment volume reference (which uses the bare name) has to be
+      # rewritten on every change. Disable to keep the name stable.
+      disableNameSuffixHash: true
+
+images:
+  # Pin these to whatever you tagged your build with. Overlays override
+  # newName/newTag — the EKS overlay points at ECR, the minikube overlay
+  # leaves them alone so `minikube image load` Just Works.
+  - name: talend-tmc-mcp
+    newTag: latest
+  - name: talend-tmc-python-exporters
+    newTag: obs

@@ -1,0 +1,875 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Dynamic Engine Environments",
+    "description": "Manage and assign your Environments to Dynamic Engines. ",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "paths": {
+    "/orchestration/dynamic-engine-environments": {
+      "summary": "Dynamic Engine Environments",
+      "description": "While providing all capacity related to Environments (see description), Dynamic Engine Environment also brings Dynamic Engine processing for all tasks or plans defined within. \n\nThis **processing capacity** is provided through the assignment of your Environment to one (and one only) available Dynamic Engine. Doing so, you dont need to provide any Engine definition on the task level.  \n\nThis processing capacity is **exclusive**, meaning all tasks or plans defined in your Environment will target this Dynamic Engine for execution. \n\nThe **status** of your Dynamic Engine Environment reflects both this assignment state and the **processing readiness state**. ",
+      "post": {
+        "summary": "Create new Dynamic Engine Environment",
+        "description": "A Dynamic Engine Environment is an Environment that can be assigned to one Dynamic Engine. \n\nWhile keeping all existing capability available on Environments, it also brings Dynamic Engine targeted executions :  once connected, all executions of any task or plan defined within this Environment will occur on the assigned Dynamic Engine. Please consult Connection sub-resource to learn more about Dynamic Engine connection facility.\n\nPre-requisites : \n* User should be entitled Environments Manage permission, provided through Environment Administrator Role or your custom one. \n* environment name must be unique (leading or trailing spaces are removed)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEngineEnvironmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Status 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DEEnvironment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Incorrect request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to create the environment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Environment name should be unique",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orchestration/dynamic-engine-environments/{environmentId}": {
+      "get": {
+        "summary": "Retrieves a Dynamic Engine Environment",
+        "description": "Pre-requisites : \n* User should be entitled Environments Manage permission, provided through Environment Administrator Role or your custom one. ",
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DEEnvironment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Status 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update one Dynamic Engine Environment",
+        "description": "Allows to update name, description as well as particular Log and Metrics policy regarding this Dynamic Engine Environment. Doing so, you can override default policy set globally on the Dynamic Engine for logs and metrics storage location (Cloud vs Nil only for Beta)\n\nPre-requisites : \n* User should be entitled Environments Manage permission, provided through Environment Administrator Role or your custom one. \n* Environment name must be unique (leading or trailing spaces are removed)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEngineEnvironmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DEEnvironment"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Environment successfully updated"
+          },
+          "400": {
+            "description": "Status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Status 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Status 409",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Removes a Dynamic Engine Environment",
+        "description": "Allows to remove this Environment. Please be aware : \n* when assigned, a Dynamic Engine Environment **wont** be removed\n* when accepted the removal of an Environment **cant be cancelled**\n* all subsidiary elements within the Environment (tasks, plans, workspaces, etc.) **will be removed along** with the removal of the Environment itself\n\nPre-requisites : \n* User should be entitled Environments Manage permission, provided through Environment Administrator Role or your custom one. ",
+        "responses": {
+          "204": {
+            "description": "DP Environment successfully removed"
+          },
+          "400": {
+            "description": "Incorrect request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User doesn't have sufficient permissions to complete a request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "DP Environment has an established connection to Data Plane, disconnection is required prior to removal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "environmentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/orchestration/dynamic-engine-environments/{environmentId}/connection": {
+      "post": {
+        "summary": "Create an assignment between this Environment and a Dynamic Engine",
+        "description": "Pre-requisites : \n* Environment should not already be assigned to any Dynamic Engine\n* Dynamic Engine should already be fully connected to TMC\n* User should be entitled Engine Manage permission, provided through Infrastructure Administrator Role or your custom one. ",
+        "parameters": [
+          {
+            "name": "dynamicEngineId",
+            "in": "query",
+            "required": true,
+            "description": "Identifier of the Dynamic Engine cluster to assign to",
+            "schema": {
+              "type": "string",
+              "description": "Identifier of the Dynamic Engine cluster to assign to"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Environment connection to the data plane is processing",
+            "headers": {
+              "Location": {
+                "description": "Connection link unique id",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "description": "Connection link unique id"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Environment is already connected to this data plane",
+            "headers": {
+              "Location": {
+                "description": "Connection link unique id",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "description": "Connection link unique id"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The environment is already connected to some different DataPlane",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The data plane is not ready for connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Namespace allocation is not possible / timeout on comm with DP / etc",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Unassign Environment from Dynamic Engine",
+        "description": "Pre-requisites : \n* Environment should actually be assigned\n* User should be entitled Engine Manage permission, provided through Infrastructure Administrator Role or your custom one. ",
+        "responses": {
+          "202": {
+            "description": "Unconnected accepted"
+          },
+          "204": {
+            "description": "Environment is already unconnected"
+          },
+          "400": {
+            "description": "Status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "environmentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/orchestration/dynamic-engine-environments/search": {
+      "post": {
+        "summary": "Search Dynamic Engine Environments",
+        "description": "Search capacity allowing to list Dynamic Engine Environments and filter by name, status and dynamic engine. Paginated. \n\nPre-requisites : \n* User should be entitled Environments Manage permission, provided through Environment Administrator Role or your custom one. \n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchDynamicEngineEnvironmentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DEEnvironmentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Status 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DEEnvironment": {
+        "type": "object",
+        "required": [
+          "description",
+          "id",
+          "logStrategy",
+          "metricsStrategy",
+          "name",
+          "status"
+        ],
+        "description": "While providing all capacity related to Environments (see description), Dynamic Engine Environment also brings Dynamic Engine processing for all tasks or plans defined within. \n\nThis **processing capacity** is provided through the assignment of your Environment to one (and one only) available Dynamic Engine. Doing so, you dont need to provide any Engine definition on the task level.  \n\nThis processing capacity is **exclusive**, meaning all tasks or plans defined in your Environment will target this Dynamic Engine for execution. \n\nThe **status** as defined here on Dynamic Engine Environment reflects both this assignment state and the **processing readiness state**. ",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Unique name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description"
+          },
+          "deId": {
+            "type": "string",
+            "description": "Identifier of the Dynamic Engine this Environment might be connected to"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of your Dynamic Engine Environment. Possible statuses are the following :\n\n**Not Assigned** : Environment can be used for any Orchestration/configuration action : add workspace, etc.\n\n**Set Up Required** : Transitional state. Some DE link is configured but technical setup is still required in order for Processing to be available for your Environment. Please ask your Infra Admin. \n\n**Ready** : Ressources for your Environment have been installed successfully. Processing is fully available.\n\n**Not Ready** : Error state. DE link is configured but some error occured on Dynamic Engine. Please check with your Infra Admin.",
+            "enum": [
+              "NOT_ASSIGNED",
+              "SET_UP_REQUIRED",
+              "READY",
+              "NOT_READY"
+            ]
+          },
+          "logStrategy": {
+            "type": "string",
+            "description": "DynamicEngine Strategy on logs regarding this Environment's executions",
+            "enum": [
+              "NONE",
+              "CONTROL_PLANE",
+              "DYNAMIC_ENGINE"
+            ]
+          },
+          "metricsStrategy": {
+            "type": "string",
+            "description": "DynamicEngine Strategy on metrics regarding this Environment's executions",
+            "enum": [
+              "NONE",
+              "CONTROL_PLANE",
+              "DYNAMIC_ENGINE"
+            ]
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Username of user who created Dynamic Engine Environment",
+            "example": "admin"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation Date of Dynamic Engine Environment"
+          },
+          "lastModifiedBy": {
+            "type": "string",
+            "description": "Username of user who last updated Dynamic Engine Environment",
+            "example": "admin"
+          },
+          "lastModifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date of the last modification made by user"
+          },
+          "creatorType": {
+            "type": "string",
+            "description": "Type of user who created Dynamic Engine Environment, either HUMAN or SERVICE",
+            "enum": [
+              "HUMAN",
+              "SERVICE"
+            ],
+            "example": "SERVICE"
+          },
+          "modifierType": {
+            "type": "string",
+            "description": "Type of user who last modified Dynamic Engine Environment, either HUMAN or SERVICE",
+            "enum": [
+              "HUMAN",
+              "SERVICE"
+            ],
+            "example": "HUMAN"
+          },
+          "linkId": {
+            "type": "string",
+            "description": "Dynamic Engine Assignment link unique id. Unmutable data allowing to setup and cleanup resources on the Dynamic Engine for your Environment."
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 401
+          },
+          "message": {
+            "type": "string",
+            "description": "Info about the error for user",
+            "example": "Forbidden"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Info about error for developer.",
+            "example": "Token authorization is required for access"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "The unique identification of the request involved with this error",
+            "example": "16fefb53-035a-4249-af9d-f80a3b47b132"
+          }
+        }
+      },
+      "CreateDynamicEngineEnvironmentRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "workspaceName"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "logStrategy": {
+            "type": "string",
+            "description": "default value is NONE",
+            "enum": [
+              "NONE",
+              "CONTROL_PLANE",
+              "DYNAMIC_ENGINE"
+            ]
+          },
+          "metricsStrategy": {
+            "type": "string",
+            "description": "default value is NONE",
+            "enum": [
+              "NONE",
+              "CONTROL_PLANE",
+              "DYNAMIC_ENGINE"
+            ]
+          }
+        }
+      },
+      "SearchDynamicEngineEnvironmentsRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "like filter on name"
+          },
+          "deId": {
+            "type": "string",
+            "description": "Dynamic Engine identifier"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "sort order of fetched dynamic engine environments",
+            "default": "DESC",
+            "enum": [
+              "ASC",
+              "DESC"
+            ],
+            "example": "DESC"
+          },
+          "sortBy": {
+            "type": "string",
+            "description": "attribute dynamic engine environments are sorted by, sorted by creation time by default",
+            "enum": [
+              "NAME",
+              "STATUS"
+            ],
+            "example": "\"status\""
+          },
+          "status": {
+            "type": "string",
+            "description": "Environment Dynamic Engine Connection Status",
+            "enum": [
+              "NOT_ASSIGNED",
+              "SET_UP_REQUIRED",
+              "READY",
+              "NOT_READY"
+            ]
+          }
+        }
+      },
+      "UpdateDynamicEngineEnvironmentRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "logStrategy": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "CONTROL_PLANE",
+              "DYNAMIC_ENGINE"
+            ]
+          },
+          "metricsStrategy": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "CONTROL_PLANE",
+              "DYNAMIC_ENGINE"
+            ]
+          }
+        }
+      },
+      "DEEnvironmentPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DEEnvironment"
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ]
+}

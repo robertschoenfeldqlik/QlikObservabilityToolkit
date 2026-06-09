@@ -1,0 +1,51 @@
+# Minikube Ingress for the observability UI (Grafana) and, optionally,
+# direct Prometheus access for ad-hoc queries.
+#
+# Requires the ingress addon:
+#   minikube addons enable ingress
+#
+# Resolve grafana.tmc.local + prometheus.tmc.local locally:
+#   - On macOS/Linux: add `<minikube ip> grafana.tmc.local prometheus.tmc.local` to /etc/hosts
+#   - Or: `minikube tunnel` to get a routable LoadBalancer IP, then use that.
+#
+# Or just port-forward: `kubectl -n talend-tmc-mcp port-forward svc/grafana 3000:3000`.
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tmc-mcp-grafana
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grafana.tmc.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tmc-mcp-prometheus
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: prometheus.tmc.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090

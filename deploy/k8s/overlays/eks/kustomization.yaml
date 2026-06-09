@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: talend-tmc-mcp
+
+resources:
+  - ../../base
+  - storageclass.yaml
+  - irsa-patches.yaml
+  - external-secret.yaml
+  - ingress.yaml
+
+# Production-friendly bumps to the resource asks the base ships with —
+# these match a small but real workload.
+patches:
+  - target:
+      kind: Deployment
+      name: prometheus
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+  - target:
+      kind: Deployment
+      name: loki
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1500m
+            memory: 2Gi
+  # Pin all PVCs to the gp3 StorageClass.
+  - target:
+      kind: PersistentVolumeClaim
+      name: prometheus-data
+    patch: |-
+      - op: add
+        path: /spec/storageClassName
+        value: gp3
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 50Gi
+  - target:
+      kind: PersistentVolumeClaim
+      name: loki-data
+    patch: |-
+      - op: add
+        path: /spec/storageClassName
+        value: gp3
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 50Gi
+  - target:
+      kind: PersistentVolumeClaim
+      name: qvd-data
+    patch: |-
+      - op: add
+        path: /spec/storageClassName
+        value: gp3
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 10Gi
+
+# Override the image names to point at the customer's ECR. The placeholders
+# below must be substituted with your actual account ID / region before
+# `kubectl apply`. Easiest way: keep this file as-is and override on the
+# command line:
+#   kubectl kustomize deploy/k8s/overlays/eks \
+#     | sed 's|<account>|123456789012|; s|<region>|us-east-1|' \
+#     | kubectl apply -f -
+images:
+  - name: talend-tmc-mcp
+    newName: <account>.dkr.ecr.<region>.amazonaws.com/talend-tmc-mcp
+    newTag: latest
+  - name: talend-tmc-python-exporters
+    newName: <account>.dkr.ecr.<region>.amazonaws.com/talend-tmc-python-exporters
+    newTag: obs

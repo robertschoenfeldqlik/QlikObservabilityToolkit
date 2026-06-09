@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: talend-tmc-mcp
+
+resources:
+  - ../../base
+  # The example Secret is suitable for local development — DO NOT use this
+  # path in any shared cluster. See base/secrets.example.yaml for the
+  # required keys.
+  - ../../base/secrets.example.yaml
+  - ingress.yaml
+
+# Tighter resource asks for a 4 GB minikube VM. The base limits would
+# starve a small dev profile.
+patches:
+  - target:
+      kind: Deployment
+      name: prometheus
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+  - target:
+      kind: Deployment
+      name: loki
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+  - target:
+      kind: Deployment
+      name: grafana
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 384Mi
+  # Shrink storage requests so the default minikube hostpath provisioner
+  # doesn't gobble the VM disk.
+  - target:
+      kind: PersistentVolumeClaim
+      name: prometheus-data
+    patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 2Gi
+  - target:
+      kind: PersistentVolumeClaim
+      name: loki-data
+    patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 2Gi
+  - target:
+      kind: PersistentVolumeClaim
+      name: qvd-data
+    patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 1Gi
+
+# Don't go fetch images — we expect them to have been loaded into the
+# minikube VM via `minikube image load talend-tmc-mcp:latest`. The Never
+# pull policy makes that explicit instead of giving an opaque ImagePullBackOff.
+images:
+  - name: talend-tmc-mcp
+    newTag: latest
+  - name: talend-tmc-python-exporters
+    newTag: obs

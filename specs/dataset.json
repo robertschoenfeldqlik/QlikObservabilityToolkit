@@ -1,0 +1,2190 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Dataset",
+    "description": "Manage the datasources referenced in Talend Cloud applications and the configuration and metadata associated to these datasources (attributes, data types, data quality).",
+    "contact": {
+      "name": "Talend"
+    },
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/datasets": {
+      "get": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "Get the list of datasets",
+        "description": "A dataset is a collection of data retrieved from a connection. Use this method to list all the datasets that have been created for a given user account.",
+        "operationId": "listDatasets",
+        "parameters": [
+          {
+            "name": "flat",
+            "in": "query",
+            "description": "A dataset is flat when it only contains simple types (not nested)",
+            "schema": {
+              "type": "string",
+              "description": "A dataset is flat when it only contains simple types (not nested)",
+              "enum": [
+                "false",
+                "true"
+              ]
+            }
+          },
+          {
+            "name": "tqlQuery",
+            "in": "query",
+            "description": "Filter on dataset's list by using TQL (Talend Query Language)",
+            "schema": {
+              "type": "string",
+              "description": "Filter on dataset's list by using TQL (Talend Query Language)"
+            }
+          },
+          {
+            "name": "favorite",
+            "in": "query",
+            "description": "Filter on dataset's favorite status",
+            "schema": {
+              "type": "string",
+              "description": "Filter on dataset's favorite status",
+              "enum": [
+                "false",
+                "true"
+              ]
+            }
+          },
+          {
+            "name": "sameSchemaAs",
+            "in": "query",
+            "description": "Filter on datasets which have the same schema as the targeted dataset",
+            "schema": {
+              "type": "string",
+              "description": "Filter on datasets which have the same schema as the targeted dataset"
+            },
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Order for the sort: ascending or descending, should be paired with the sortBy parameter",
+            "schema": {
+              "type": "string",
+              "description": "Order for the sort: ascending or descending, should be paired with the sortBy parameter",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort on datasets' list with a field name, should be paired with the sortOrder parameter",
+            "schema": {
+              "type": "string",
+              "description": "Sort on datasets' list with a field name, should be paired with the sortOrder parameter"
+            }
+          },
+          {
+            "name": "cloudrunner",
+            "in": "query",
+            "description": "Filter on dataset's connection remote engine type",
+            "schema": {
+              "type": "string",
+              "description": "Filter on dataset's connection remote engine type",
+              "enum": [
+                "false",
+                "true"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatasetResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/{datasetId}": {
+      "get": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "Get a dataset",
+        "description": "A dataset is a collection of data retrieved from a connection. Use this method to get information on a dataset based on its id.",
+        "operationId": "get",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dataset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "Delete a dataset",
+        "description": "A dataset is a collection of data retrieved from a connection. Use this method to delete a dataset based on its id.",
+        "operationId": "delete",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "datasetId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/datasets/{datasetId}/certification": {
+      "put": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "Set the certification state of a dataset",
+        "description": "Use this method to add a certification level to a dataset that has trusted data. There are three certification statuses:\n* no certification\n* certification pending\n* certified",
+        "operationId": "updateCertification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CertificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "datasetId",
+          "in": "path",
+          "required": true,
+          "description": "Id of dataset to update the certification",
+          "schema": {
+            "type": "string",
+            "description": "Id of dataset to update the certification"
+          }
+        }
+      ]
+    },
+    "/datasets/{datasetId}/attributes": {
+      "get": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "List custom attributes values for a dataset",
+        "description": "A predefined list of values or free text can be used to add metadata to a dataset based on the configured attribute definition. Use this method to list all the custom attributes values that have been applied on a given dataset based on its id.",
+        "operationId": "listValuesByDataset",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "custom",
+                "built-in"
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of rows to ignore before the beginning of the result set",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The number of rows to ignore before the beginning of the result set",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomAttributeValueDatasetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "datasetId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/datasets/{datasetId}/attributes/{id}": {
+      "put": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "Set or update a custom attribute value for a dataset",
+        "description": "Use this method to set or update a custom attribute value applied on a given dataset.\n* In the case of a `List of values` definition, you can select another value among the list of authorized ones.\n* In the case of a `Text` definition, you can simply edit the value.",
+        "operationId": "createOrUpdate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttributeValuePutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom Attribute or Dataset identifier not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "Delete a custom attribute value for a dataset",
+        "description": "Use this method to remove a custom attribute value applied on a dataset. When configuring a custom attribute definition, a default value can be set. After removing an existing value, the attribute value of the dataset will be reset to the default one, or to an empty value if no default value was configured beforehand.",
+        "operationId": "delete",
+        "responses": {
+          "204": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Attribute or Dataset identifier not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "datasetId",
+          "in": "path",
+          "required": true,
+          "description": "The dataset id",
+          "schema": {
+            "type": "string",
+            "description": "The dataset id"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The cad or business id",
+          "schema": {
+            "type": "string",
+            "description": "The cad or business id"
+          }
+        }
+      ]
+    },
+    "/datasets/attributes": {
+      "get": {
+        "tags": [
+          "attributes"
+        ],
+        "summary": "List custom attributes definitions",
+        "description": "Custom attributes allow you to create a tagging system for your datasets using free text or predefined values for a given category. Use this method to list all the custom attributes definitions created on the account.",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of elements returned",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Limit the number of elements returned",
+              "default": 100
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "custom",
+              "enum": [
+                "custom",
+                "built-in"
+              ]
+            }
+          },
+          {
+            "name": "includeMetadata",
+            "in": "query",
+            "description": "Add metadata to the response, as the creator full name",
+            "schema": {
+              "type": "boolean",
+              "description": "Add metadata to the response, as the creator full name",
+              "default": true
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of rows to ignore before the beginning of the result set",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The number of rows to ignore before the beginning of the result set",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomAttributeDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "attributes"
+        ],
+        "summary": "Create a custom attribute definition",
+        "description": "Custom attributes allow you to create a tagging system for your datasets using free text or predefined values for a given category. Use this method to create a new custom attribute definition. The two types of attributes definitions are `List of values` and `Text`.",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomAttributeCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomAttributeCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/attributes/{definitionId}": {
+      "get": {
+        "tags": [
+          "attributes"
+        ],
+        "summary": "Get a custom attribute definition",
+        "description": " Custom attributes allow you to create a tagging system for your datasets using free text or predefined values for a given category. Use this method to retrieve the information on a given custom attribute definition based on its id.",
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "includeMetadata",
+            "in": "query",
+            "description": "Add metadata to the response, such as the creator full name",
+            "schema": {
+              "type": "boolean",
+              "description": "Add metadata to the response, such as the creator full name",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomAttributeDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Attribute Definition not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "attributes"
+        ],
+        "summary": "Delete a custom attribute definition",
+        "description": "Custom attributes allow you to create a tagging system for your datasets using free text or predefined values for a given category. Use this method to delete a given custom attribute definition based on its id.",
+        "operationId": "delete",
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Attribute Definition not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "attributes"
+        ],
+        "summary": "Update a custom attribute definition",
+        "description": "Custom attributes allow you to create a tagging system for your datasets using free text or predefined values for a given category. Use this method to update the configuration of a given custom attribute definition based on its id.The PATCH operation allows you to apply specific changes to the attribute configuration without replacing it entirely.",
+        "operationId": "update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomAttributeUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Attribute Definition not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "definitionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/datasets/{datasetId}/columns": {
+      "get": {
+        "summary": "List metadata of all fields for a dataset",
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ColumnDescription"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create or update metadata for multiple fields of a dataset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ColumnDescription"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The metadata has been successfully updated"
+          },
+          "400": {
+            "description": "Path and description are mandatory",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User is not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dataset was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "datasetId",
+          "in": "path",
+          "required": true,
+          "description": "Id of the dataset",
+          "schema": {
+            "type": "string",
+            "description": "Id of the dataset"
+          }
+        }
+      ]
+    },
+    "/datasets/{datasetId}/columns/{path}": {
+      "put": {
+        "summary": "Create or update metadata for a specific field of the dataset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColumnDescriptionUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The metadata has been successfully updated"
+          },
+          "400": {
+            "description": "Description is mandatory",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User is not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "datasetId",
+          "in": "path",
+          "required": true,
+          "description": "Id of the dataset",
+          "schema": {
+            "type": "string",
+            "description": "Id of the dataset"
+          }
+        },
+        {
+          "name": "path",
+          "in": "path",
+          "required": true,
+          "description": "Path of the field to update the description",
+          "schema": {
+            "type": "string",
+            "description": "Path of the field to update the description"
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "CustomAttributeDefinition": {
+        "type": "object",
+        "required": [
+          "createdBy",
+          "label",
+          "mandatory",
+          "type",
+          "updatedAt",
+          "updatedBy"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label of the attribute",
+            "example": "Business domain"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description",
+            "example": "Attribute to configure the business domain of a dataset"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the attribute",
+            "enum": [
+              "text",
+              "enum"
+            ]
+          },
+          "defaults": {
+            "type": "array",
+            "description": "Default value for the attribute",
+            "items": {
+              "type": "string",
+              "example": "IT"
+            }
+          },
+          "mandatory": {
+            "type": "boolean",
+            "description": "Indicates if this attribute is mandatory"
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Creation timestamp of the attribute",
+            "example": 1621408387341
+          },
+          "updatedAt": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Last update timestamp of the attribute",
+            "example": 1621408387341
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Author"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/Author"
+          }
+        }
+      },
+      "CustomAttributeCreateRequest": {
+        "type": "object",
+        "required": [
+          "label",
+          "mandatory",
+          "type"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Label of the attribute",
+            "example": "Business domain"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the attribute",
+            "example": "Attribute for our business domains"
+          },
+          "mandatory": {
+            "type": "boolean",
+            "description": "Indicates if this attribute is mandatory"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the attribute",
+            "enum": [
+              "enum",
+              "text"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "description": "Values for the attribute",
+            "items": {
+              "type": "string",
+              "example": "IT"
+            }
+          },
+          "defaults": {
+            "type": "array",
+            "description": "Default values for the attribute",
+            "items": {
+              "type": "string",
+              "example": "IT"
+            }
+          }
+        }
+      },
+      "CustomAttributeCreateResponse": {
+        "type": "object",
+        "required": [
+          "definitionId"
+        ],
+        "properties": {
+          "definitionId": {
+            "type": "string",
+            "description": "The id of the created attribute",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          }
+        }
+      },
+      "CustomAttributeUpdateRequest": {
+        "type": "object",
+        "required": [
+          "label",
+          "mandatory"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Label of the attribute",
+            "example": "Business domain"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the attribute",
+            "example": "Business domains of our organization"
+          },
+          "mandatory": {
+            "type": "boolean",
+            "description": "Indicates if this attribute is mandatory"
+          },
+          "defaults": {
+            "type": "array",
+            "description": "Default values for this attribute/ For the attributes of type 'text', only the first element of the array is stored.",
+            "items": {
+              "type": "string",
+              "example": "IT"
+            }
+          },
+          "values": {
+            "type": "array",
+            "description": "Values of the attribute, this field is only available for attributes of type 'enum'",
+            "items": {
+              "type": "string",
+              "example": "IT"
+            }
+          }
+        }
+      },
+      "Author": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User identifier",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "userName": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "Chad Smith"
+          }
+        }
+      },
+      "DatasetResponse": {
+        "type": "object",
+        "required": [
+          "label",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label of the dataset",
+            "example": "Countries"
+          },
+          "certification": {
+            "type": "string",
+            "description": "Certification status",
+            "enum": [
+              "certified",
+              "none",
+              "pending"
+            ]
+          },
+          "entitlements": {
+            "type": "array",
+            "description": "Intersection of TMC user entitlements and the user sharing entitlements",
+            "items": {
+              "type": "string",
+              "example": "DATASET_READ"
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Indicates if the dataset is enabled or not"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Technical version of the dataset",
+            "example": 0
+          },
+          "datastoreId": {
+            "type": "string",
+            "description": "Id of the connection used for the dataset",
+            "example": "4233d338-731d-4b43-a5d5-1863f692761c"
+          },
+          "datastore": {
+            "$ref": "#/components/schemas/ConnectionInfo"
+          },
+          "properties": {
+            "type": "object",
+            "description": "Configuration of the dataset"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Id of the user who owns the dataset",
+            "example": "62d6bd8e-fb17-48f1-90b2-ebf827f462f8"
+          },
+          "creator": {
+            "type": "string",
+            "description": "Full name of the user who created the dataset",
+            "example": "Chad Smith"
+          },
+          "rating": {
+            "$ref": "#/components/schemas/RatingInfo"
+          },
+          "draft": {
+            "type": "boolean",
+            "description": "Indicates if the dataset is a draft"
+          },
+          "sharing": {
+            "$ref": "#/components/schemas/SharingState"
+          },
+          "favorite": {
+            "type": "boolean",
+            "description": "Indicates if the dataset is a favorite"
+          },
+          "talendGlobalQuality": {
+            "$ref": "#/components/schemas/TalendQuality"
+          },
+          "trustScore": {
+            "type": "number",
+            "format": "double",
+            "description": "Trust score of the dataset",
+            "example": 57.76
+          },
+          "trustScoreAxes": {
+            "type": "array",
+            "description": "Trust score details for the dataset",
+            "items": {
+              "$ref": "#/components/schemas/TrustScoreAxis"
+            }
+          },
+          "nested": {
+            "type": "boolean",
+            "description": "Indicates if the dataset is hierarchical"
+          },
+          "created": {
+            "type": "number",
+            "description": "Creation timestamp of the dataset",
+            "example": 1619680424393
+          },
+          "updated": {
+            "type": "string",
+            "description": "Last update timestamp of the dataset",
+            "example": "1619680424393"
+          },
+          "createdBy": {
+            "type": "object",
+            "description": "User who created the dataset",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "UUID",
+                "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+              }
+            }
+          },
+          "updatedBy": {
+            "type": "object",
+            "description": "User who last updated the dataset",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "UUID",
+                "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+              }
+            }
+          }
+        }
+      },
+      "CustomAttributeValueDatasetResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "paging"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeValue"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/Paging"
+          }
+        }
+      },
+      "AttributeValue": {
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label of the attribute",
+            "example": "Security classification"
+          },
+          "category": {
+            "type": "string",
+            "description": "Category of the attribute",
+            "enum": [
+              "custom",
+              "built-in"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "description": "Current value for the attribute on this dataset",
+            "items": {
+              "type": "string",
+              "example": "2 - Restricted"
+            }
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Indicates if the current value for this dataset matches the default value of the attribute"
+          },
+          "businessId": {
+            "type": "string",
+            "description": "Business id"
+          }
+        }
+      },
+      "AttributeValuePutRequest": {
+        "type": "object",
+        "required": [
+          "values"
+        ],
+        "properties": {
+          "values": {
+            "type": "array",
+            "description": "Attribute's values to set on the dataset",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CertificationRequest": {
+        "type": "object",
+        "required": [
+          "currentCertification"
+        ],
+        "properties": {
+          "currentCertification": {
+            "type": "string",
+            "description": "Certification value to set on the dataset",
+            "enum": [
+              "none",
+              "pending",
+              "certified"
+            ]
+          }
+        }
+      },
+      "TalendQuality": {
+        "type": "object",
+        "required": [
+          "-1",
+          "0",
+          "1",
+          "total"
+        ],
+        "properties": {
+          "0": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of empty values in the dataset sample",
+            "example": 1776
+          },
+          "1": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of valid values in the dataset sample",
+            "example": 89436
+          },
+          "-1": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of invalid values in the dataset sample",
+            "example": 11315
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of values in the dataset sample",
+            "example": 102527
+          }
+        }
+      },
+      "ConnectionInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the connection used for this dataset",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label of the connection"
+          },
+          "type": {
+            "type": "string",
+            "description": "Id of the connection type",
+            "example": "amRiYy1lZSNKZGJjI2RhdGFzdG9yZSNKZGJjQ29ubmVjdGlvbg"
+          },
+          "typeLabel": {
+            "type": "string",
+            "description": "Label of the connection type",
+            "example": "JDBC"
+          },
+          "cloudAgentId": {
+            "type": "string",
+            "description": "ID of the engine used by this connection",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon identifier of this connection",
+            "example": "icon1"
+          }
+        }
+      },
+      "Paging": {
+        "type": "object",
+        "required": [
+          "limit",
+          "offset",
+          "total"
+        ],
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Limit the number of elements returned",
+            "example": 100
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of rows to ignore before the beginning of the result set",
+            "example": 1000
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The total number of elements"
+          }
+        }
+      },
+      "RatingInfo": {
+        "type": "object",
+        "properties": {
+          "contributors": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of users who contributed to this rating",
+            "example": 1
+          },
+          "global": {
+            "type": "number",
+            "format": "double",
+            "description": "Value of the rating",
+            "example": 0.75
+          }
+        }
+      },
+      "CommandSuccess": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Command id",
+            "example": "766ba1b6-0500-40fd-a492-c72de568592c"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Request id",
+            "example": "166ba1b6-0500-40fd-a492-c72de568592e"
+          }
+        }
+      },
+      "SharingState": {
+        "type": "object",
+        "required": [
+          "isOwner",
+          "isSharedWithOthers"
+        ],
+        "properties": {
+          "isOwner": {
+            "type": "boolean",
+            "description": "Indicates if the current user is the owner of the dataset"
+          },
+          "isSharedWithOthers": {
+            "type": "boolean",
+            "description": "Indicates if this dataset is shared with other users or groups"
+          }
+        }
+      },
+      "TrustScoreAxis": {
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifier of the axis",
+            "example": "usage"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label of the axis",
+            "example": "Usage"
+          },
+          "description": {
+            "type": "string",
+            "example": "How often a dataset is used"
+          },
+          "currentValue": {
+            "type": "number",
+            "description": "Value for this axis",
+            "example": 56.63
+          },
+          "maxValue": {
+            "type": "number",
+            "description": "Max value for this axis",
+            "example": 100
+          }
+        }
+      },
+      "ErrorMessageBody": {
+        "type": "object",
+        "required": [
+          "error",
+          "status",
+          "timestamp"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1622618273418
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "exception": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "description": "The request is invalid"
+          },
+          "path": {
+            "type": "string",
+            "description": "/datasets"
+          }
+        }
+      },
+      "ColumnDescription": {
+        "type": "object",
+        "required": [
+          "description",
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path of the field, as returned in the dataset schema",
+            "example": "address"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description to set for the related path",
+            "example": "This is the full address of the person"
+          }
+        }
+      },
+      "ColumnDescriptionUpdateRequest": {
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the field"
+          }
+        },
+        "example": "This is the full address of the person"
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This Bearer authentication can be set in the Authorization header of your requests.\n\nAuthentication tokens and Personal Access Tokens are supported.\n\nPersonal Access Tokens can be generated in the Profile Preferences page of the Talend Cloud Portal.",
+        "bearerFormat": "Bearer <token>"
+      }
+    }
+  }
+}

@@ -1,0 +1,105 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qlik-obs-exporter
+  labels:
+    app.kubernetes.io/name: qlik-obs-exporter
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qlik-obs-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qlik-obs-exporter
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/part-of: talend-tmc-mcp
+        logging: promtail
+        service: tmc-qlik-obs-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9468"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: qlik-obs-exporter
+          image: talend-tmc-python-exporters:obs
+          imagePullPolicy: IfNotPresent
+          args: ["exporters/qlik_obs_exporter.py"]
+          ports:
+            - name: metrics
+              containerPort: 9468
+              protocol: TCP
+          env:
+            - name: TMC_EXPORTER_PORT
+              value: "9468"
+            - name: TMC_EXPORTER_HOST
+              value: "0.0.0.0"
+            - name: QLIK_OBS_INTERVAL
+              value: "60"
+            - name: QLIK_OBS_AUDIT_LIMIT
+              value: "200"
+            - name: TMC_CONFIG_PATH
+              value: "/etc/tmc-mcp/config.json"
+            - name: LOG_FORMAT
+              value: "json"
+            - name: LOG_LEVEL
+              value: "info"
+            # Optional single-tenant fallback. When the mounted config.json
+            # lists qlikTenants[], the exporter ignores these.
+            - name: QLIK_CLOUD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tmc-mcp-secrets
+                  key: QLIK_CLOUD_API_KEY
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tmc-mcp
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: tmc-mcp-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qlik-obs-exporter
+  labels:
+    app.kubernetes.io/name: qlik-obs-exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: qlik-obs-exporter
+  ports:
+    - name: metrics
+      port: 9468
+      targetPort: metrics
+      protocol: TCP

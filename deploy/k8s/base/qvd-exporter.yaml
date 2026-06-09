@@ -1,0 +1,146 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qvd-exporter
+  labels:
+    app.kubernetes.io/name: qvd-exporter
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qvd-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qvd-exporter
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/part-of: talend-tmc-mcp
+        logging: promtail
+        service: tmc-qvd-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9467"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: qvd-exporter
+          image: talend-tmc-python-exporters:obs
+          imagePullPolicy: IfNotPresent
+          args: ["exporters/qvd_exporter.py"]
+          ports:
+            - name: metrics
+              containerPort: 9467
+              protocol: TCP
+          env:
+            - name: QVD_EXPORTER_PORT
+              value: "9467"
+            - name: QVD_EXPORTER_HOST
+              value: "0.0.0.0"
+            - name: QVD_EXPORTER_CONFIG
+              value: "/etc/qvd-exporter/config.yml"
+            - name: QVD_EXPORTER_OUTPUT_DIR
+              value: "/var/lib/qvd-exporter"
+            - name: QVD_EXPORTER_FILENAME
+              value: "talend_observability.qvd"
+            - name: QVD_EXPORTER_INTERVAL
+              value: "900"
+            - name: QVD_EXPORTER_DRY_RUN
+              value: "0"
+            - name: PROMETHEUS_URL
+              value: "http://prometheus:9090"
+            - name: LOG_FORMAT
+              value: "json"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: QLIK_CLOUD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tmc-mcp-secrets
+                  key: QLIK_CLOUD_API_KEY
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: qvd-config
+              mountPath: /etc/qvd-exporter
+              readOnly: true
+            - name: qvd-data
+              mountPath: /var/lib/qvd-exporter
+      volumes:
+        - name: qvd-config
+          configMap:
+            name: qvd-exporter-config
+        - name: qvd-data
+          persistentVolumeClaim:
+            claimName: qvd-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qvd-exporter
+  labels:
+    app.kubernetes.io/name: qvd-exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: qvd-exporter
+  ports:
+    - name: metrics
+      port: 9467
+      targetPort: metrics
+      protocol: TCP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qvd-exporter-config
+  labels:
+    app.kubernetes.io/part-of: talend-tmc-mcp
+data:
+  # Drop-in default. Patch via an overlay if you need to point the exporter
+  # at a different Qlik Cloud tenant / connection ID. See
+  # python/exporters/qvd_exporter_config.example.yml for the full schema.
+  config.yml: |
+    # Example QVD exporter config. Replace with real Qlik Cloud tenant
+    # details (or override via env vars QLIK_CLOUD_TENANT_URL /
+    # QLIK_CLOUD_API_KEY / QLIK_CLOUD_CONNECTION_ID).
+    qlik:
+      tenant_url: ""
+      connection_id: ""
+    queries: []
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qvd-data
+  labels:
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

@@ -1,0 +1,51 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    monitor: tmc-mcp
+
+scrape_configs:
+  - job_name: tmc-mcp
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["tmc-mcp:9464"]
+        labels:
+          service: tmc-mcp
+          env: local
+
+  - job_name: business-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["business-exporter:9465"]
+        labels:
+          service: tmc-business-exporter
+          env: local
+
+  - job_name: engine-log-scraper
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["engine-log-scraper:9466"]
+        labels:
+          service: tmc-engine-log-scraper
+          env: local
+
+  - job_name: qvd-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["qvd-exporter:9467"]
+        labels:
+          service: tmc-qvd-exporter
+          env: local
+
+  - job_name: qlik-obs-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["qlik-obs-exporter:9468"]
+        labels:
+          service: tmc-qlik-obs-exporter
+          env: local
+
+  # Prometheus scraping itself — useful for "is the scraper healthy" panels.
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

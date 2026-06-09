@@ -1,0 +1,1080 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Dynamic Engine",
+    "description": "Manage Dynamic Engines",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/processing/runtimes/dynamic-engines/{id}": {
+      "get": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Get a Dynamic Engine instance by its ID",
+        "description": "Required entitlement TMC_CLUSTER_MANAGEMENT or DYN_ENGINE_READ",
+        "operationId": "findById",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEngineDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Update a Dynamic Engine instance",
+        "description": "Required entitlement TMC_CLUSTER_MANAGEMENT",
+        "operationId": "update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEngineRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEngineDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "409": {
+            "description": "There is already an ongoing operation for this dynamic-engine",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Delete a Dynamic Engine instance",
+        "description": "Required entitlement TMC_CLUSTER_MANAGEMENT",
+        "operationId": "deleteById",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The dynamic-engine's id",
+          "schema": {
+            "type": "string",
+            "description": "The dynamic-engine's id"
+          }
+        }
+      ]
+    },
+    "/processing/runtimes/dynamic-engines": {
+      "get": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Get all your Dynamic Engine instances",
+        "description": "Required entitlement TMC_CLUSTER_MANAGEMENT or TMC_RUN_PROFILE_MANAGEMENT or TMC_ENVIRONMENT_MANAGEMENT",
+        "operationId": "findAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEngineDetailsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Create a new Dynamic Engine instance",
+        "description": "Required entitlement TMC_CLUSTER_MANAGEMENT",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateDynamicEngineRequest"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEngineDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          }
+        }
+      }
+    },
+    "/processing/runtimes/dynamic-engines/{dynamicEngineId}/actions/generate-manifest": {
+      "post": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Return the manifest for the infrastructure and all associated environments",
+        "description": "This endpoint returns the manifest for the infrastructure and all the environments associated with the given Dynamic Engine instance",
+        "operationId": "generateInstallManifest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateDeploymentOptions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "404": {
+            "description": "Dynamic-engine does not exist or doesn't have any status yet",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "dynamicEngineId",
+          "in": "path",
+          "required": true,
+          "description": "The dynamic engine's id",
+          "schema": {
+            "type": "string",
+            "description": "The dynamic engine's id"
+          },
+          "example": "c-c97f8"
+        }
+      ]
+    },
+    "/processing/runtimes/dynamic-engines/{dynamicEngineId}/actions/generate-helm": {
+      "post": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Return the Helm values for the infrastructure and all associated environments",
+        "description": "This endpoint returns the Helm information for the infrastructure and all the environments associated with the given Dynamic Engine instance",
+        "operationId": "generateHelm",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateDeploymentOptions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "404": {
+            "description": "Dynamic-engine does not exist or doesn't have any status yet",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "dynamicEngineId",
+          "in": "path",
+          "required": true,
+          "description": "The dynamic engine's id",
+          "schema": {
+            "type": "string",
+            "description": "The dynamic engine's id"
+          },
+          "example": "c-c97f8"
+        }
+      ]
+    },
+    "/processing/runtimes/dynamic-engines/{dynamicEngineId}/infra/status": {
+      "get": {
+        "tags": [
+          "dynamic-engine-controller"
+        ],
+        "summary": "Fetch the Dynamic Engine infrastructure status",
+        "description": "The status is the runtime state of services belonging to the qlik-dynamic-engine namespace.",
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "404": {
+            "description": "Dynamic-engine does not exist or doesn't have any status yet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "dynamicEngineId",
+          "in": "path",
+          "required": true,
+          "description": "The dynamic engine's id",
+          "schema": {
+            "type": "string",
+            "description": "The dynamic engine's id"
+          },
+          "example": "c-c97f8"
+        }
+      ]
+    },
+    "/processing/runtimes/dynamic-engines/{dynamicEngineId}/environments/{environmentId}/status": {
+      "get": {
+        "tags": [
+          "environment-controller"
+        ],
+        "summary": "Fetch the Dynamic Engine environment status",
+        "description": "The status is the runtime state of processing services belonging to an environment assigned to the given Dynamic Engine instance.",
+        "operationId": "getStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "404": {
+            "description": "Environment does not exist or is not associated to a dynamic engine",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "dynamicEngineId",
+          "in": "path",
+          "required": true,
+          "description": "The dynamic engine's id",
+          "schema": {
+            "type": "string",
+            "description": "The dynamic engine's id"
+          },
+          "example": "c-c97f8"
+        },
+        {
+          "name": "environmentId",
+          "in": "path",
+          "required": true,
+          "description": "The environment's id",
+          "schema": {
+            "type": "string",
+            "description": "The environment's id"
+          },
+          "example": "664b0bbd6c6f5522732e055d"
+        }
+      ]
+    },
+    "/processing/runtimes/dynamic-engine-versions": {
+      "get": {
+        "tags": [
+          "dynamic-engine-version-controller"
+        ],
+        "summary": "Return all supported Dynamic Engine versions.",
+        "description": "A Dynamic Engine version is a consistent baseline of processing services that can be used to generate a deployment manifest.",
+        "operationId": "findAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEngineVersion"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/processing/runtimes/dynamic-engines/{dynamicEngineId}/environments/{environmentId}": {
+      "delete": {
+        "tags": [
+          "environment-controller"
+        ],
+        "summary": "Delete an environment assignment.",
+        "description": "This removes the association between the given environment and the given Dynamic Engine instance.",
+        "operationId": "delete",
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Your request is invalid"
+          },
+          "401": {
+            "description": "You must be authenticated to execute this operation"
+          },
+          "403": {
+            "description": "You do not have the permissions to execute this operation"
+          },
+          "404": {
+            "description": "Environment does not exist or is not associated to a dynamic engine",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "There is already an ongoing operation for this environment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "dynamicEngineId",
+          "in": "path",
+          "required": true,
+          "description": "The dynamic engine's id",
+          "schema": {
+            "type": "string",
+            "description": "The dynamic engine's id"
+          },
+          "example": "c-c97f8"
+        },
+        {
+          "name": "environmentId",
+          "in": "path",
+          "required": true,
+          "description": "The environment's id",
+          "schema": {
+            "type": "string",
+            "description": "The environment's id"
+          },
+          "example": "664b0bbd6c6f5522732e055d"
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "description": "Describe an API error",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The http status's code",
+            "example": 400
+          },
+          "title": {
+            "type": "string",
+            "description": "The error's title",
+            "example": "Bad request"
+          },
+          "details": {
+            "type": "string",
+            "description": "The error's details",
+            "example": "Invalid parameter"
+          },
+          "instance": {
+            "type": "string",
+            "description": "The error's instance",
+            "example": "https://api.talend.com/errors/dynamic-engine-not-found"
+          },
+          "type": {
+            "type": "string",
+            "description": "The error's type",
+            "example": "https://api.talend.com/errors/error-code"
+          },
+          "code": {
+            "type": "string",
+            "description": "The error's code",
+            "example": "DP_ERR_001"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "GenerateDeploymentOptions": {
+        "type": "object",
+        "description": "Describe the supported options to generate a manifest for the infrastructure and all the environments",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Requested version of the dynamic engine. Leave empty to get the latest version. See dynamic-engine-versions endpoint for the list of supported past versions.",
+            "example": "1.0.0"
+          },
+          "generateNewPairingKey": {
+            "type": "boolean",
+            "description": "Force the generation of a new pairing key",
+            "default": false
+          }
+        }
+      },
+      "KubernetesEvent": {
+        "type": "object",
+        "description": "Describe an engine event",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The event's message",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "description": "The event's source",
+            "minLength": 1
+          },
+          "creationDate": {
+            "type": "string",
+            "description": "The event's creation date with timezone",
+            "minLength": 1
+          }
+        }
+      },
+      "ServiceDetails": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "description": "Details of the installed service",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The service's name",
+            "minLength": 1,
+            "example": "remote-engine-agent"
+          },
+          "status": {
+            "type": "string",
+            "description": "The service's status",
+            "enum": [
+              "RUNNING",
+              "UPDATING",
+              "STARTING",
+              "NOT_DEPLOYED",
+              "IN_ERROR"
+            ]
+          },
+          "chartVersion": {
+            "type": "string",
+            "description": "The service's version"
+          },
+          "creationDate": {
+            "type": "string",
+            "description": "The service's creation date with timezone"
+          },
+          "lastUpdateDate": {
+            "type": "string",
+            "description": "The service's last update date with timezone"
+          },
+          "appsVersion": {
+            "type": "object",
+            "description": "All application's version running in this service"
+          },
+          "podsErrors": {
+            "type": "object",
+            "description": "The error messages of all the non-running pods of the service"
+          },
+          "resourcesErrors": {
+            "type": "object",
+            "description": "The error messages of all the non-deployment resources of the service that are not ready"
+          },
+          "jobStatus": {
+            "type": "string",
+            "description": "The status of the job that installed the service",
+            "enum": [
+              "SUCCEEDED",
+              "FAILED",
+              "RUNNING"
+            ]
+          },
+          "jobErrorMessage": {
+            "type": "string",
+            "description": "The error message of the job that installed the service"
+          }
+        }
+      },
+      "StatusResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "description": "Describe the status",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "The global status",
+            "enum": [
+              "STARTING",
+              "RUNNING",
+              "UPDATING",
+              "STOPPING",
+              "NOT_FOUND",
+              "NOT_DEPLOYED",
+              "IN_ERROR"
+            ],
+            "example": "RUNNING"
+          },
+          "dynamicEngineVersion": {
+            "type": "string",
+            "description": "The version of the dynamic engine",
+            "example": "1.0.0"
+          },
+          "deploymentType": {
+            "type": "string",
+            "description": "The type of deployment used to install the dynamic engine",
+            "enum": [
+              "helm",
+              "kubectl",
+              "unknown",
+              "ALL"
+            ],
+            "example": "helm"
+          },
+          "jobDeleteStatus": {
+            "type": "string",
+            "description": "The status of the delete job",
+            "enum": [
+              "SUCCEEDED",
+              "FAILED",
+              "RUNNING"
+            ],
+            "example": "failed"
+          },
+          "services": {
+            "type": "array",
+            "description": "The services details",
+            "items": {
+              "$ref": "#/components/schemas/ServiceDetails"
+            },
+            "minItems": 0,
+            "maxItems": 50
+          },
+          "failureEvents": {
+            "type": "array",
+            "description": "The failure events",
+            "items": {
+              "$ref": "#/components/schemas/KubernetesEvent"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          }
+        }
+      },
+      "DynamicEngineReleaseNote": {
+        "type": "object",
+        "description": "Describe a dynamic engine version release note",
+        "properties": {
+          "releaseNotesLink": {
+            "type": "string",
+            "description": "The link to the release note"
+          },
+          "changelogLink": {
+            "type": "string",
+            "description": "The link to the changelog"
+          }
+        }
+      },
+      "DynamicEngineService": {
+        "type": "object",
+        "description": "Describe a dynamic engine version service",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id",
+            "example": "engine-operator"
+          },
+          "feature": {
+            "type": "string",
+            "description": "The feature",
+            "example": "infra"
+          },
+          "version": {
+            "type": "string",
+            "description": "The version",
+            "example": "1.0.0"
+          },
+          "flag": {
+            "$ref": "#/components/schemas/Flag"
+          }
+        }
+      },
+      "DynamicEngineVersion": {
+        "type": "object",
+        "description": "Describe a dynamic engine version",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name"
+          },
+          "publicationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The publication date"
+          },
+          "kubeVersion": {
+            "type": "string",
+            "description": "The supported kubernetes version"
+          },
+          "releaseNotes": {
+            "$ref": "#/components/schemas/DynamicEngineReleaseNote"
+          },
+          "services": {
+            "type": "array",
+            "description": "The list of services",
+            "items": {
+              "$ref": "#/components/schemas/DynamicEngineService"
+            }
+          }
+        }
+      },
+      "Flag": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "deploymentType": {
+            "type": "string",
+            "enum": [
+              "helm",
+              "kubectl",
+              "unknown",
+              "ALL"
+            ]
+          }
+        }
+      },
+      "UpdateDynamicEngineRequest": {
+        "type": "object",
+        "required": [
+          "description",
+          "name"
+        ],
+        "description": "The request payload to update a dynamic-engine",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name",
+            "maxLength": 255,
+            "example": "dpe-dynamic-engine"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description",
+            "maxLength": 1024,
+            "example": "dynamic-engine for QA"
+          }
+        }
+      },
+      "DynamicEngineDetailsResponse": {
+        "type": "object",
+        "required": [
+          "createdBy",
+          "creationDate",
+          "id",
+          "lastModifiedBy",
+          "lastModifiedDate",
+          "lastModifiedStateDate",
+          "name",
+          "state"
+        ],
+        "description": "Describe a dynamic-engine",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description"
+          },
+          "state": {
+            "type": "string",
+            "description": "The current state",
+            "enum": [
+              "CREATING",
+              "CONNECTED",
+              "DISCONNECTED",
+              "ERROR",
+              "DELETED"
+            ]
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The creation date"
+          },
+          "lastModifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last modified date"
+          },
+          "lastModifiedStateDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last state modified date"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "The user that created this dynamic-engine"
+          },
+          "lastModifiedBy": {
+            "type": "string",
+            "description": "The last user that modified this dynamic-engine"
+          }
+        }
+      },
+      "CreateDynamicEngineRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "description": "The request payload to create a dynamic-engine",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name",
+            "maxLength": 255,
+            "example": "dpe-dynamic-engine"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description",
+            "maxLength": 1024
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Bearer <jwt>"
+      }
+    }
+  }
+}

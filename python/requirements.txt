@@ -1,0 +1,30 @@
+# Pinned to compatible-major; Dependabot will keep this fresh.
+# Each exporter only needs a subset; we install the union so a single image
+# can run any of them.
+
+# Prometheus client + HTTP server (used by all exporters)
+prometheus_client==0.21.1
+
+# HTTP client for talking to Talend + Qlik APIs
+httpx==0.28.1
+
+# Structured JSON logging (one log line per event, Loki-friendly)
+structlog==24.4.0
+
+# YAML config for the QVD exporter's PromQL query list
+PyYAML==6.0.2
+
+# Tabular data — used by the QVD exporter to shape Prometheus -> rows
+pandas==2.2.3
+
+# Qlik QVD reader/writer (community library). MIT licensed.
+# https://pypi.org/project/pyqvd/
+pyqvd==1.0.0
+
+# Type hints / dev only — not strictly required at runtime.
+typing_extensions==4.12.2
+
+# Optional: OS keyring access (Python side mirrors the TS keyring backend).
+# Used by python/common/tenants.py to read PATs/API keys when patStorage=="keychain".
+# When not installed, file-backed tenants still work — the loader does a soft import.
+keyring==25.5.0

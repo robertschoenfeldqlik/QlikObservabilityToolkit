@@ -1,0 +1,47 @@
+# IRSA (IAM Roles for Service Accounts) annotations.
+#
+# This file is the ONLY thing you have to touch when wiring the workloads
+# up to AWS. Replace the placeholder ARNs with the real role ARNs created
+# by your IaC. Each role's trust policy must allow the EKS OIDC provider
+# and the ServiceAccount (namespace + name) below.
+#
+# Roles you should provision:
+#
+#   tmc-mcp-eks-role
+#     - Read tmc-mcp-secrets/* from AWS Secrets Manager (TMC_PAT,
+#       GRAFANA_ADMIN_PASSWORD, QLIK_CLOUD_API_KEY).
+#     - kms:Decrypt on the KMS key encrypting those secrets.
+#
+#   external-secrets-eks-role
+#     - The role used by external-secrets-operator (if you go that route).
+#       Same Secrets Manager + KMS perms as above.
+#
+# The MCP server itself currently has no other AWS API calls.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tmc-mcp
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: business-exporter
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: qlik-obs-exporter
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: qvd-exporter
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role

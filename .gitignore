@@ -1,0 +1,36 @@
+# Build artifacts
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Python
+python/.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Local secrets — NEVER commit these
+.env
+.env.local
+.env.*
+!.env.example
+
+# Local user config (user-level path; we ship sample-config/ instead)
+deploy/sample-config/config.json
+*.user.json
+
+# Build/test scratch
+_test.qvd
+*.qvd
+!**/sample*.qvd
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Manual test artifacts
+tests/_manual-*.log

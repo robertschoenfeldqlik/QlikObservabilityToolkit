@@ -1,0 +1,9 @@
+# Trivy ignore rules. Each line is a Trivy finding ID or a path-scoped suppression.
+# Keep this file short and document WHY each entry exists.
+
+# specs/oauth.json line 131 contains the jwt.io canonical sample JWT token
+# ("sub":"1234567890","name":"John Doe","iat":1516239022) used as the
+# `example` value for the access_token field in Talend's published OAuth
+# OpenAPI spec. It's a public placeholder, not a credential. The spec is
+# fetched verbatim from talend.qlik.dev at build time.
+jwt-token

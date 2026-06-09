@@ -1,0 +1,50 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Tail Docker container stderr/stdout. We filter to containers that carry
+  # the `logging=promtail` label (see docker-compose.observability.yml) so
+  # we don't slurp every container on the host.
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["logging=promtail"]
+    relabel_configs:
+      - source_labels: ["__meta_docker_container_name"]
+        target_label: container
+      - source_labels: ["__meta_docker_container_label_service"]
+        target_label: service
+      - source_labels: ["__meta_docker_container_log_stream"]
+        target_label: stream
+    pipeline_stages:
+      # The MCP server already emits one JSON object per line on stderr.
+      # Parse it so structured fields (level, msg, requestId, tool) become
+      # Loki labels / metadata.
+      - json:
+          expressions:
+            level: level
+            msg: msg
+            tool: tool
+            requestId: requestId
+            api: api
+            status: status
+            http_status: http_status
+      - labels:
+          level:
+          tool:
+      - structured_metadata:
+          requestId:
+          api:
+          status:
+          http_status:
+          msg:

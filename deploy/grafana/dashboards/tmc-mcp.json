@@ -1,0 +1,311 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Talend TMC MCP server — request rate, latency, errors, retries, and a correlated log stream from Loki.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "row",
+      "id": 100,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "title": "Overview",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "id": 1,
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "title": "Tools loaded",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "tmc_mcp_tools_registered", "refId": "A" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "blue" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "none", "colorMode": "value", "textMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 2,
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "title": "In-flight calls",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "tmc_mcp_tool_in_flight", "refId": "A" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 5, "color": "yellow" }, { "value": 20, "color": "red" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 3,
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "title": "Calls / sec (5m avg)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(rate(tmc_mcp_tool_calls_total[5m]))", "refId": "A" }],
+      "fieldConfig": { "defaults": { "decimals": 2, "unit": "reqps" } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 4,
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "title": "Error rate (5m)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(tmc_mcp_tool_calls_total{status=\"error\"}[5m])) / clamp_min(sum(rate(tmc_mcp_tool_calls_total[5m])), 1e-9)",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 2,
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 0.01, "color": "yellow" }, { "value": 0.05, "color": "red" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 5,
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "title": "p95 latency (5m)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(tmc_mcp_tool_call_duration_seconds_bucket[5m])) by (le))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 3 } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 6,
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "title": "Retries / sec",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(rate(tmc_mcp_tool_retries_total[5m]))", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 3 } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "row",
+      "id": 101,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "title": "Tool calls",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "id": 10,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "title": "Calls / sec by tool",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (tool) (rate(tmc_mcp_tool_calls_total{tool=~\"$tool\"}[$__rate_interval])))",
+          "refId": "A",
+          "legendFormat": "{{tool}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10 } } },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "calcs": ["mean", "max"] } }
+    },
+    {
+      "type": "timeseries",
+      "id": 11,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "title": "Latency percentiles (overall)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(tmc_mcp_tool_call_duration_seconds_bucket[$__rate_interval])) by (le))", "refId": "A", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum(rate(tmc_mcp_tool_call_duration_seconds_bucket[$__rate_interval])) by (le))", "refId": "B", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, sum(rate(tmc_mcp_tool_call_duration_seconds_bucket[$__rate_interval])) by (le))", "refId": "C", "legendFormat": "p99" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true } }
+    },
+    {
+      "type": "timeseries",
+      "id": 12,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "title": "Errors / sec by tool",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (tool) (rate(tmc_mcp_tool_calls_total{status=\"error\", tool=~\"$tool\"}[$__rate_interval])))",
+          "refId": "A",
+          "legendFormat": "{{tool}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "type": "timeseries",
+      "id": 13,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "title": "Upstream HTTP status codes / sec",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (http_status) (rate(tmc_mcp_upstream_requests_total{region=~\"$region\"}[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{http_status}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "type": "row",
+      "id": 102,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "title": "Retries & process health",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "id": 20,
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 23 },
+      "title": "Retries / sec by reason",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(tmc_mcp_tool_retries_total[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{reason}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "type": "timeseries",
+      "id": 21,
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 23 },
+      "title": "Event-loop lag p99",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "tmc_mcp_nodejs_eventloop_lag_p99_seconds", "refId": "A", "legendFormat": "p99 lag" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "type": "timeseries",
+      "id": 22,
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 30 },
+      "title": "Heap usage",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "tmc_mcp_nodejs_heap_size_used_bytes", "refId": "A", "legendFormat": "heap used" },
+        { "expr": "tmc_mcp_nodejs_heap_size_total_bytes", "refId": "B", "legendFormat": "heap total" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "type": "timeseries",
+      "id": 23,
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 30 },
+      "title": "Resident set size",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "tmc_mcp_process_resident_memory_bytes", "refId": "A", "legendFormat": "RSS" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "type": "row",
+      "id": 103,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "title": "Logs",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "logs",
+      "id": 30,
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 38 },
+      "title": "MCP server logs (Loki)",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "expr": "{service=\"tmc-mcp\"} | json | level=~\"$loglevel\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["tmc", "mcp", "talend"],
+  "templating": {
+    "list": [
+      {
+        "name": "tool",
+        "label": "Tool",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "Prometheus" },
+        "query": "label_values(tmc_mcp_tool_calls_total, tool)",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "region",
+        "label": "Region",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "Prometheus" },
+        "query": "label_values(tmc_mcp_upstream_requests_total, region)",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "loglevel",
+        "label": "Log level",
+        "type": "custom",
+        "query": "info,warn,error,debug",
+        "current": { "text": ["info", "warn", "error"], "value": ["info", "warn", "error"] },
+        "options": [
+          { "selected": true,  "text": "info",  "value": "info" },
+          { "selected": true,  "text": "warn",  "value": "warn" },
+          { "selected": true,  "text": "error", "value": "error" },
+          { "selected": false, "text": "debug", "value": "debug" }
+        ],
+        "includeAll": false,
+        "multi": true
+      }
+    ]
+  },
+  "time": { "from": "now-30m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Talend TMC MCP",
+  "uid": "tmc-mcp",
+  "version": 1,
+  "weekStart": ""
+}

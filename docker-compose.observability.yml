@@ -1,0 +1,254 @@
+# Full observability stack for the Talend TMC MCP server.
+#
+#   docker compose -f docker-compose.observability.yml up -d
+#
+# Brings up:
+#   tmc-mcp     — the MCP server (stdio + Prometheus /metrics on :9464)
+#   prometheus  — scrapes tmc-mcp's /metrics every 10s              (http://localhost:9090)
+#   loki        — log aggregator                                    (http://localhost:3100)
+#   promtail    — tails Docker container stderr -> Loki
+#   grafana     — pre-provisioned with the Prometheus + Loki datasources
+#                 and the Talend TMC dashboard                       (http://localhost:3000)
+#
+# Login to Grafana with admin / admin (change on first use).
+#
+# This compose IS NOT how you'd talk to the MCP server from Claude Desktop —
+# stdio MCP wants a one-shot `docker run -i`. This stack runs the server
+# detached so Prometheus has something to scrape and Loki has logs to
+# index. To exercise it, `docker compose exec` a test client or use the
+# included `mcp-load` profile (see README).
+
+x-mcp-env: &mcp-env
+  TMC_PAT: "${TMC_PAT:-dummy-pat-for-observability-demo}"
+  TMC_REGION: "${TMC_REGION:-us}"
+  # In observability mode, restrict the MCP server to PURE observability
+  # endpoints — drops audit-logs (identity events) from the tool surface
+  # so the sidecar exposes only run/job/metric reads.
+  TMC_APIS_PRESET: "${TMC_APIS_PRESET:-observability}"
+  TMC_METRICS_PORT: "9464"
+  TMC_METRICS_HOST: "0.0.0.0"
+  LOG_FORMAT: "json"
+  LOG_LEVEL: "${LOG_LEVEL:-info}"
+  NODE_ENV: "production"
+
+x-py-env: &py-env
+  TMC_PAT: "${TMC_PAT:-dummy-pat-for-observability-demo}"
+  TMC_REGION: "${TMC_REGION:-us}"
+  LOG_FORMAT: "json"
+  LOG_LEVEL: "${LOG_LEVEL:-info}"
+
+services:
+  tmc-mcp:
+    build:
+      context: .
+      args:
+        TMC_API_VERSION: "2021-03"
+    image: talend-tmc-mcp:obs
+    container_name: tmc-mcp
+    restart: unless-stopped
+    stdin_open: true
+    tty: false
+    environment: *mcp-env
+    expose:
+      - "9464"
+    ports:
+      - "127.0.0.1:9464:9464"  # /metrics + /health, localhost only
+    labels:
+      # Promtail uses this label to filter the streams it ships to Loki.
+      logging: "promtail"
+      service: "tmc-mcp"
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: tmc-mcp-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=14d"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - tmc-mcp
+
+  loki:
+    image: grafana/loki:3.5.4
+    container_name: tmc-mcp-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./deploy/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    ports:
+      - "127.0.0.1:3100:3100"
+
+  promtail:
+    image: grafana/promtail:3.5.4
+    container_name: tmc-mcp-promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./deploy/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-positions:/var/lib/promtail
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:12.2.0
+    container_name: tmc-mcp-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD:-admin}"
+      GF_USERS_DEFAULT_THEME: "dark"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_FEATURE_TOGGLES_ENABLE: "publicDashboards"
+    volumes:
+      - ./deploy/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./deploy/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - prometheus
+      - loki
+
+  # ------------------------------------------------------------------
+  # Python exporters. These talk to the SAME Prometheus and (for the
+  # business exporter) the SAME TMC tenant as the MCP server. They are
+  # all opt-in via Compose profiles so a minimal `up` doesn't drag in
+  # every container.
+  #
+  #   docker compose -f docker-compose.observability.yml --profile business up -d
+  #   docker compose -f docker-compose.observability.yml --profile engine   up -d
+  #   docker compose -f docker-compose.observability.yml --profile qlik     up -d
+  #
+  # ...or `--profile all` to start everything (still needs the base services).
+  # ------------------------------------------------------------------
+
+  business-exporter:
+    profiles: ["business", "all"]
+    build:
+      context: ./python
+    image: talend-tmc-python-exporters:obs
+    container_name: tmc-business-exporter
+    restart: unless-stopped
+    command: ["exporters/business_exporter.py"]
+    environment:
+      <<: *py-env
+      TMC_EXPORTER_PORT: "9465"
+      TMC_EXPORTER_HOST: "0.0.0.0"
+      TMC_EXPORTER_INTERVAL: "${TMC_EXPORTER_INTERVAL:-60}"
+      TMC_EXPORTER_LOOKBACK: "${TMC_EXPORTER_LOOKBACK:-300}"
+      TMC_WORKSPACES: "${TMC_WORKSPACES:-}"
+    ports:
+      - "127.0.0.1:9465:9465"
+    labels:
+      logging: "promtail"
+      service: "tmc-business-exporter"
+
+  engine-log-scraper:
+    profiles: ["engine", "all"]
+    build:
+      context: ./python
+    image: talend-tmc-python-exporters:obs
+    container_name: tmc-engine-log-scraper
+    restart: unless-stopped
+    command: ["exporters/engine_log_scraper.py"]
+    environment:
+      <<: *py-env
+      TMC_EXPORTER_PORT: "9466"
+      TMC_EXPORTER_HOST: "0.0.0.0"
+      TALEND_ENGINE_LOG_DIR: "${TALEND_ENGINE_LOG_DIR:-/engine-logs}"
+      TALEND_ENGINE_LOG_GLOB: "${TALEND_ENGINE_LOG_GLOB:-*.log:*.json}"
+      TALEND_ENGINE_SCRAPE_INTERVAL: "${TALEND_ENGINE_SCRAPE_INTERVAL:-5}"
+      TALEND_ENGINE_FROM_BEGINNING: "${TALEND_ENGINE_FROM_BEGINNING:-0}"
+      # Optional: drive multiple log sources into ONE /metrics endpoint
+      # via env var (comma-separated `name:dir` pairs). Highest-priority
+      # source-config — falls back to the `remoteEngines` array in the
+      # shared config file (mounted at /etc/tmc-mcp/config.json on the
+      # qlik-obs-exporter), then to TALEND_ENGINE_LOG_DIR + _GLOB above.
+      # Example:
+      #   TALEND_ENGINE_SOURCES: "engine-prod-us:/engine-logs/prod-us,engine-dev-eu:/engine-logs/dev-eu"
+      # TALEND_ENGINE_SOURCES: "${TALEND_ENGINE_SOURCES:-}"
+    volumes:
+      # Mount your Remote Engine's data/log directory here. Read-only is enough.
+      # Example for a Linux engine install:
+      #   - /opt/Talend/RemoteEngine/data/log:/engine-logs:ro
+      - "${TALEND_ENGINE_LOG_DIR_HOST:-./deploy/sample-engine-logs}:/engine-logs:ro"
+    ports:
+      - "127.0.0.1:9466:9466"
+    labels:
+      logging: "promtail"
+      service: "tmc-engine-log-scraper"
+
+  qlik-obs-exporter:
+    profiles: ["qlik-obs", "all"]
+    build:
+      context: ./python
+    image: talend-tmc-python-exporters:obs
+    container_name: tmc-qlik-obs-exporter
+    restart: unless-stopped
+    command: ["exporters/qlik_obs_exporter.py"]
+    environment:
+      <<: *py-env
+      TMC_EXPORTER_PORT: "9468"
+      TMC_EXPORTER_HOST: "0.0.0.0"
+      QLIK_OBS_INTERVAL: "${QLIK_OBS_INTERVAL:-60}"
+      QLIK_OBS_AUDIT_LIMIT: "${QLIK_OBS_AUDIT_LIMIT:-200}"
+      # Multi-tenant: reads ALL Qlik tenants from the shared config file mounted below.
+      TMC_CONFIG_PATH: "/etc/tmc-mcp/config.json"
+      # Optional single-tenant fallback for ad-hoc runs:
+      QLIK_CLOUD_TENANT_URL: "${QLIK_CLOUD_TENANT_URL:-}"
+      QLIK_CLOUD_API_KEY: "${QLIK_CLOUD_API_KEY:-}"
+    volumes:
+      - "${TMC_CONFIG_DIR_HOST:-./deploy/sample-config}:/etc/tmc-mcp:ro"
+    ports:
+      - "127.0.0.1:9468:9468"
+    labels:
+      logging: "promtail"
+      service: "tmc-qlik-obs-exporter"
+
+  qvd-exporter:
+    profiles: ["qlik", "all"]
+    build:
+      context: ./python
+    image: talend-tmc-python-exporters:obs
+    container_name: tmc-qvd-exporter
+    restart: unless-stopped
+    command: ["exporters/qvd_exporter.py"]
+    environment:
+      <<: *py-env
+      QVD_EXPORTER_PORT: "9467"
+      QVD_EXPORTER_HOST: "0.0.0.0"
+      QVD_EXPORTER_CONFIG: "/etc/qvd-exporter/config.yml"
+      QVD_EXPORTER_OUTPUT_DIR: "/var/lib/qvd-exporter"
+      QVD_EXPORTER_FILENAME: "${QVD_EXPORTER_FILENAME:-talend_observability.qvd}"
+      QVD_EXPORTER_INTERVAL: "${QVD_EXPORTER_INTERVAL:-900}"
+      QVD_EXPORTER_DRY_RUN: "${QVD_EXPORTER_DRY_RUN:-0}"
+      PROMETHEUS_URL: "http://prometheus:9090"
+      QLIK_CLOUD_TENANT_URL: "${QLIK_CLOUD_TENANT_URL:-}"
+      QLIK_CLOUD_API_KEY: "${QLIK_CLOUD_API_KEY:-}"
+      QLIK_CLOUD_CONNECTION_ID: "${QLIK_CLOUD_CONNECTION_ID:-}"
+    volumes:
+      - ./python/exporters/qvd_exporter_config.example.yml:/etc/qvd-exporter/config.yml:ro
+      - qvd-data:/var/lib/qvd-exporter
+    ports:
+      - "127.0.0.1:9467:9467"
+    labels:
+      logging: "promtail"
+      service: "tmc-qvd-exporter"
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus-data:
+  loki-data:
+  promtail-positions:
+  grafana-data:
+  qvd-data:

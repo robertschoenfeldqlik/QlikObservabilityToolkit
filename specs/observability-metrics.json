@@ -1,0 +1,853 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Observability Metrics",
+    "description": "Retrieve execution metrics",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/monitoring/observability/executions/{executionId}/component": {
+      "get": {
+        "summary": "Get component metrics of task runs",
+        "description": "This endpoint is used to get component metrics of a given task run.     \n\nTo retrieve your metrics data accurately, the process may vary in duration.\n\t \n",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The start position of the pagination of the entries, greater or equal to 0",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The start position of the pagination of the entries, greater or equal to 0",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of entries to return. The default value is 50 and the maximum value is 200",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Number of entries to return. The default value is 50 and the maximum value is 200",
+              "default": 50
+            },
+            "example": 50
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "The field by which the returned entries are sorted. The default value is component_start_time_seconds",
+            "schema": {
+              "type": "string",
+              "description": "The field by which the returned entries are sorted. The default value is component_start_time_seconds",
+              "default": "component_start_time_seconds",
+              "enum": [
+                "pid",
+                "connector_type",
+                "connector_label",
+                "connector_id",
+                "target_connector_type",
+                "target_label",
+                "target_id",
+                "component_start_time_seconds",
+                "component_connection_rows_total",
+                "component_execution_duration_milliseconds"
+              ]
+            },
+            "example": "component_start_time_seconds"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "The way in which the returned logs are sorted, desc or asc  \n  \n\nWhether the order is ascending or descending, a null or an empty field is always placed at the end of the list to be returned in the response",
+            "schema": {
+              "type": "string",
+              "description": "The way in which the returned logs are sorted, desc or asc  \n  \n\nWhether the order is ascending or descending, a null or an empty field is always placed at the end of the list to be returned in the response",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "example": "asc"
+          },
+          {
+            "$ref": "#/components/parameters/talend-version"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionComponentMetrics"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/executionId"
+        }
+      ]
+    },
+    "/monitoring/observability/metrics/component": {
+      "post": {
+        "summary": "Search raw component metrics",
+        "description": "Use this API endpoint to query raw component metrics. You can make up to 5 queries per minute.  \n\nTo retrieve your metrics data accurately, the process duration may vary.\n\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/talend-version"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComponentQueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RawComponentMetricPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ComponentQueryRequest": {
+        "type": "object",
+        "required": [
+          "endTime",
+          "environmentId",
+          "startTime"
+        ],
+        "properties": {
+          "environmentId": {
+            "type": "string",
+            "description": "Environment ID",
+            "example": "610d3b7da8abfa32ffb6506"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Start time of metrics generation and collection. This time corresponds approximately to when your Job task starts to work.  \n- Using ISO format `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`",
+            "example": "2021-09-08T06:58:04.604Z"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "End time of metrics generation and collection. This time corresponds approximately to when this component in your Job task finishes its work\n- Using ISO format `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`\n- `endTime` must be greater than or equals to `startTime`",
+            "example": "2021-09-08T06:59:04.804Z"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Page size, `1~200`",
+            "default": 50
+          },
+          "offset": {
+            "type": "number",
+            "description": "Page offset, `>=0`",
+            "default": 0
+          },
+          "sortBy": {
+            "type": "string",
+            "description": "Sort by field",
+            "default": "component_start_time_seconds",
+            "enum": [
+              "engine_id",
+              "workspace_id",
+              "task_id",
+              "task_execution_id",
+              "process_id",
+              "job_name",
+              "pid",
+              "father_pid",
+              "root_pid",
+              "connector_type",
+              "connector_label",
+              "connector_id",
+              "target_connector_type",
+              "target_label",
+              "target_id",
+              "connection_type",
+              "connection_name",
+              "component_start_time_seconds",
+              "component_connection_rows_total",
+              "component_execution_duration_milliseconds",
+              "stracktrace"
+            ]
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "Sort order",
+            "default": "asc",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          "filters": {
+            "type": "array",
+            "description": "Field filters",
+            "items": {
+              "$ref": "#/components/schemas/ComponentFieldFilter"
+            }
+          }
+        },
+        "example": "{\n    \"environmentId\": \"6093f6a36f01d639680d31cd\", \n    \"startTime\": \"2021-09-08T06:58:04.604Z\", \n    \"endTime\": \"2021-09-08T06:58:06.463Z\", \n    \"limit\": 50, \n    \"offset\": 0, \n    \"sortBy\": \"component_start_time_seconds\", \n    \"sortOrder\": \"asc\", \n    \"filters\": [\n       {\n            \"field\": \"engine_id\", \n            \"operator\": \"in\", \n            \"value\": [\"a60bb1c0-7669-407f-9326-138af05da18a\"]\n        },\n        {\n            \"field\": \"component_start_time_seconds\", \n            \"operator\": \"gte\", \n            \"value\": 1628266578\n        }\n    ]\n}\n"
+      },
+      "ComponentFieldFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Field filter name",
+            "enum": [
+              "engine_id",
+              "workspace_id",
+              "task_id",
+              "task_execution_id",
+              "job_name",
+              "connector_type",
+              "connector_label",
+              "connector_id",
+              "component_start_time_seconds",
+              "operator",
+              "operator_type"
+            ]
+          },
+          "operator": {
+            "type": "string",
+            "description": "Field filter operator\n- Field `component_start_time_seconds` supports `gt, gte, lt, lte`, others support `in`\n- Can't use more than `2` operators\n- Can't use any `2` same operators\n- Can't use `gt` together with `gte`\n- Can't use `lt`together with `lte`\n- When use `gt/gte` and `lt` together, value of `lt` must be greater than value of `gt/gte`\n- When use `gte` and `lt` together, value of `lt` must be greater than value of `gte`\n- When use `gte` and `lte` together, value of `lte` must be greater than or equals to value of `gte`",
+            "enum": [
+              "in",
+              "gt",
+              "gte",
+              "lt",
+              "lte"
+            ]
+          },
+          "value": {
+            "type": "object",
+            "description": "Field filter value\n\nFor operator `in` requires an array, like \n- `\"value\" : [\"value\"]`\n- `\"value\" : [\"value1\", \"value2\"]`\n\nFor operator `gt, gte, lt, lte` requres a number(or a string of number), like \n- `\"value\" : 1628266578`\n- `\"value\" : 1628266578.78`\n- `\"value\" : \"1628266578\"`\n-  `\"value\" : \"1628266578.78\"`"
+          }
+        },
+        "example": "{\n    \"field\": \"engine_id\", \n    \"operator\": \"in\", \n    \"value\": [\"a60bb1c0-7669-407f-9326-138af05da18a\"]\n}"
+      },
+      "ExecutionComponentMetrics": {
+        "type": "object",
+        "required": [
+          "artifact_id",
+          "artifact_version",
+          "engine_id",
+          "metrics",
+          "processes",
+          "start_time",
+          "task_execution_id",
+          "task_id",
+          "workspace_id"
+        ],
+        "properties": {
+          "engine_id": {
+            "type": "string",
+            "description": "Engine ID",
+            "example": "a60bb1c0-7669-407f-9326-138af05da18a"
+          },
+          "workspace_id": {
+            "type": "string",
+            "description": "Workspace ID",
+            "example": "61273932d0366133d05729b7"
+          },
+          "task_id": {
+            "type": "string",
+            "description": "Task ID",
+            "example": "612739e79a0ac71b8f3ed4dd"
+          },
+          "task_execution_id": {
+            "type": "string",
+            "description": "Task execution ID",
+            "example": "947e3e2f-d199-4988-a5ab-14ceb36c80f3"
+          },
+          "artifact_id": {
+            "type": "string",
+            "description": "Artifact ID",
+            "example": "612739e79a0ac71b8f3ed4db"
+          },
+          "artifact_name": {
+            "type": "string",
+            "description": "Artifact name",
+            "example": "job_with_rejected_rows"
+          },
+          "artifact_version": {
+            "type": "string",
+            "description": "Artifact version",
+            "example": "0.1.0.20212608065119"
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Jon run start time",
+            "example": "2021-08-26T06:53:30.127Z"
+          },
+          "finish_time": {
+            "type": "string",
+            "description": "Job run finish time",
+            "example": "2021-08-26T06:53:35.361Z"
+          },
+          "rows_rejected": {
+            "type": "number",
+            "description": "Number of rows rejected",
+            "example": 1
+          },
+          "operator": {
+            "type": "string",
+            "description": "Operator",
+            "example": "admin"
+          },
+          "operator_type": {
+            "type": "string",
+            "description": "Operator type",
+            "enum": [
+              "HUMAN",
+              "SERVICE"
+            ],
+            "example": "HUMAN"
+          },
+          "processes": {
+            "type": "array",
+            "description": "Job processes",
+            "items": {
+              "$ref": "#/components/schemas/ProcessMetric"
+            }
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ComponentMetricPage"
+          }
+        },
+        "example": "{\n    \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n    \"workspace_id\": \"61273932d0366133d05729b7\",\n    \"task_id\": \"612739e79a0ac71b8f3ed4dd\",\n    \"task_execution_id\": \"947e3e2f-d199-4988-a5ab-14ceb36c80f3\",\n    \"artifact_id\": \"612739e79a0ac71b8f3ed4db\",\n    \"artifact_name\": \"job_with_rejected_rows\",\n    \"artifact_version\": \"0.1.0.20212608065119\",\n    \"start_time\": \"2021-08-26T06:53:30.127Z\",\n    \"finish_time\": \"2021-08-26T06:53:35.361Z\",\n    \"rows_rejected\": 1,\n    \"operator\": \"admin\",\n    \"operator_type\": \"HUMAN\",\n    \"processes\": [\n        {\n            \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n            \"job_name\": \"MainJob\",\n            \"pid\": \"20210806181617_2Y68h\",\n            \"father_pid\": \"20210806181617_2Y68h\",\n            \"root_pid\": \"20210806181617_2Y68h\"\n        }\n    ],\n    \"metrics\": {\n        \"items\": [\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tMongoDBConnection\",\n                \"connector_label\": \"tMongoDBConnection_1\",\n                \"connector_id\": \"tMongoDBConnection_1\",\n                \"component_start_time_seconds\": 1628266578\n            },\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tRowGenerator\",\n                \"connector_label\": \"tRowGenerator_1\",\n                \"connector_id\": \"tRowGenerator_1\",\n                \"target_connector_type\": \"tFlowMeter\",\n                \"target_label\": \"vFlowMeter_row1\",\n                \"target_id\": \"vFlowMeter_row1\",\n                \"component_start_time_seconds\": 1628266578,\n                \"component_connection_rows_total\": 5000000,\n                \"component_execution_duration_milliseconds\": 491585\n            },\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tFlowMeter\",\n                \"connector_label\": \"vFlowMeter_row1\",\n                \"connector_id\": \"vFlowMeter_row1\",\n                \"component_start_time_seconds\": 1628266578\n            },\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tFlowMeter\",\n                \"connector_label\": \"vFlowMeter_row1\",\n                \"connector_id\": \"vFlowMeter_row1\",\n                \"target_connector_type\": \"tMongoDBOutput\",\n                \"target_label\": \"Insert from SQL\",\n                \"target_id\": \"tMongoDBOutput_1\",\n                \"component_start_time_seconds\": 1628266578,\n                \"component_connection_rows_total\": 5000000,\n                \"component_execution_duration_milliseconds\": 491605\n            },\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tMongoDBOutput\",\n                \"connector_label\": \"Insert from SQL\",\n                \"connector_id\": \"tMongoDBOutput_1\",\n                \"component_start_time_seconds\": 1628266578\n            },\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tMongoDBInput\",\n                \"connector_label\": \"tMongoDBInput_2\",\n                \"connector_id\": \"tMongoDBInput_2\",\n                \"target_connector_type\": \"tLogRow\",\n                \"target_label\": \"tLogRow_2\",\n                \"target_id\": \"tLogRow_2\",\n                \"component_start_time_seconds\": 1628267070,\n                \"component_connection_rows_total\": 2158754\n            },\n            {\n                \"pid\": \"20210806181617_2Y68h\",\n                \"connector_type\": \"tLogRow\",\n                \"connector_label\": \"tLogRow_2\",\n                \"connector_id\": \"tLogRow_2\",\n                \"component_start_time_seconds\": 1628267070\n            }\n        ],\n        \"limit\": 50,\n        \"offset\": 0,\n        \"total\": 7\n    }\n}"
+      },
+      "ProcessMetric": {
+        "type": "object",
+        "required": [
+          "father_pid",
+          "job_name",
+          "pid",
+          "process_id",
+          "root_pid"
+        ],
+        "properties": {
+          "process_id": {
+            "type": "string",
+            "description": "Process ID. This is JVM's UUID",
+            "example": "c151b20d-cb9a-34ad-b219-2080761dd193"
+          },
+          "job_name": {
+            "type": "string",
+            "description": "Job Name",
+            "example": "sub_job_2"
+          },
+          "pid": {
+            "type": "string",
+            "description": "PID. This is the unique Job identifier for the current run",
+            "example": "WTHlkK"
+          },
+          "father_pid": {
+            "type": "string",
+            "description": "ID of the first direct parent Job",
+            "example": "20210827095720_E61Q1"
+          },
+          "root_pid": {
+            "type": "string",
+            "description": "ID of the first root Job if there are several Subjobs",
+            "example": "20210827095720_E61Q1"
+          }
+        },
+        "example": "{\n    \"process_id\" : \"c151b20d-cb9a-34ad-b219-2080761dd193\",\n    \"job_name\" : \"sub_job_2\",\n    \"pid\" : \"WTHlkK\",\n    \"father_pid\" : \"20210827095720_E61Q1\",\n    \"root_pid\" : \"20210827095720_E61Q1\"\n}"
+      },
+      "ComponentMetricPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "limit",
+          "offset",
+          "total"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "Array of metrics entries about the components in a Job",
+            "items": {
+              "$ref": "#/components/schemas/ComponentMetric"
+            }
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of entries to be returned on a page in the response",
+            "example": 50
+          },
+          "offset": {
+            "type": "number",
+            "description": "The start position of the pagination of the entries, greater or equal to 0",
+            "example": 0
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of entries in the response",
+            "example": 500
+          }
+        },
+        "example": "{\n    \"items\": [\n        {\n            \"pid\": \"20210827095720_E61Q1\", \n            \"connector_type\": \"tParallelize\", \n            \"connector_label\": \"tParallelize_1\", \n            \"connector_id\": \"tParallelize_1\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"20210827095720_E61Q1\", \n            \"connector_type\": \"tJava\", \n            \"connector_label\": \"tJava_1\", \n            \"connector_id\": \"tJava_1\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"20210827095720_E61Q1\", \n            \"connector_type\": \"tJava\", \n            \"connector_label\": \"tJava_2\", \n            \"connector_id\": \"tJava_2\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"20210827095720_E61Q1\", \n            \"connector_type\": \"tRunJob\", \n            \"connector_label\": \"tRunJob_1\", \n            \"connector_id\": \"tRunJob_1\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"20210827095720_E61Q1\", \n            \"connector_type\": \"tRunJob\", \n            \"connector_label\": \"tRunJob_2\", \n            \"connector_id\": \"tRunJob_2\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"WTHlkK\", \n            \"connector_type\": \"tRunJob\", \n            \"connector_label\": \"tRunJob_1_subjob2\", \n            \"connector_id\": \"tRunJob_1\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"W1yeMB\", \n            \"connector_type\": \"tParallelize\", \n            \"connector_label\": \"tParallelize_1_subjob1\", \n            \"connector_id\": \"tParallelize_1\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"W1yeMB\", \n            \"connector_type\": \"tJava\", \n            \"connector_label\": \"tJava_1_subjob1\", \n            \"connector_id\": \"tJava_1\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"W1yeMB\", \n            \"connector_type\": \"tJava\", \n            \"connector_label\": \"tJava_2_subjob1\", \n            \"connector_id\": \"tJava_2\", \n            \"component_start_time_seconds\": 1630029441\n        }, \n        {\n            \"pid\": \"OPsysU\", \n            \"connector_type\": \"tStatCatcher\", \n            \"connector_label\": \"tStatCatcher_1\", \n            \"connector_id\": \"tStatCatcher_1\", \n            \"target_connector_type\": \"tLogRow\", \n            \"target_label\": \"tLogRow_2\", \n            \"target_id\": \"tLogRow_2\", \n            \"component_start_time_seconds\": 1630029441, \n            \"component_connection_rows_total\": 1, \n            \"component_execution_duration_milliseconds\": 2\n        }, \n        {\n            \"pid\": \"OPsysU\", \n            \"connector_type\": \"tLogRow\", \n            \"connector_label\": \"tLogRow_2\", \n            \"connector_id\": \"tLogRow_2\", \n            \"component_start_time_seconds\": 1630029441\n        }\n    ], \n    \"limit\": 50, \n    \"offset\": 0, \n    \"total\": 100\n}"
+      },
+      "ComponentMetric": {
+        "type": "object",
+        "required": [
+          "component_start_time_seconds",
+          "connector_id",
+          "connector_label",
+          "connector_type",
+          "pid"
+        ],
+        "properties": {
+          "pid": {
+            "type": "string",
+            "description": "Unique Job identifier for the current run",
+            "example": "OPsysU"
+          },
+          "connector_type": {
+            "type": "string",
+            "description": "Connector type",
+            "example": "tStatCatcher"
+          },
+          "connector_label": {
+            "type": "string",
+            "description": "Connector label",
+            "example": "tStatCatcher_1"
+          },
+          "connector_id": {
+            "type": "string",
+            "description": "Connector ID",
+            "example": "tStatCatcher_1"
+          },
+          "target_connector_type": {
+            "type": "string",
+            "description": "Target connector type",
+            "example": "tLogRow"
+          },
+          "target_label": {
+            "type": "string",
+            "description": "Target connector label",
+            "example": "tLogRow_2"
+          },
+          "target_id": {
+            "type": "string",
+            "description": "Target connector ID",
+            "example": "tLogRow_2"
+          },
+          "component_start_time_seconds": {
+            "type": "number",
+            "description": "Time stamp indicating the component start time (any component in the Job)",
+            "example": 1628266578
+          },
+          "component_connection_rows_total": {
+            "type": "number",
+            "description": "Total number of rows treated by a component in the Job",
+            "example": 5000000
+          },
+          "component_execution_duration_milliseconds": {
+            "type": "number",
+            "description": "Amount of time it takes to execute a Job component (generated for components that are managing rows)",
+            "example": 491585
+          },
+          "stacktrace": {
+            "type": "string",
+            "description": "Contains the component stacktrace  (only if an error occurs while executing the component)",
+            "example": "NullPointer"
+          }
+        },
+        "example": "{\n    \"pid\" : \"OPsysU\",\n    \"connector_type\" : \"tStatCatcher\",\n    \"connector_label\" : \"tStatCatcher_1\",\n    \"connector_id\" : \"tStatCatcher_1\",\n    \"target_connector_type\" : \"tLogRow\",\n    \"target_label\" : \"tLogRow_2\",\n    \"target_id\" : \"tLogRow_2\",\n    \"component_start_time_seconds\" : 1630029441,\n    \"component_connection_rows_total\" : 5000000,\n    \"component_execution_duration_milliseconds\" : 491585,\n    \"stacktrace\" : \"NullPointer\"\n  }"
+      },
+      "RawComponentMetricPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "limit",
+          "offset",
+          "total"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "Current page data",
+            "items": {
+              "$ref": "#/components/schemas/RawComponentMetric"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Page size",
+            "example": 50
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Page offset",
+            "example": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number",
+            "example": 500
+          }
+        },
+        "example": "{\n  \"items\": [\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tMongoDBConnection\",\n      \"connector_label\": \"tMongoDBConnection_1\",\n      \"connector_id\": \"tMongoDBConnection_1\",\n      \"component_start_time_seconds\": 1628266578\n    },\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tRowGenerator\",\n      \"connector_label\": \"tRowGenerator_1\",\n      \"connector_id\": \"tRowGenerator_1\",\n      \"target_connector_type\": \"tFlowMeter\",\n      \"target_label\": \"vFlowMeter_row1\",\n      \"target_id\": \"vFlowMeter_row1\",\n      \"connection_type\": \"row1\",\n      \"connection_name\": \"output\",\n      \"component_start_time_seconds\": 1628266578,\n      \"component_connection_rows_total\": 5000000,\n      \"component_execution_duration_milliseconds\": 491585\n    },\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tFlowMeter\",\n      \"connector_label\": \"vFlowMeter_row1\",\n      \"connector_id\": \"vFlowMeter_row1\",\n      \"component_start_time_seconds\": 1628266578\n    },\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tFlowMeter\",\n      \"connector_label\": \"vFlowMeter_row1\",\n      \"connector_id\": \"vFlowMeter_row1\",\n      \"target_connector_type\": \"tMongoDBOutput\",\n      \"target_label\": \"Insert from SQL\",\n      \"target_id\": \"tMongoDBOutput_1\",\n      \"connection_type\": \"meterRowrow1\",\n      \"connection_name\": \"output\",\n      \"component_start_time_seconds\": 1628266578,\n      \"component_connection_rows_total\": 5000000,\n      \"component_execution_duration_milliseconds\": 491605\n    },\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tMongoDBOutput\",\n      \"connector_label\": \"Insert from SQL\",\n      \"connector_id\": \"tMongoDBOutput_1\",\n      \"component_start_time_seconds\": 1628266578\n    },\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tMongoDBInput\",\n      \"connector_label\": \"tMongoDBInput_2\",\n      \"connector_id\": \"tMongoDBInput_2\",\n      \"target_connector_type\": \"tLogRow\",\n      \"target_label\": \"tLogRow_2\",\n      \"target_id\": \"tLogRow_2\",\n      \"connection_type\": \"row7\",\n      \"component_start_time_seconds\": 1628267070,\n      \"component_connection_rows_total\": 2158754\n    },\n    {\n      \"engine_id\": \"a60bb1c0-7669-407f-9326-138af05da18a\",\n      \"workspace_id\": \"6093f6a36f01d639680d31cd\",\n      \"task_id\": \"610d3b7da8abfa32ffb6506b\",\n      \"task_execution_id\": \"2b252f47-ccfd-4c13-9c4a-d864b599086f\",\n      \"operator\": \"yvinqueur\",\n      \"operator_type\": \"HUMAN\",\n      \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\",\n      \"job_name\": \"MainJob\",\n      \"pid\": \"20210806181617_2Y68h\",\n      \"father_pid\": \"20210806181617_2Y68h\",\n      \"root_pid\": \"20210806181617_2Y68h\",\n      \"connector_type\": \"tLogRow\",\n      \"connector_label\": \"tLogRow_2\",\n      \"connector_id\": \"tLogRow_2\",\n      \"component_start_time_seconds\": 1628267070\n    }\n  ],\n  \"limit\": 50,\n  \"offset\": 0,\n  \"total\": 7\n}"
+      },
+      "RawComponentMetric": {
+        "type": "object",
+        "required": [
+          "component_start_time_seconds",
+          "connector_id",
+          "connector_label",
+          "connector_type",
+          "engine_id",
+          "father_pid",
+          "job_name",
+          "pid",
+          "process_id",
+          "root_pid",
+          "task_execution_id",
+          "task_id",
+          "workspace_id"
+        ],
+        "properties": {
+          "engine_id": {
+            "type": "string",
+            "description": "Engine ID",
+            "example": "ee7bd2c6-7341-42e2-96b2-bbee676c006d"
+          },
+          "workspace_id": {
+            "type": "string",
+            "description": "Workspace ID",
+            "example": "615ff8ce04ca1e5c0187888d"
+          },
+          "task_id": {
+            "type": "string",
+            "description": "Task ID",
+            "example": "615ff905ee484c7e15cc0c35"
+          },
+          "task_execution_id": {
+            "type": "string",
+            "description": "Task execution ID",
+            "example": "b1b23751-046f-43a2-b47c-a11d0bfaaa5b"
+          },
+          "operator": {
+            "type": "string",
+            "description": "Operator",
+            "example": "admin"
+          },
+          "operator_type": {
+            "type": "string",
+            "description": "Operator type",
+            "enum": [
+              "HUMAN",
+              "SERVICE"
+            ],
+            "example": "HUMAN"
+          },
+          "process_id": {
+            "type": "string",
+            "description": "Process ID",
+            "example": "0329f8d4-1c69-3372-9233-d38ac6ef03a8"
+          },
+          "job_name": {
+            "type": "string",
+            "description": "Job name",
+            "example": "MainJob"
+          },
+          "pid": {
+            "type": "string",
+            "description": "PID",
+            "example": "PP0pFQ"
+          },
+          "father_pid": {
+            "type": "string",
+            "description": "Father PID",
+            "example": "20210806181617_2Y68g"
+          },
+          "root_pid": {
+            "type": "string",
+            "description": "Root PID",
+            "example": "20210806181617_2Y68g"
+          },
+          "connector_type": {
+            "type": "string",
+            "description": "Connector type",
+            "example": "tMongoDBConnection"
+          },
+          "connector_label": {
+            "type": "string",
+            "description": "Connector label",
+            "example": "tMongoDBConnection_1"
+          },
+          "connector_id": {
+            "type": "string",
+            "description": "Connector ID",
+            "example": "tMongoDBConnection_1"
+          },
+          "target_connector_type": {
+            "type": "string",
+            "description": "Target connector type",
+            "example": "tStatCatcher"
+          },
+          "target_label": {
+            "type": "string",
+            "description": "Target connector label",
+            "example": "tStatCatcher_1"
+          },
+          "target_id": {
+            "type": "string",
+            "description": "Target connector ID",
+            "example": "tStatCatcher_1"
+          },
+          "connection_type": {
+            "type": "string",
+            "description": "Connection type",
+            "example": "output"
+          },
+          "connection_name": {
+            "type": "string",
+            "description": "Connection name",
+            "example": "row1"
+          },
+          "component_start_time_seconds": {
+            "type": "number",
+            "description": "Component start time seconds",
+            "example": 1628266578
+          },
+          "component_connection_rows_total": {
+            "type": "number",
+            "description": "Component connection rows total",
+            "example": 5000000
+          },
+          "component_execution_duration_milliseconds": {
+            "type": "number",
+            "description": "Component execution duration milliseconds",
+            "example": 491585
+          },
+          "stacktrace": {
+            "type": "string",
+            "description": "Contains the component stacktrace  (only if an error occurs while executing the component)",
+            "example": "NullPointer"
+          }
+        },
+        "example": "{\n    \"engine_id\": \"ee59bcf2-cb98-48f7-8fcb-36fddfaf8670\", \n    \"workspace_id\": \"61273932d0366133d05729b7\", \n    \"task_id\": \"612846359a0ac71b8f3ed4ea\", \n    \"task_execution_id\": \"43f21d52-497f-4a77-bdbd-2b0ece33e4ee\", \n    \"operator\": \"admin\",\n    \"operator_type\": \"HUMAN\",\n    \"process_id\": \"0329f8d4-1c69-3372-9233-d38ac6ef03a8\", \n    \"job_name\": \"MainJob\", \n    \"pid\": \"20210806181617_2Y68h\", \n    \"father_pid\": \"20210806181617_2Y68h\", \n    \"root_pid\": \"20210806181617_2Y68h\", \n    \"connector_type\": \"tStatCatcher\", \n    \"connector_label\": \"tStatCatcher_1\", \n    \"connector_id\": \"tStatCatcher_1\", \n    \"target_connector_type\": \"tLogRow\", \n    \"target_label\": \"tLogRow_2\", \n    \"target_id\": \"tLogRow_2\", \n    \"connection_type\": \"output\", \n    \"connection_name\": \"row1\", \n    \"component_start_time_seconds\": 1630029441, \n    \"component_connection_rows_total\": 100, \n    \"component_execution_duration_milliseconds\": 20,\n    \"stacktrace\": \"NullPointer\"\n}"
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "message",
+          "requestId",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Status Code",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "Error Message",
+            "example": "Task execution with ID '2b252f47-ccfd-4c13-9c4a-d864b599086f not found."
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Request ID",
+            "example": "16fefb53-035a-4249-af9d-f80a3b47b132"
+          }
+        },
+        "example": "{\n    \"status\": 400, \n    \"message\": \"Parameter 'invalid_field' is not valid field.\",\n    \"requestId\": \"16fefb53-035a-4249-af9d-f80a3b47b132\"\n}"
+      }
+    },
+    "responses": {
+      "400": {
+        "description": "400",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": "{\n    \"status\": 400,\n    \"message\": \"Task execution ID is not valid id.\",\n    \"requestId\": \"f1f6d388-b114-4d02-8d90-da2c8d1af60f\"\n}"
+          }
+        }
+      },
+      "401": {
+        "description": "401",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": "{\n    \"status\": 401, \n    \"message\": \"Unauthorized\"\n}"
+          }
+        }
+      },
+      "403": {
+        "description": "403",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": "{\n    \"status\": 403, \n    \"message\": \"Forbidden\",\n    \"requestId\": \"8c7c7de7-0a9a-45be-9e28-f0a34e6007fd\"\n}"
+          }
+        }
+      },
+      "404": {
+        "description": "404",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": "{\n    \"status\": 404,\n    \"message\": \"Task execution with ID '83503269-d6a1-437f-bf91-d38ad74a1ecf' not found.\",\n    \"requestId\": \"281f0387-9e88-4879-835d-30c1f3509af3\"\n}"
+          }
+        }
+      },
+      "500": {
+        "description": "500",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": "{\n    \"status\": 500,\n    \"message\": \"Internal Server Error\",\n    \"requestId\": \"2b6e98ae-66dd-4895-8f04-dc2f85617855\"\n}"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "talend-version": {
+        "name": "talend-version",
+        "in": "header",
+        "schema": {
+          "type": "string"
+        },
+        "example": "2021-03"
+      },
+      "executionId": {
+        "name": "executionId",
+        "in": "path",
+        "required": true,
+        "description": "Task Execution ID",
+        "schema": {
+          "type": "string",
+          "description": "Task Execution ID"
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This Bearer authentication can be set in the Authorization header of your requests. Authentication tokens and Personal Access Tokens are supported. Personal Access Tokens can be generated in the Profile Preferences page of the Talend Cloud Portal."
+      }
+    }
+  }
+}

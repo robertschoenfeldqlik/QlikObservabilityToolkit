@@ -1,0 +1,30 @@
+# Build artifacts — the image rebuilds these from source.
+node_modules
+dist
+specs
+
+# Editor / OS noise
+.DS_Store
+*.log
+.vscode
+.idea
+
+# Local credentials & test runs — never put a PAT in an image.
+.env
+.env.local
+.env.*
+
+# Docs aren't needed at runtime.
+docs
+
+# VCS / CI metadata
+.git
+.gitignore
+.github
+.claude
+
+# Container files themselves
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml

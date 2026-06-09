@@ -1,0 +1,24 @@
+# gp3 is the right default on EKS — better price/perf than gp2 and the
+# default StorageClass on clusters created before ~late 2023 is still gp2.
+# Mark this one as the default; the EBS CSI driver must be installed
+# (`aws eks update-cluster ... --addons aws-ebs-csi-driver` or via the
+# console).
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+  annotations:
+    # Setting this to "true" makes gp3 the cluster default. Comment out if
+    # you don't want to override the existing default.
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"
+  # 3000 IOPS / 125 MB/s is the gp3 baseline — fine for these workload
+  # sizes. Bump if you need more for Prometheus / Loki retention.

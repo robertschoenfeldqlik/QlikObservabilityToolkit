@@ -1,0 +1,83 @@
+{
+  "name": "talend-tmc-mcp",
+  "version": "1.0.0",
+  "description": "MCP server wrapping the Talend Cloud (TMC) REST API. Auto-generates 315 tools from Talend's published OpenAPI 3.0 specs.",
+  "type": "module",
+  "bin": {
+    "talend-tmc-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "specs",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "setup": "tsx scripts/setup.ts",
+    "config-ui": "tsx scripts/config-server.ts",
+    "config-path": "tsx scripts/setup.ts --print-path",
+    "fetch-specs": "tsx scripts/fetch-specs.ts",
+    "list-tools": "tsx scripts/list-tools.ts",
+    "docs": "tsx scripts/gen-docs.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "test:watch": "tsx --test --watch tests/*.test.ts",
+    "lint": "eslint src scripts tests",
+    "lint:fix": "eslint --fix src scripts tests",
+    "format": "prettier --write src scripts tests",
+    "format:check": "prettier --check src scripts tests",
+    "check": "npm run lint && npm run format:check && npm test && npm run build",
+    "prepublishOnly": "npm run check && npm run fetch-specs",
+    "clean": "rimraf dist",
+    "docker:build": "docker build -t talend-tmc-mcp:latest .",
+    "docker:build:multiarch": "docker buildx build --platform linux/amd64,linux/arm64 -t talend-tmc-mcp:latest .",
+    "docker:run": "docker run -i --rm --env-file .env talend-tmc-mcp:latest"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "talend",
+    "talend-cloud",
+    "tmc",
+    "qlik",
+    "openapi",
+    "claude"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<owner>/talend-tmc-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/<owner>/talend-tmc-mcp/issues"
+  },
+  "homepage": "https://github.com/<owner>/talend-tmc-mcp#readme",
+  "sideEffects": false,
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "prom-client": "^15.1.3"
+  },
+  "optionalDependencies": {
+    "@napi-rs/keyring": "^1.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

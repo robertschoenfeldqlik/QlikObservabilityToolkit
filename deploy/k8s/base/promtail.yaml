@@ -1,0 +1,224 @@
+# Promtail DaemonSet — tails pod logs via the kubelet log directory
+# (/var/log/pods) and the kubernetes_sd_config service discovery. This works
+# on any cluster regardless of container runtime (docker, containerd,
+# CRI-O) because all CRI runtimes write pod logs there in the same
+# symlink-to-stdout layout.
+#
+# We deliberately do NOT mount /var/run/docker.sock — modern EKS and most
+# vanilla k8s installs use containerd and the socket isn't there.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: promtail
+  labels:
+    app.kubernetes.io/name: promtail
+    app.kubernetes.io/part-of: talend-tmc-mcp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: promtail
+  labels:
+    app.kubernetes.io/name: promtail
+    app.kubernetes.io/part-of: talend-tmc-mcp
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: promtail
+  labels:
+    app.kubernetes.io/name: promtail
+    app.kubernetes.io/part-of: talend-tmc-mcp
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: promtail
+subjects:
+  - kind: ServiceAccount
+    name: promtail
+    # ${NAMESPACE} is resolved by kustomize via the namespace field in the
+    # base kustomization.yaml.
+    namespace: talend-tmc-mcp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promtail-config
+  labels:
+    app.kubernetes.io/name: promtail
+    app.kubernetes.io/part-of: talend-tmc-mcp
+data:
+  config.yml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    positions:
+      filename: /run/promtail/positions.yaml
+
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+
+    scrape_configs:
+      # Pods that carry the `logging=promtail` label are picked up.
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        pipeline_stages:
+          # The TMC MCP server and the Python exporters emit one JSON object
+          # per line on stderr. Parse it so structured fields become Loki
+          # labels / structured metadata.
+          - cri: {}
+          - json:
+              expressions:
+                level: level
+                msg: msg
+                tool: tool
+                requestId: requestId
+                api: api
+                status: status
+                http_status: http_status
+          - labels:
+              level:
+              tool:
+          - structured_metadata:
+              requestId:
+              api:
+              status:
+              http_status:
+              msg:
+        relabel_configs:
+          # Only keep pods carrying logging=promtail
+          - source_labels:
+              - __meta_kubernetes_pod_label_logging
+            action: keep
+            regex: promtail
+          # Drop pods not in the running phase to avoid noisy noise.
+          - source_labels:
+              - __meta_kubernetes_pod_phase
+            action: drop
+            regex: (Pending|Succeeded|Failed|Completed)
+          - source_labels:
+              - __meta_kubernetes_namespace
+            target_label: namespace
+          - source_labels:
+              - __meta_kubernetes_pod_name
+            target_label: pod
+          - source_labels:
+              - __meta_kubernetes_pod_container_name
+            target_label: container
+          # `service` label preserves the existing dashboard variables (the
+          # docker-compose stack set service=tmc-mcp / tmc-business-exporter
+          # / etc. via container labels).
+          - source_labels:
+              - __meta_kubernetes_pod_label_service
+            target_label: service
+          - source_labels:
+              - __meta_kubernetes_pod_node_name
+            target_label: node
+          # Build the path to the pod's container log. Layout written by
+          # kubelet: /var/log/pods/<ns>_<pod>_<uid>/<container>/*.log
+          - action: replace
+            replacement: /var/log/pods/*$1/*.log
+            separator: /
+            source_labels:
+              - __meta_kubernetes_pod_uid
+              - __meta_kubernetes_pod_container_name
+            target_label: __path__
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  labels:
+    app.kubernetes.io/name: promtail
+    app.kubernetes.io/component: log-shipper
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: promtail
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: promtail
+        app.kubernetes.io/component: log-shipper
+        app.kubernetes.io/part-of: talend-tmc-mcp
+    spec:
+      serviceAccountName: promtail
+      tolerations:
+        # Run on control-plane nodes too; harmless if the taint isn't set.
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+          operator: Exists
+      containers:
+        - name: promtail
+          image: grafana/promtail:3.5.4
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-config.file=/etc/promtail/config.yml"
+          ports:
+            - name: http
+              containerPort: 9080
+              protocol: TCP
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            # Need to read pod log dirs that are owned by root.
+            readOnlyRootFilesystem: true
+            runAsUser: 0
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/promtail
+              readOnly: true
+            - name: run
+              mountPath: /run/promtail
+            - name: pods
+              mountPath: /var/log/pods
+              readOnly: true
+            - name: containers
+              mountPath: /var/log/containers
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: promtail-config
+        - name: run
+          hostPath:
+            path: /run/promtail
+            type: DirectoryOrCreate
+        - name: pods
+          hostPath:
+            path: /var/log/pods
+            type: Directory
+        - name: containers
+          hostPath:
+            path: /var/log/containers
+            type: Directory

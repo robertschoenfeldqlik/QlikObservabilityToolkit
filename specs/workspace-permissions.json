@@ -1,0 +1,1693 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Workspace Permissions",
+    "description": "Control and manage your users detailed permissions upon Workspaces and Engines.",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/security/workspaces/{workspaceId}/service-accounts/{serviceAccountId}/permissions": {
+      "get": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Read a service account workspace permission",
+        "description": "Read a permission of a service account on a workspace.",
+        "operationId": "getWorkspacePermissionSA",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Update a service account workspace permission",
+        "description": "Update a permission of a service account on a workspace.",
+        "operationId": "updateWorkspacePermissionsSA",
+        "requestBody": {
+          "description": "Rights to update on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "Rights to update on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "AUTHOR",
+                    "EXECUTE",
+                    "VIEW",
+                    "MANAGE",
+                    "PUBLISH"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update the permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The permission to update doesn’t exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Create a service account workspace permission",
+        "description": "Create a permission of a service account on a workspace.",
+        "operationId": "createWorkspacePermissionsSA",
+        "requestBody": {
+          "description": "Rights to add on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "Rights to add on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "AUTHOR",
+                    "EXECUTE",
+                    "VIEW",
+                    "MANAGE",
+                    "PUBLISH"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permission successfully created"
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update the permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The permission already exists for workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Delete a service account workspace permission",
+        "description": "Delete a permission of a service account on a workspace.",
+        "operationId": "deleteWorkspacePermissionsSA",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to delete permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The permission to delete doesn’t exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "workspaceId",
+          "in": "path",
+          "required": true,
+          "description": "The workspace where rights will be applied. Example Value: 6089228181ef4423736e47a9",
+          "schema": {
+            "type": "string",
+            "description": "The workspace where rights will be applied. Example Value: 6089228181ef4423736e47a9"
+          }
+        },
+        {
+          "name": "serviceAccountId",
+          "in": "path",
+          "required": true,
+          "description": "The user for which rights will be applied. Example Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191",
+          "schema": {
+            "type": "string",
+            "description": "The user for which rights will be applied. Example Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Unitary management"
+      }
+    },
+    "/security/workspaces/{workspaceId}/users/{userId}/permissions": {
+      "get": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Read a workspace permission",
+        "description": "Read a permission of a user on a workspace.",
+        "operationId": "getWorkspacePermission",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Update a workspace permission",
+        "description": "Update a permission of a user on a workspace.",
+        "operationId": "updateWorkspacePermissions",
+        "requestBody": {
+          "description": "Rights to update on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "Rights to update on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "AUTHOR",
+                    "EXECUTE",
+                    "VIEW",
+                    "MANAGE",
+                    "PUBLISH"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update the permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The permission to update doesn’t exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Create a workspace permission",
+        "description": "Create a permission of a user on a workspace.",
+        "operationId": "createWorkspacePermissions",
+        "requestBody": {
+          "description": "Rights to add on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "Rights to add on the permission.\nExample: [\"AUTHOR\",\"EXECUTE\"]",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "AUTHOR",
+                    "EXECUTE",
+                    "VIEW",
+                    "MANAGE",
+                    "PUBLISH"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permission successfully created"
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update the permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The permission already exists for workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Delete a workspace permission",
+        "description": "Delete a permission of a user on a workspace.",
+        "operationId": "deleteWorkspacePermissions",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Parameters not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to delete permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The permission to delete doesn’t exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "workspaceId",
+          "in": "path",
+          "required": true,
+          "description": "The workspace where rights will be applied. Example Value: 6089228181ef4423736e47a9",
+          "schema": {
+            "type": "string",
+            "description": "The workspace where rights will be applied. Example Value: 6089228181ef4423736e47a9"
+          }
+        },
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "description": "The user for which rights will be applied. Example Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191",
+          "schema": {
+            "type": "string",
+            "description": "The user for which rights will be applied. Example Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Unitary management"
+      }
+    },
+    "/security/service-accounts/permissions/batch": {
+      "put": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Update sets of workspace permissions for a service account",
+        "description": "Update sets of workspace permissions on the current system. Allows to upload list of workspace permissions to be updated.Update actions will be applied in the same order as defined in the list",
+        "operationId": "updatePermissionsSA",
+        "requestBody": {
+          "description": "The collection of permissions to update.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "The collection of permissions to update.",
+                "items": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "All changes on Permissions were successful"
+          },
+          "207": {
+            "description": "Execution result detailed status on elementary changes rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResult"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace id or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Create sets of workspace permissions for a service account",
+        "description": "Create sets of workspace permissions on the current system. Allows to upload list of workspace permissions to be created.Creation actions will be applied in the same order as defined in the list",
+        "operationId": "createPermissionsSA",
+        "requestBody": {
+          "description": "The collection of permissions to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "The collection of permissions to create.",
+                "items": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "All changes on Permissions were successful"
+          },
+          "207": {
+            "description": "Execution result detailed status on elementary changes rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResult"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace id or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Delete workspace permissions for a service account",
+        "description": "Remove all permissions where service account id is one from specified ones with request AND workspace is one from specified ones with request.\nSpecial case: empty collection for users means that permissions for all service accounts and specified workspaces will be deleted (and vise versa).",
+        "operationId": "deletePermissionsSA",
+        "parameters": [
+          {
+            "name": "workspaceIds",
+            "in": "query",
+            "description": "Workspace ids list used to compute permission intersections with specified users.",
+            "schema": {
+              "type": "array",
+              "description": "Workspace ids list used to compute permission intersections with specified users.",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "serviceAccountIds",
+            "in": "query",
+            "description": "Service account ids list used to compute permission intersections with specified workspaces.",
+            "schema": {
+              "type": "array",
+              "description": "Service account ids list used to compute permission intersections with specified workspaces.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "All changes on Permissions were successful"
+          },
+          "207": {
+            "description": "Execution result detailed status on elementary changes rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionDeleteResult"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace id or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Provisioning and Mass management"
+      }
+    },
+    "/security/service-accounts/permissions": {
+      "get": {
+        "tags": [
+          "service accounts :: workspaces :: permissions"
+        ],
+        "summary": "Retrieve all workspace permissions for a service account according to search criteria",
+        "description": "It retrieves all workspace permissions according to several criteria:\n\nenvironment : One environment of the account\nworkspace : One workspace of one environment of the account\nserviceAccount : One service account of the account",
+        "operationId": "getPermissionsSA",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "query",
+            "description": "The workspace id (Optional)\nExample Value: 6089228181ef4423736e47a9",
+            "schema": {
+              "type": "string",
+              "description": "The workspace id (Optional)\nExample Value: 6089228181ef4423736e47a9"
+            }
+          },
+          {
+            "name": "environmentId",
+            "in": "query",
+            "description": "The environment id (Optional)\nExample Value: 6089228181ef4423736e47a8",
+            "schema": {
+              "type": "string",
+              "description": "The environment id (Optional)\nExample Value: 6089228181ef4423736e47a8"
+            }
+          },
+          {
+            "name": "serviceAccountId",
+            "in": "query",
+            "description": "The service account id (Optional)\nExample Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191",
+            "schema": {
+              "type": "string",
+              "description": "The service account id (Optional)\nExample Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Permission"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The environment id or the workspace id or the user id does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Provisioning and Mass management"
+      }
+    },
+    "/security/permissions/batch": {
+      "put": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Update sets of workspace permissions",
+        "description": "Update sets of workspace permissions on the current system. Allows to upload list of workspace permissions to be updated.Update actions will be applied in the same order as defined in the list",
+        "operationId": "updatePermissions",
+        "requestBody": {
+          "description": "The collection of permissions to update.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "The collection of permissions to update.",
+                "items": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "All changes on Permissions were successful"
+          },
+          "207": {
+            "description": "Execution result detailed status on elementary changes rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResult"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace id or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Create sets of workspace permissions",
+        "description": "Create sets of workspace permissions on the current system. Allows to upload list of workspace permissions to be created.Creation actions will be applied in the same order as defined in the list",
+        "operationId": "createPermissions",
+        "requestBody": {
+          "description": "The collection of permissions to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "The collection of permissions to create.",
+                "items": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "All changes on Permissions were successful"
+          },
+          "207": {
+            "description": "Execution result detailed status on elementary changes rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResult"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace id or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Delete workspace permissions",
+        "description": "Remove all permissions where user id is one from specified ones with request AND workspace is one from specified ones with request.\nSpecial case: empty collection for users means that permissions for all users and specified workspaces will be deleted (and vise versa).",
+        "operationId": "deletePermissions",
+        "parameters": [
+          {
+            "name": "userIds",
+            "in": "query",
+            "description": "User ids list used to compute permission intersections with specified workspaces.",
+            "schema": {
+              "type": "array",
+              "description": "User ids list used to compute permission intersections with specified workspaces.",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "workspaceIds",
+            "in": "query",
+            "description": "Workspace ids list used to compute permission intersections with specified users.",
+            "schema": {
+              "type": "array",
+              "description": "Workspace ids list used to compute permission intersections with specified users.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "All changes on Permissions were successful"
+          },
+          "207": {
+            "description": "Execution result detailed status on elementary changes rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionDeleteResult"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to change permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workspace id or the user does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Provisioning and Mass management"
+      }
+    },
+    "/security/permissions": {
+      "get": {
+        "tags": [
+          "workspaces :: permissions"
+        ],
+        "summary": "Retrieve all workspace permissions according to search criteria",
+        "description": "It retrieves all workspace permissions according to several criteria:\n\n* environment : One environment of the account\n* workspace : One workspace of one environment of the account\n* user : One user of the account",
+        "operationId": "getPermissions",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "query",
+            "description": "The workspace id (Optional)\nExample Value: 6089228181ef4423736e47a9",
+            "schema": {
+              "type": "string",
+              "description": "The workspace id (Optional)\nExample Value: 6089228181ef4423736e47a9"
+            }
+          },
+          {
+            "name": "environmentId",
+            "in": "query",
+            "description": "The environment id (Optional)\nExample Value: 6089228181ef4423736e47a8",
+            "schema": {
+              "type": "string",
+              "description": "The environment id (Optional)\nExample Value: 6089228181ef4423736e47a8"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id (Optional)\nExample Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191",
+            "schema": {
+              "type": "string",
+              "description": "The user id (Optional)\nExample Value: b9e10a3f-9d68-44bb-862f-b2aa56dc7191"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Permission"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The environment id or the workspace id or the user id does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Provisioning and Mass management"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "description": "Error response object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 401
+          },
+          "message": {
+            "type": "string",
+            "description": "Info about error for user.",
+            "example": "Forbidden"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Info about error for developer.",
+            "example": "Token authorization is required for access"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "The unique identification of the request involved with this error",
+            "example": "16fefb53-035a-4249-af9d-f80a3b47b132"
+          }
+        },
+        "x-talend": {
+          "section": "Commons"
+        }
+      },
+      "Permission": {
+        "type": "object",
+        "required": [
+          "permissions",
+          "userId",
+          "workspaceId"
+        ],
+        "properties": {
+          "workspaceId": {
+            "type": "string",
+            "description": "The workspace id",
+            "example": "57f64991e4b0b689a64feed2"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The user id",
+            "example": "b9e10a3f-9d68-44bb-862f-b2aa56dc7191"
+          },
+          "permissions": {
+            "type": "array",
+            "description": "The list of permission types",
+            "items": {
+              "type": "string",
+              "enum": [
+                "AUTHOR",
+                "EXECUTE",
+                "VIEW",
+                "MANAGE",
+                "PUBLISH"
+              ]
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Commons"
+        }
+      },
+      "PermissionDeleteResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "permissionId": {
+            "$ref": "#/components/schemas/PermissionId"
+          }
+        },
+        "x-talend": {
+          "section": "Commons"
+        }
+      },
+      "PermissionId": {
+        "type": "object",
+        "required": [
+          "userId",
+          "workspaceId"
+        ],
+        "properties": {
+          "workspaceId": {
+            "type": "string",
+            "description": "The workspace id",
+            "example": "57f64991e4b0b689a64feed2"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The user id",
+            "example": "9f1634e7-d791-4be4-9aed-2970f8d804dd"
+          }
+        },
+        "x-talend": {
+          "section": "Commons"
+        }
+      },
+      "PermissionResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "permission": {
+            "$ref": "#/components/schemas/Permission"
+          }
+        },
+        "x-talend": {
+          "section": "Commons"
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "apiKey",
+        "description": "This Bearer authentication can be set in the Authorization header of your requests. Authentication tokens and Personal Access Tokens are supported. Personal Access Tokens can be generated in the Profile Preferences page of the Talend Cloud Portal.",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  },
+  "x-talend": {
+    "sections": {
+      "Unitary management": {
+        "description": "Allows to manage workspace permissions of personal and non personal users on a fine-grained unitary way. "
+      },
+      "Provisioning and Mass management": {
+        "description": "Allows to take mass input management actions on workspace permissions globally. "
+      },
+      "Commons": {
+        "description": "Data types common to workspace permissions API"
+      }
+    }
+  }
+}

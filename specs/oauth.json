@@ -1,0 +1,175 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OAuth",
+    "description": "With service accounts, you are enabled to use the OAuth2 Client Credentials Flow for accessing Talend Cloud APIs.\nThis service account specific token is more secure than the personal access tokens typically used by a user.   \nIt is recommended to use service accounts along with their access tokens to issue API calls, when a specific user does not need to be involved in these calls.",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/security/oauth/token": {
+      "description": "Used to generate access tokens for service accounts",
+      "post": {
+        "summary": "Get JWT token",
+        "description": "Use the service account credentials to get an OAuth2 JWT access token through the Client Credentials Grant flow.  \nRequired permission to use this endpoint: **Service Account - Manage**. The ID of this permission is `TMC_SERVICE_ACCOUNT_MANAGEMENT`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/talendVersion"
+          },
+          {
+            "$ref": "#/components/parameters/talend-version"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token is generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The ClientId or Secret is missing or invalid"
+          },
+          "403": {
+            "description": "The account provided does not have the required permissions"
+          },
+          "500": {
+            "description": "500 - Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenRequest": {
+        "type": "object",
+        "required": [
+          "audience",
+          "grant_type"
+        ],
+        "description": "A token request is an object used to obtain an access token through the OAuth 2 Client Credentials Grant flow.",
+        "properties": {
+          "grant_type": {
+            "type": "string",
+            "description": "The OAuth 2 flow that must be used to obtain an access token. The value must be set to \"client_credentials\".",
+            "example": "client_credentials"
+          },
+          "audience": {
+            "type": "string",
+            "description": "The unique identifier of the target API to access",
+            "example": "https://api.eu.cloud.talend.com/"
+          }
+        }
+      },
+      "TokenResponse": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type"
+        ],
+        "description": "Access token is returned in this response.",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "The access token obtained in JWT format.",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          },
+          "token_type": {
+            "type": "string",
+            "description": "The type of the token issued as described in the OAuth 2 specification. The value is usually \"Bearer\".",
+            "example": "Bearer"
+          },
+          "expires_in": {
+            "type": "string",
+            "description": "The lifetime in seconds of the access token. For example, the value 3600 denotes that the access token expires at the end of one hour from the time the response is generated.",
+            "example": "3600"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "talendVersion": {
+        "name": "talendVersion",
+        "in": "query",
+        "required": false,
+        "description": "API version",
+        "schema": {
+          "type": "string",
+          "description": "API version"
+        }
+      },
+      "talend-version": {
+        "name": "talend-version",
+        "in": "header",
+        "required": false,
+        "description": "API version",
+        "schema": {
+          "type": "string",
+          "description": "API version"
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}

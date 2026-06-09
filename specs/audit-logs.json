@@ -1,0 +1,336 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Audit Logs",
+    "description": "Load your account's audit logs for monitoring activities on Talend Cloud applications, ensuring data security and managing regulatory compliance risks.",
+    "contact": {
+      "name": "TPSVC Team"
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://github.com/Talend/tdf-platform-services#license"
+    },
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/security/audit/logs": {
+      "get": {
+        "tags": [
+          "Audit logs"
+        ],
+        "summary": "Return audit logs for current account with the latest date on top",
+        "description": "Return audit logs about the events triggered within the hot period defined by your license. With the latest timestamp on top, the results are paginated with the page number and page size parameters. The pagination information is part of the response header. \n The status codes explained on this page are the codes used by the Audit log API.  If you need information about the HTTP status codes that appear in the body of your audit logs, see https://en.wikipedia.org/wiki/List_of_HTTP_status_codes",
+        "operationId": "getAllAuditLogsUsingGET",
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "description": "Lower bound of the date window (ISO 8601 datetime format). Specifying this parameter will return audit logs from this date to toDate parameter if present or to current date otherwise. fromDate parameter must be before current date. If format is not as expected, if fromDate is after current date or if fromDate is after toDate, status 400 BAD REQUEST is returned. If fromDate is before current date minus hot period duration, current date minus hot period duration is used instead. If fromDate is not specified and fromId is specified, fromId is used to define the oldest log to return. Otherwise, current date minus hot period duration is used.",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Lower bound of the date window (ISO 8601 datetime format). Specifying this parameter will return audit logs from this date to toDate parameter if present or to current date otherwise. fromDate parameter must be before current date. If format is not as expected, if fromDate is after current date or if fromDate is after toDate, status 400 BAD REQUEST is returned. If fromDate is before current date minus hot period duration, current date minus hot period duration is used instead. If fromDate is not specified and fromId is specified, fromId is used to define the oldest log to return. Otherwise, current date minus hot period duration is used."
+            }
+          },
+          {
+            "name": "fromId",
+            "in": "query",
+            "description": "Lower bound of the log window (UUID). Specifying this parameter will return audit logs from a specific id to toDate if present, or current date otherwise. If the id doesn’t exist, an empty array is returned. If format is not as expected, status 400 BAD REQUEST is returned. If fromDate and fromId are both specified with valid values, fromId is ignored and fromDate is used to define the oldest log to return.",
+            "schema": {
+              "type": "string",
+              "description": "Lower bound of the log window (UUID). Specifying this parameter will return audit logs from a specific id to toDate if present, or current date otherwise. If the id doesn’t exist, an empty array is returned. If format is not as expected, status 400 BAD REQUEST is returned. If fromDate and fromId are both specified with valid values, fromId is ignored and fromDate is used to define the oldest log to return."
+            },
+            "example": "110e8400-e29b-11d4-a716-446655440000"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number starting from 1.",
+            "schema": {
+              "type": "string",
+              "description": "Page number starting from 1.",
+              "default": "1"
+            },
+            "example": "1"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of logs returned per page. The maximum value is 1000.",
+            "schema": {
+              "type": "string",
+              "description": "Number of logs returned per page. The maximum value is 1000.",
+              "default": "100"
+            },
+            "example": "100"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "description": "Upper bound of the date window (ISO 8601 datetime format). Specifying this parameter will return audit logs from fromDate if present, or from fromId if present, or from current date minus period hot duration otherwise, to toDate. If format is not as expected or if toDate is before fromDate, status 400 BAD REQUEST si returned. If toDate if after current date, current date is used instead.",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Upper bound of the date window (ISO 8601 datetime format). Specifying this parameter will return audit logs from fromDate if present, or from fromId if present, or from current date minus period hot duration otherwise, to toDate. If format is not as expected or if toDate is before fromDate, status 400 BAD REQUEST si returned. If toDate if after current date, current date is used instead."
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Bearer {your personal access token}",
+            "schema": {
+              "type": "string",
+              "description": "Bearer {your personal access token}",
+              "pattern": "[Bb]earer .+"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logs have been retrieved for the current account",
+            "headers": {
+              "page-first": {
+                "description": "Whether the current page is the first page: \"true\" if it is and \"false\" if it is not.",
+                "schema": {
+                  "type": "boolean",
+                  "description": "Whether the current page is the first page: \"true\" if it is and \"false\" if it is not."
+                },
+                "example": true
+              },
+              "page-number": {
+                "description": "Current page number",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "Current page number"
+                },
+                "example": 1
+              },
+              "total-elements": {
+                "description": "Total number of audit logs retrievable using the API",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "Total number of audit logs retrievable using the API"
+                },
+                "example": 100
+              },
+              "total-pages": {
+                "description": "Number of pages",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "Number of pages"
+                },
+                "example": 2
+              },
+              "page-last": {
+                "description": "Whether the current page is the last page: \"true\" if it is and \"false\" if it is not.",
+                "schema": {
+                  "type": "boolean",
+                  "description": "Whether the current page is the last page: \"true\" if it is and \"false\" if it is not."
+                },
+                "example": false
+              },
+              "page-total-elements": {
+                "description": "Number of audit logs in the current page",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "Number of audit logs in the current page"
+                },
+                "example": 10
+              }
+            },
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLog"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong parameter format"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "403": {
+            "description": "User has insufficient permission (Security Administrator role is required) or support level is too low (Platinum or Mission Critical are required)"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "429": {
+            "description": "Too many requests within a certain timeframe"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuditLog": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Datetime when the log has been registered (Iso 8601 datetime)"
+          },
+          "logId": {
+            "type": "string",
+            "description": "Unique log id (UUID)",
+            "example": "110e8400-e29b-11d4-a716-446655440000"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Unique request id (UUID)",
+            "example": "508c5f4c-d885-4e0b-9052-b3f5b8e27472"
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "Application id",
+            "example": "TMC"
+          },
+          "eventCategory": {
+            "type": "string",
+            "description": "Event category",
+            "example": "user account"
+          },
+          "eventType": {
+            "type": "string",
+            "description": "Event type",
+            "example": "access management"
+          },
+          "eventOperation": {
+            "type": "string",
+            "description": "Event operation",
+            "example": "create"
+          },
+          "clientIp": {
+            "type": "string",
+            "description": "Ip address of the client. The field can contain multiple IPs in case of forgery attempt or multiple public proxies",
+            "example": "84.14.92.154, 62.23.50.122"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Technical user id",
+            "example": "25190235-7914-4410-8c1d-c1011f57edfd"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username",
+            "example": "admin@test.talend.com"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email",
+            "example": "admin@customer.com"
+          },
+          "request": {
+            "$ref": "#/components/schemas/AuditLogRequest"
+          },
+          "response": {
+            "$ref": "#/components/schemas/AuditLogResponse"
+          }
+        }
+      },
+      "AuditLogRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Request URL",
+            "example": "http://service.url/service"
+          },
+          "method": {
+            "type": "string",
+            "description": "Request method",
+            "example": "POST"
+          },
+          "userAgent": {
+            "type": "string",
+            "description": "Request user agent",
+            "example": "PostmanRuntime/7.24.0"
+          },
+          "body": {
+            "type": "string",
+            "description": "Request body"
+          }
+        }
+      },
+      "AuditLogResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Response HTTP status code. For more information, see https://en.wikipedia.org/wiki/List_of_HTTP_status_codes",
+            "example": "200"
+          },
+          "body": {
+            "type": "string",
+            "description": "Response body"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Bearer <TOKEN>"
+      }
+    }
+  }
+}

@@ -1,0 +1,1660 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sharing",
+    "description": "Manage how your users and groups can access your Talend Cloud entities.",
+    "contact": {
+      "name": "Talend"
+    },
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/sharing/sharingset/{entityType}/{entityId}": {
+      "get": {
+        "tags": [
+          "SharingSet"
+        ],
+        "summary": "Get a sharingset for an entity",
+        "description": "Use this method to retrieve a sharingset.\nA sharingset represents the full list of users and groups who have access to the specified entity.",
+        "operationId": "getApiV1SharingsetEntitytypeEntityid",
+        "parameters": [
+          {
+            "name": "foreignEntityType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "api_test"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limits the number of elements displayed in the sharingset.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Limits the number of elements displayed in the sharingset."
+            },
+            "example": 100
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 1000
+          },
+          {
+            "name": "includeDeletedSharings",
+            "in": "query",
+            "description": "True or false",
+            "schema": {
+              "type": "boolean",
+              "description": "True or false",
+              "default": false
+            }
+          },
+          {
+            "name": "foreignEntityId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharingSetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SharingSet"
+        ],
+        "summary": "Update a sharingset for an entity",
+        "description": "A sharingset represents the full list of users and groups who have access to the specified entity.\nUse this method to update the sharingset by defining who can access a given entity, and with which access level (viewer, editor, owner). This PUT operation allows you to replace the whole sharingset with the new information.",
+        "operationId": "putApiV1SharingsetEntitytypeEntityid",
+        "parameters": [
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutSharingSetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharingSetKey"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "SharingSet"
+        ],
+        "summary": "Patch a sharingset for an entity",
+        "description": "A sharingset represents the full list of users and groups who have access to the specified entity. Use this method to patch the sharingset and define who can access a given entity, and with which access level (viewer, editor, owner).\nUnlike the PUT operation that replaces the whole sharingset, the PATCH operation allows you to apply specific changes to the sharingset. A missing level stands for a removal command of a user or group sharing.",
+        "operationId": "patchApiV1SharingsetEntitytypeEntityid",
+        "parameters": [
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchSharingSetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharingSetKey"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "example": "preparation"
+        },
+        {
+          "name": "entityId",
+          "in": "path",
+          "required": true,
+          "description": "UUID",
+          "schema": {
+            "type": "string",
+            "description": "UUID"
+          },
+          "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+        }
+      ]
+    },
+    "/sharing/sharings/levels/{entityType}": {
+      "get": {
+        "tags": [
+          "Levels"
+        ],
+        "summary": "Get the access levels of an entity",
+        "description": " An access level defines to what extent the user or the group will be able to interact with the entity. In Talend Cloud, the available levels are Viewer, Editor, and Owner. Depending on the level, a user will have read-only or write permissions for example.\nUse this method to retrieve the available access levels of the specified entity type.",
+        "operationId": "getApiV1SharingsLevelsEntitytype",
+        "parameters": [
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LevelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "example": "preparation"
+        }
+      ]
+    },
+    "/sharing/sharings/eligibles/{entityType}": {
+      "get": {
+        "tags": [
+          "Eligibles"
+        ],
+        "summary": "Get eligible users/groups for sharing",
+        "description": "Use this method to retrieve the list of users and groups with whom a specific entity type can be shared.\nThe list of available users and groups changes depending on which permissions they are assigned in Talend Management Console.",
+        "operationId": "getApiV1SharingsEligiblesEntitytype",
+        "parameters": [
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Eligibles"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "example": "preparation"
+        }
+      ]
+    },
+    "/sharing/sharings/{entityType}": {
+      "get": {
+        "tags": [
+          "Sharings"
+        ],
+        "summary": "Get the entities that the current user has access to",
+        "description": "Use this method to retrieve the list of all entities of a given type that the current user has access to.\nThis list of access also includes the access level and the UUID of the entity.",
+        "operationId": "getApiV1SharingsEntitytype",
+        "parameters": [
+          {
+            "name": "includeMetadata",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SharingResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "example": "preparation"
+        }
+      ]
+    },
+    "/sharing/sharings/{entityType}/{entityId}": {
+      "get": {
+        "tags": [
+          "Sharings"
+        ],
+        "summary": "Get users/groups' access information to an entity",
+        "description": "Use this method to get the list of computed accesses by users or groups to a given entity.",
+        "operationId": "getApiV1SharingsEntitytypeEntityid",
+        "parameters": [
+          {
+            "name": "includeMetadata",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "example": "preparation"
+        },
+        {
+          "name": "entityId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/sharing/sharingset": {
+      "patch": {
+        "tags": [
+          "SharingSet"
+        ],
+        "summary": "Patch a sharingset",
+        "description": "A sharingset represents a list of users and groups.\nUse this method to patch a list of sharingsets. The PATCH operation allows you to apply specific changes to the sharingset without replacing it entirely.",
+        "operationId": "patchApiV1Sharingset",
+        "parameters": [
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkSharingSetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharingSetKey"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sharing/sharings/{entityType}/{entityId}/entitlements": {
+      "get": {
+        "tags": [
+          "Sharings"
+        ],
+        "summary": "Get the list of permissions for an entity",
+        "description": "Use this method to rerieve a list of available permissions for a given entity.",
+        "operationId": "getApiV1SharingsEntitytypeEntityidEntitlements",
+        "parameters": [
+          {
+            "name": "X-CLIENT-VERSION",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "entityType",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "example": "preparation"
+        },
+        {
+          "name": "entityId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorMessageBody": {
+        "type": "object",
+        "required": [
+          "error",
+          "path",
+          "status",
+          "timestamp"
+        ],
+        "description": "This object is returned in case of an error during an API call.",
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1622618273418
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "exception": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "example": "The request is invalid"
+          },
+          "path": {
+            "type": "string",
+            "example": "/sharing/sharings/levels/dataset"
+          }
+        }
+      },
+      "LevelResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "label",
+          "order"
+        ],
+        "description": "Description of a level access for an entity.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "WRITER"
+          },
+          "label": {
+            "type": "string",
+            "example": "Editor"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "example": 2
+          }
+        }
+      },
+      "Eligibles": {
+        "type": "object",
+        "description": "Description of a list of users and groups of users who are eligibles for the sharing of an entit.",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Group"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "firstName",
+          "lastName",
+          "userId"
+        ],
+        "description": "Basic description of an user, with its id, first name and last name.",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Frusciante"
+          }
+        }
+      },
+      "Group": {
+        "type": "object",
+        "required": [
+          "groupId",
+          "groupName"
+        ],
+        "description": "Desription of group of users, with the group id and its name.",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "groupName": {
+            "type": "string",
+            "example": "IT department"
+          }
+        }
+      },
+      "SharingResponse": {
+        "type": "object",
+        "required": [
+          "entityId",
+          "entityType",
+          "levelCode",
+          "userId"
+        ],
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "example": "dataset"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "userId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "levelCode": {
+            "type": "string",
+            "example": "1"
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "DATASET_READ"
+            }
+          },
+          "userOwners": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserSharingResponse"
+            }
+          },
+          "groupOwners": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupSharingResponse"
+            }
+          },
+          "sharingSetCount": {
+            "type": "integer",
+            "format": "int32",
+            "example": 123
+          },
+          "isSharedWithOthers": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserSharingResponse": {
+        "type": "object",
+        "required": [
+          "foreignEntity",
+          "level",
+          "userId"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelResponse"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Frusciante"
+          },
+          "foreignEntity": {
+            "$ref": "#/components/schemas/ForeignEntity"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ForeignEntity": {
+        "type": "object",
+        "required": [
+          "entityId",
+          "entityType"
+        ],
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "entityType": {
+            "type": "string",
+            "example": "dataset"
+          }
+        }
+      },
+      "GroupSharingResponse": {
+        "type": "object",
+        "required": [
+          "foreignEntity",
+          "groupId",
+          "level"
+        ],
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelResponse"
+          },
+          "groupName": {
+            "type": "string",
+            "example": "IT department"
+          },
+          "foreignEntity": {
+            "$ref": "#/components/schemas/ForeignEntity"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EntitlementsResponse": {
+        "type": "object",
+        "required": [
+          "entityId"
+        ],
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "DATASET_READ"
+            }
+          }
+        }
+      },
+      "SharingSetResponse": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserSharingResponse"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupSharingResponse"
+            }
+          }
+        }
+      },
+      "LevelRequest": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "WRITER"
+          }
+        }
+      },
+      "SharingSetKey": {
+        "type": "object",
+        "required": [
+          "entityId",
+          "entityType"
+        ],
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "example": "dataset"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          }
+        }
+      },
+      "PutSharingSetRequest": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PutUserSharingRequest"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PutGroupSharingRequest"
+            }
+          }
+        }
+      },
+      "PutUserSharingRequest": {
+        "type": "object",
+        "required": [
+          "level",
+          "userId"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelRequest"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Frusciante"
+          },
+          "foreignEntity": {
+            "$ref": "#/components/schemas/ForeignEntity"
+          }
+        }
+      },
+      "PutGroupSharingRequest": {
+        "type": "object",
+        "required": [
+          "groupId",
+          "level"
+        ],
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelRequest"
+          },
+          "groupName": {
+            "type": "string",
+            "example": "IT department"
+          },
+          "foreignEntity": {
+            "$ref": "#/components/schemas/ForeignEntity"
+          }
+        }
+      },
+      "PatchSharingSetRequest": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatchUserSharingRequest"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatchGroupSharingRequest"
+            }
+          }
+        }
+      },
+      "PatchUserSharingRequest": {
+        "type": "object",
+        "required": [
+          "userId"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelRequest"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Frusciante"
+          },
+          "foreignEntity": {
+            "$ref": "#/components/schemas/ForeignEntity"
+          }
+        }
+      },
+      "PatchGroupSharingRequest": {
+        "type": "object",
+        "required": [
+          "groupId"
+        ],
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "UUID",
+            "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelRequest"
+          },
+          "groupName": {
+            "type": "string",
+            "example": "IT department"
+          },
+          "foreignEntity": {
+            "$ref": "#/components/schemas/ForeignEntity"
+          }
+        }
+      },
+      "BulkSharingSetRequest": {
+        "type": "object",
+        "required": [
+          "bulk"
+        ],
+        "properties": {
+          "bulk": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "entityId",
+                "entityType"
+              ],
+              "properties": {
+                "entityId": {
+                  "type": "string",
+                  "description": "UUID",
+                  "example": "15de7eb2-6447-49a8-a404-a53ecd1f3473"
+                },
+                "entityType": {
+                  "type": "string",
+                  "example": "dataset"
+                },
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PatchUserSharingRequest"
+                  }
+                },
+                "groups": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PatchGroupSharingRequest"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This Bearer authentication can be\nset in the Authorization header of your requests. \n\nAuthentication tokens and Personal Access Tokens are supported.\n\nPersonal Access Tokens can be generated in the Profile Preferences page of the Talend Cloud Portal.",
+        "bearerFormat": "Bearer <token>"
+      }
+    }
+  }
+}

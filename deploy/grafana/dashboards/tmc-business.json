@@ -1,0 +1,257 @@
+{
+  "annotations": { "list": [{"builtIn": 1, "datasource": {"type": "grafana", "uid": "-- Grafana --"}, "enable": true, "hide": true, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard"}] },
+  "description": "Talend business metrics — task/plan inventory, execution outcomes, Remote Engine job status, and QVD export health.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    { "title": "MCP infra dashboard", "type": "dashboards", "tags": ["mcp"], "asDropdown": false, "includeVars": false }
+  ],
+  "panels": [
+    {
+      "type": "row",
+      "id": 100,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "title": "TMC inventory + runs",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "id": 1,
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "title": "Tasks (current)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(talend_tasks_total)", "refId": "A" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "blue" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "none", "colorMode": "value", "textMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 2,
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "title": "Plans (current)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(talend_plans_total)", "refId": "A" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "none", "colorMode": "value", "textMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 3,
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "title": "Executions / min (5m)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(rate(talend_executions_total[5m])) * 60", "refId": "A" }],
+      "fieldConfig": { "defaults": { "decimals": 1, "unit": "short" } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "stat",
+      "id": 4,
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "title": "Failed runs / min (5m)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(rate(talend_executions_failed_total[5m])) * 60", "refId": "A" }],
+      "fieldConfig": { "defaults": { "decimals": 2, "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 0.1, "color": "yellow" }, { "value": 1, "color": "red" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" }
+    },
+    {
+      "type": "timeseries",
+      "id": 10,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "title": "Execution rate by status",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(talend_executions_total{workspace=~\"$workspace\"}[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "type": "timeseries",
+      "id": 11,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "title": "Execution duration (p50/p95/p99)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(talend_execution_duration_seconds_bucket[$__rate_interval])))", "refId": "A", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(talend_execution_duration_seconds_bucket[$__rate_interval])))", "refId": "B", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(talend_execution_duration_seconds_bucket[$__rate_interval])))", "refId": "C", "legendFormat": "p99" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "type": "row",
+      "id": 101,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "title": "Remote Engine jobs",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "id": 20,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "title": "Engine jobs / min by outcome",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(rate(talend_engine_jobs_succeeded_total{engine=~\"$engine\"}[$__rate_interval])) * 60", "refId": "A", "legendFormat": "success" },
+        { "expr": "sum(rate(talend_engine_jobs_failed_total{engine=~\"$engine\"}[$__rate_interval])) * 60",    "refId": "B", "legendFormat": "failed" },
+        { "expr": "sum(rate(talend_engine_jobs_terminated_total{engine=~\"$engine\"}[$__rate_interval])) * 60","refId": "C", "legendFormat": "terminated" },
+        { "expr": "sum(rate(talend_engine_jobs_started_total{engine=~\"$engine\"}[$__rate_interval])) * 60",  "refId": "D", "legendFormat": "started" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "type": "timeseries",
+      "id": 21,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "title": "Rejected rows per engine (p95, 5m)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, engine) (rate(talend_engine_rejected_rows_bucket{engine=~\"$engine\"}[$__rate_interval])))",
+          "refId": "A",
+          "legendFormat": "{{engine}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "type": "stat",
+      "id": 22,
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 22 },
+      "title": "Last engine event",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "max(time() - talend_engine_last_event_timestamp)", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 600, "color": "yellow" }, { "value": 3600, "color": "red" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value", "textMode": "value_and_name" }
+    },
+    {
+      "type": "stat",
+      "id": 23,
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 22 },
+      "title": "Engine files followed",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "talend_engine_scraper_files_followed", "refId": "A" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "id": 24,
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 22 },
+      "title": "Engine log parse errors",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "talend_engine_log_parse_errors_total", "refId": "A" }],
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "yellow" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "id": 25,
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 22 },
+      "title": "Job attempts (p99)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "histogram_quantile(0.99, sum by (le) (rate(talend_engine_job_attempts_bucket[5m])))", "refId": "A" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "row",
+      "id": 102,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "title": "Qlik QVD export",
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "id": 30,
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 27 },
+      "title": "Last QVD export",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "time() - qvd_exporter_last_run_timestamp", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1800, "color": "yellow" }, { "value": 7200, "color": "red" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value", "textMode": "value_and_name" }
+    },
+    {
+      "type": "stat",
+      "id": 31,
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 27 },
+      "title": "Rows in last QVD",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "qvd_exporter_last_rows", "refId": "A" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "id": 32,
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 27 },
+      "title": "QVD size (last)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "qvd_exporter_last_qvd_bytes", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "id": 33,
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 27 },
+      "title": "Export errors (24h)",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "sum(increase(qvd_exporter_runs_total{outcome!=\"success\"}[24h]))", "refId": "A" }],
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "red" }] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "timeseries",
+      "id": 34,
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 31 },
+      "title": "QVD export phase duration",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, phase) (rate(qvd_exporter_run_duration_seconds_bucket[$__rate_interval])))", "refId": "A", "legendFormat": "p95 {{phase}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["tmc", "talend", "business"],
+  "templating": {
+    "list": [
+      {
+        "name": "workspace",
+        "label": "Workspace",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "Prometheus" },
+        "query": "label_values(talend_executions_total, workspace)",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "engine",
+        "label": "Engine",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "Prometheus" },
+        "query": "label_values(talend_engine_jobs_started_total, engine)",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Talend TMC Business + Engine",
+  "uid": "tmc-business",
+  "version": 1,
+  "weekStart": ""
+}

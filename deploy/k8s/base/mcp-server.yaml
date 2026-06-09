@@ -1,0 +1,157 @@
+# The Talend TMC MCP server.
+#
+# Note on protocol: the MCP server is stdio-first. In a Kubernetes pod there
+# is no stdio peer to talk to, so this Deployment exists ONLY so that the
+# Prometheus /metrics endpoint (and the /health probe) is reachable. Tool
+# calls from a real MCP client still happen via `kubectl run -it --rm ...`
+# or `docker run -i` against the same image on a workstation. See
+# docs/k8s.md.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tmc-mcp
+  labels:
+    app.kubernetes.io/name: tmc-mcp
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/part-of: talend-tmc-mcp
+    logging: promtail
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tmc-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tmc-mcp
+        app.kubernetes.io/component: mcp-server
+        app.kubernetes.io/part-of: talend-tmc-mcp
+        # Promtail's kubernetes_sd_config picks up pods carrying this label.
+        logging: promtail
+        service: tmc-mcp
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9464"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: tmc-mcp
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: tmc-mcp
+          image: talend-tmc-mcp:latest
+          imagePullPolicy: IfNotPresent
+          # The default ENTRYPOINT is `dumb-init -- node dist/index.js` which
+          # speaks MCP over stdio. The metrics-server starts inside that
+          # process as soon as TMC_METRICS_PORT is set in the env — no
+          # command override needed.
+          ports:
+            - name: metrics
+              containerPort: 9464
+              protocol: TCP
+          env:
+            - name: TMC_REGION
+              value: "us"
+            - name: TMC_APIS_PRESET
+              value: "observability"
+            - name: TMC_METRICS_PORT
+              value: "9464"
+            - name: TMC_METRICS_HOST
+              value: "0.0.0.0"
+            - name: TMC_CONFIG_PATH
+              value: "/etc/tmc-mcp/config.json"
+            - name: LOG_FORMAT
+              value: "json"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: NODE_ENV
+              value: "production"
+            - name: TMC_PAT
+              valueFrom:
+                secretKeyRef:
+                  name: tmc-mcp-secrets
+                  key: TMC_PAT
+          # /health returns 200 once the spec loader finishes and the metrics
+          # server has bound its port, 503 while draining (SIGTERM).
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tmc-mcp
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: tmc-mcp-config
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tmc-mcp
+  labels:
+    app.kubernetes.io/name: tmc-mcp
+    app.kubernetes.io/part-of: talend-tmc-mcp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tmc-mcp
+  labels:
+    app.kubernetes.io/name: tmc-mcp
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tmc-mcp
+  ports:
+    - name: metrics
+      port: 9464
+      targetPort: metrics
+      protocol: TCP
+---
+# Multi-tenant config. Populated by overlays or by an out-of-band kubectl
+# patch — the base ship-shape is empty so a fresh apply doesn't blow up
+# with invalid tenant references.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tmc-mcp-config
+  labels:
+    app.kubernetes.io/part-of: talend-tmc-mcp
+data:
+  config.json: |
+    {
+      "schemaVersion": 2,
+      "talendTenants": [],
+      "qlikTenants": []
+    }

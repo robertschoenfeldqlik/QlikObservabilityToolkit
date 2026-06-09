@@ -1,0 +1,661 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Ip Allowlist",
+    "description": "Create and alter client IP allowlists, to restrict the access to Talend Cloud to only trusted IP addresses.",
+    "contact": {
+      "name": "TPSVC Team"
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://github.com/Talend/tdf-platform-services#license"
+    },
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/security/ip-allowlist": {
+      "get": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Retrieve IP allowlist configuration",
+        "operationId": "retrieveIpAllowlistCfg",
+        "parameters": [
+          {
+            "name": "detailed",
+            "in": "query",
+            "description": "Detail or not the IP allowlist configuration",
+            "schema": {
+              "type": "boolean",
+              "description": "Detail or not the IP allowlist configuration",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The IP Allowlist configuration was successfully retrieved.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/IpAllowlist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid. The cause could vary."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The IP Allowlist configuration was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Update IP allowlist configuration",
+        "operationId": "updateIpAllowlistConfig",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IpAllowlist"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The IP Allowlist configuration was successfully updated.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/IpAllowlist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI or the request body was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The IP Allowlist configuration was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Create a new IP allowlist configuration",
+        "operationId": "createANewIpAllowlistCfg",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IpAllowlist"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IP Allowlist configuration was successfully created. If the IP allowlist configuration has been created with the parameter \"enabled\" set to \"true\", the IP Validation is immediately on when an account tries to access Talend Cloud.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/IpAllowlist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid. The cause could vary."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "409": {
+            "description": "More information is provided about why the creation ended up in conflict."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Delete IP allowlist configuration",
+        "operationId": "deleteIpAllowlistCfg",
+        "responses": {
+          "204": {
+            "description": "The IP Allowlist configuration was successfully deleted. The IP Validation is not executed anymore when an account tries to access Talend Cloud."
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Enable or disable IP allowlist configuration",
+        "operationId": "enableDisableIpAllowlistConfig",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IpAllowlistSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The IP Allowlist configuration was successfully enabled or disabled."
+          },
+          "400": {
+            "description": "The request URI or the request body is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "IP Allowlist configuration was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      }
+    },
+    "/security/ip-allowlist/ips": {
+      "get": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Retrieve all the IPs from your IP allowlist",
+        "operationId": "retrieveIpEntries",
+        "responses": {
+          "200": {
+            "description": "The IPs were successfully retrieved.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IpEntry"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Update a set of IPs on your IP allowlist",
+        "description": "You need to provide the IDs of the IPs to be updated in your request.",
+        "operationId": "updateIpEntriesSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IpEntry"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The IPs were successfully updated.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IpEntry"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI or the request body was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "At least one IP to be updated was not found."
+          },
+          "429": {
+            "description": "Too many requests sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Add new IPs to the IP allowlist",
+        "operationId": "createANewIpEntries",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IpEntry"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The IPs were successfully created.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IpEntry"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "409": {
+            "description": "More information is provided about why the creation ended up in conflict"
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      }
+    },
+    "/security/ip-allowlist/ips/{ipEntryId}": {
+      "get": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Retrieve a specific IP by its ID on the IP allowlist",
+        "operationId": "retrieveIpEntry",
+        "responses": {
+          "200": {
+            "description": "The IP was successfully retrieved.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/IpEntry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The IP was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Update a specific IP in your IP allowlist",
+        "description": "Find an IP on your IP allowlist by its ID and update this IP with the new address your provide in your request",
+        "operationId": "updateIpEntry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IpEntry"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The IP was successfully updated.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/IpEntry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI or the request body was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The IP entry to be updated was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "IP Allowlist Management"
+        ],
+        "summary": "Delete a specific ID from your IP allowlist",
+        "operationId": "deleteIpEntry",
+        "responses": {
+          "204": {
+            "description": "The IP Entry was successfully deleted. The access to Talend Cloud from this deleted IP is forbidden."
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "ipEntryId",
+          "in": "path",
+          "required": true,
+          "description": "Id of the ip entry",
+          "schema": {
+            "type": "string",
+            "description": "Id of the ip entry"
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "IpAllowlist": {
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the IP allowlist configuration"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Boolean indicating if the IP allowlist feature is enabled or disabled"
+          },
+          "ips": {
+            "type": "array",
+            "description": "List of ip entries",
+            "items": {
+              "$ref": "#/components/schemas/IpEntry"
+            }
+          }
+        }
+      },
+      "IpAllowlistSettings": {
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Boolean indicating if the IP allowlist feature is enabled or disabled"
+          }
+        }
+      },
+      "IpEntry": {
+        "type": "object",
+        "required": [
+          "description",
+          "ip"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the ip entry"
+          },
+          "ip": {
+            "type": "string",
+            "description": "Allowed ip"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Bearer <TOKEN>"
+      }
+    }
+  }
+}

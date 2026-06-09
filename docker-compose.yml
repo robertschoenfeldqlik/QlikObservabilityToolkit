@@ -1,0 +1,35 @@
+# Example docker-compose for the Talend TMC MCP server.
+#
+# stdio MCP servers aren't usually managed by docker-compose since each client
+# (Claude Desktop, Claude Code) wants to spawn its own `docker run` per session.
+# This file exists for: (a) developers who want to drive the image with an
+# explicit env file, and (b) folks running their own MCP gateway in front.
+#
+# Quick test:
+#   echo '' | docker compose run --rm tmc-mcp        # boot check (will error: stdin closed)
+#
+# Real use is via a client; see docs/docker.md.
+
+services:
+  tmc-mcp:
+    build:
+      context: .
+      args:
+        TMC_API_VERSION: "2021-03"
+    image: talend-tmc-mcp:latest
+    stdin_open: true   # MCP transport is stdio
+    tty: false         # never allocate a TTY — MCP wants raw stdin/stdout
+    restart: "no"      # one-shot — clients invoke `docker run`, not a long-running service
+
+    # Option A — pass credentials via env. Easiest, but the PAT lands in the
+    # host's shell history if you put it on the command line. Prefer .env file.
+    environment:
+      TMC_PAT: "${TMC_PAT}"
+      TMC_REGION: "${TMC_REGION:-us}"
+      # Trim the tool surface if you don't need all 20 APIs:
+      # TMC_APIS: "orchestration,observability-metrics,execution-logs"
+
+    # Option B — mount the host's config file (written by `npm run setup` or
+    # `npm run config-ui` on the host). Comment out `environment:` above to use this.
+    # volumes:
+    #   - "${APPDATA:-$HOME/.config}/talend-tmc-mcp:/home/node/.config/talend-tmc-mcp:ro"

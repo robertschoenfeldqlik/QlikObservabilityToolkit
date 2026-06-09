@@ -1,0 +1,105 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: business-exporter
+  labels:
+    app.kubernetes.io/name: business-exporter
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: business-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: business-exporter
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/part-of: talend-tmc-mcp
+        logging: promtail
+        service: tmc-business-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9465"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: business-exporter
+          image: talend-tmc-python-exporters:obs
+          imagePullPolicy: IfNotPresent
+          # ENTRYPOINT is `tini -- python -u`; CMD picks the exporter script.
+          args: ["exporters/business_exporter.py"]
+          ports:
+            - name: metrics
+              containerPort: 9465
+              protocol: TCP
+          env:
+            - name: TMC_EXPORTER_PORT
+              value: "9465"
+            - name: TMC_EXPORTER_HOST
+              value: "0.0.0.0"
+            - name: TMC_EXPORTER_INTERVAL
+              value: "60"
+            - name: TMC_EXPORTER_LOOKBACK
+              value: "300"
+            - name: TMC_REGION
+              value: "us"
+            - name: TMC_CONFIG_PATH
+              value: "/etc/tmc-mcp/config.json"
+            - name: LOG_FORMAT
+              value: "json"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: TMC_PAT
+              valueFrom:
+                secretKeyRef:
+                  name: tmc-mcp-secrets
+                  key: TMC_PAT
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tmc-mcp
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: tmc-mcp-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: business-exporter
+  labels:
+    app.kubernetes.io/name: business-exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: business-exporter
+  ports:
+    - name: metrics
+      port: 9465
+      targetPort: metrics
+      protocol: TCP

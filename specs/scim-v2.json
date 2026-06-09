@@ -1,0 +1,2301 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "SCIM v2",
+    "description": "Manage your users and groups using SCIM 2.0.",
+    "contact": {
+      "name": "Talend Support"
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    },
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/scim/v2/ServiceProviderConfig": {
+      "summary": "Service Provider Configuration",
+      "description": "Use to facilitate service provider feature discovery",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Service Provider Config"
+        ],
+        "summary": "Get Talend configuration",
+        "description": "Returns Talend's configuration details for our SCIM API, including which operations are supported.",
+        "operationId": "get_3",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Discovery"
+      }
+    },
+    "/scim/v2/Schemas": {
+      "summary": "Schemas",
+      "description": "Talend currently supports schemas for users, groups and roles. Querying the schemas will provide the most up-to-date rendering of the supported SCIM attributes.",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Schema"
+        ],
+        "summary": "Get Talend schemas",
+        "description": "Return Talend's configuration details for how users, groups and roles are formatted.",
+        "operationId": "search_3",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Discovery"
+      }
+    },
+    "/scim/v2/Schemas/{id}": {
+      "summary": "Schema",
+      "description": "Talend currently supports schemas for users, groups and roles. Querying the schemas will provide the most up-to-date rendering of the supported SCIM attributes.",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Schema"
+        ],
+        "summary": "Get Talend specific schema",
+        "description": "Return Talend’s configuration details for how a specific resource is formatted.",
+        "operationId": "get_4",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScimResource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Discovery"
+      }
+    },
+    "/scim/v2/ResourceTypes": {
+      "summary": "Resource types",
+      "description": "Endpoint used to discover the types of resources available.",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Resource Type"
+        ],
+        "summary": "Get Talend resource types",
+        "description": "Talend currently supports resources users, groups and roles.",
+        "operationId": "search_4",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Discovery"
+      }
+    },
+    "/scim/v2/ResourceTypes/{id}": {
+      "summary": "Resource type",
+      "description": "Endpoint used to get detail about a specific resource type.",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Resource Type"
+        ],
+        "summary": "Get Talend specific resource type",
+        "description": "Talend currently supports resources users, groups and roles.",
+        "operationId": "get_5",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScimResource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Discovery"
+      }
+    },
+    "/scim/v2/Users": {
+      "summary": "Operations on users",
+      "description": "As you might expect, users map to the individuals of your account (domain). Each user contains properties called attributes. You can list users, filter by attribute, add new users, update a user's profile information, or remove a user entirely.\n\nAttributes are the details associated with a user's account. These are the details that someone would typically set in their profile. The following table maps SCIM attributes with Talend Cloud user attributes:\n\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| login     | userName     | Singular     | **Required** |\n| firstName     | name.givenName     | Singular     | **Required** |\n| middleName     | name.middleName     | Singular     | |\n| lastName     | name.familyName     | Singular     | **Required** |\n| email     | \temails\\[primary=true\\].value     | Multi-Valued     | |\n| phone     | phoneNumbers\\[type='work'\\].value     | Multi-Valued     | |\n| active     | active     | Singular     | |\n| password     | password     | Singular     | |\n| title     | title     | Singular     | |\n| preferredLanguage     | preferredLanguage     | Singular   |   |\n| timezone     | timezone     | Singular     | |\n| groups     | groups     | Multi-Valued     | |\n| roles     | roles     | Multi-Valued     | |\n\nRequires the permission **Users - Manage** (**TMC_USER_MANAGEMENT**).\n",
+      "get": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Get users",
+        "description": "Returns a paginated list of users, 100 user per page by default. `count` and `startIndex` parameters can be updated to get larger pages or to retrive other pages.\n\nIt is possible to use `filter` parameter to return a list of specific users (see [SCIMv2 specification](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2) for details).\n\nIt is also possible to sort the results using the parameters `sortBy` and `sortOrder`. The attributes `attributes` and `excludedAttributes` can be set to select or exclude specific attributes.",
+        "operationId": "getAll",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Create a new user",
+        "description": "Create and retrieve a user resource.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/scim/v2/Users/{id}": {
+      "summary": "Operations on a specific user",
+      "description": "As you might expect, users map to the individuals of your account (domain). Each user contains properties called attributes. You can list users, filter by attribute, add new users, update a user's profile information, or remove a user entirely.\n\nAttributes are the details associated with a user's account. These are the details that someone would typically set in their profile. The following table maps SCIM attributes with Talend Cloud user attributes:\n\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| login     | userName     | Singular     | **Required** |\n| firstName     | name.givenName     | Singular     | **Required** |\n| middleName     | name.middleName     | Singular     | |\n| lastName     | name.familyName     | Singular     | **Required** |\n| email     | \temails\\[primary=true\\].value     | Multi-Valued     | |\n| phone     | phoneNumbers\\[type='work'\\].value     | Multi-Valued     | |\n| active     | active     | Singular     | |\n| password     | password     | Singular     | |\n| title     | title     | Singular     | |\n| preferredLanguage     | preferredLanguage     | Singular   |   |\n| timezone     | timezone     | Singular     | |\n| groups     | groups     | Multi-Valued     | |\n| roles     | roles     | Multi-Valued     | |\n\nRequires the permission **Users - Manage** (**TMC_USER_MANAGEMENT**).",
+      "get": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Get specific user",
+        "description": "Retrieve a single user resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Update specific user",
+        "description": "Update and return a single user resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Delete specific user",
+        "description": "Delete a single user resource. The value of the {id} should be a UUID.",
+        "operationId": "delete",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Update partially specific user",
+        "description": "Update partially and retrieve a single user resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "patch",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/scim/v2/Users/.search": {
+      "description": "Requires the permission **Users - Manage** (**TMC_USER_MANAGEMENT**).",
+      "post": {
+        "tags": [
+          "SCIM 2.0 User Management"
+        ],
+        "summary": "Search users",
+        "description": "Returns a paginated list of users, 100 user per page by default. `count` and `startIndex` parameters can be updated to get larger pages or to retrive other pages.\n\nIt is possible to use `filter` parameter to return a list of specific users (see [SCIMv2 specification](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2) for details).\n\nIt is also possible to sort the results using the parameters `sortBy` and `sortOrder`. The attributes `attributes` and `excludedAttributes` can be set to select or exclude specific attributes.",
+        "operationId": "search",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "example": "{\n  \"schemas\": [\n    \"urn:ietf:params:scim:api:messages:2.0:SearchRequest\"\n  ],\n  \"attributes\": [\n    \"name.givenName\"\n  ],\n  \"filter\": \"username sw \\\"coco\\\"\",\n  \"sortBy\": \"username\",\n  \"sortOrder\": \"ascending\",\n  \"startIndex\": 1,\n  \"count\": 10\n}"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/scim/v2/Groups": {
+      "summary": "Operations on groups",
+      "description": "Groups map to Talend groups with the following attributes:\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| name     | displayName     | Singular     | **Required** |\n| userIds     | members.value     | Multi-Valued     | |\n\nRequires the permission **Groups - Manage** (**TMC_GROUP_MANAGEMENT**).",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Get groups",
+        "description": "Returns a paginated list of groups, 100 user per page by default. `count` and `startIndex` parameters can be updated to get larger pages or to retrive other pages.\n\nIt is possible to use `filter` parameter to return a list of specific users (see [SCIMv2 specification](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2) for details).\n\nIt is also possible to sort the results using the parameters `sortBy` and `sortOrder`. The attributes `attributes` and `excludedAttributes` can be set to select or exclude specific attributes.",
+        "operationId": "getAll_2",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Create a new group",
+        "description": "Create and retrieve a group resource.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "create_2",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/scim/v2/Groups/{id}": {
+      "summary": "Operations on specific groups",
+      "description": "Groups map to Talend groups with the following attributes:\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| name     | displayName     | Singular     | **Required** |\n| userIds     | members.value     | Multi-Valued     | |\n\nRequires the permission **Groups - Manage** (**TMC_GROUP_MANAGEMENT**).",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Get specific group",
+        "description": "Retrieve a single group resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "get_2",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Update specific group",
+        "description": "Update and retrieve a single group resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "update_2",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Delete specific group",
+        "description": "Delete a single group resource. The value of the {id} should be a UUID.",
+        "operationId": "delete_2",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Update partially specific group",
+        "description": "Update partially and retrieve a single group resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "patch_2",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/scim/v2/Groups/.search": {
+      "description": "Requires the permission **Groups - Manage** (**TMC_GROUP_MANAGEMENT**).",
+      "post": {
+        "tags": [
+          "SCIM 2.0 Group Management"
+        ],
+        "summary": "Search groups",
+        "description": "Returns a paginated list of users, 100 user per page by default. `count` and `startIndex` parameters can be updated to get larger pages or to retrive other pages.\n\nIt is possible to use `filter` parameter to return a list of specific users (see [SCIMv2 specification](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2) for details).\n\nIt is also possible to sort the results using the parameters `sortBy` and `sortOrder`. The attributes `attributes` and `excludedAttributes` can be set to select or exclude specific attributes.",
+        "operationId": "search_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "example": "{\n  \"schemas\": [\n    \"urn:ietf:params:scim:api:messages:2.0:SearchRequest\"\n  ],\n  \"attributes\": [\n    \"displayName\"\n  ],\n  \"filter\": \"displayName sw \\\"group\\\"\",\n  \"sortBy\": \"displayName\",\n  \"sortOrder\": \"ascending\",\n  \"startIndex\": 1,\n  \"count\": 10\n}"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/scim/v2/Roles": {
+      "summary": "Operations on roles",
+      "description": "Roles map to Talend roles with the following attributes:\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| name     | name     | Singular     | **Required** |\n| permissions     | entitlements     | Multi-Valued     | **Required**|\n\nRequires the permission **Roles - Manage** (**TMC_ROLE_MANAGEMENT**).",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Get roles",
+        "description": "Returns a paginated list of roles, 100 user per page by default. `count` and `startIndex` parameters can be updated to get larger pages or to retrive other pages.\n\nIt is possible to use `filter` parameter to return a list of specific users (see [SCIMv2 specification](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2) for details).\n\nIt is also possible to sort the results using the parameters `sortBy` and `sortOrder`. The attributes `attributes` and `excludedAttributes` can be set to select or exclude specific attributes.",
+        "operationId": "getAll_1",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Create a new role",
+        "description": "Create and retrieve a role resource.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "create_1",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Roles"
+      }
+    },
+    "/scim/v2/Roles/{id}": {
+      "summary": "Operations on specific roles",
+      "description": "Roles map to Talend roles with the following attributes:\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| name     | name     | Singular     | **Required** |\n| permissions     | entitlements     | Multi-Valued     | **Required**|\n\nRequires the permission **Roles - Manage** (**TMC_ROLE_MANAGEMENT**).",
+      "get": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Get specific role",
+        "description": "Retrieve a single role resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Update specific role",
+        "description": "Update and retrieve a single role resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Delete specific role",
+        "description": "Delete a single user resource. The value of the {id} should be a UUID.",
+        "operationId": "delete_1",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Update partially specific role",
+        "description": "Update partially and retrieve a single role resource. The value of the {id} should be a UUID.\nIt is possible to select or exlude attributes using `attributes` and `excludedAttributes` query parameters.",
+        "operationId": "patch_1",
+        "parameters": [
+          {
+            "name": "attributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludedAttributes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/404NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Roles"
+      }
+    },
+    "/scim/v2/Roles/.search": {
+      "description": "Requires the permission **Roles - Manage** (**TMC_ROLE_MANAGEMENT**).",
+      "post": {
+        "tags": [
+          "SCIM 2.0 Role Management"
+        ],
+        "summary": "Search roles",
+        "description": "Returns a paginated list of roles, 100 user per page by default. `count` and `startIndex` parameters can be updated to get larger pages or to retrive other pages.\n\nIt is possible to use `filter` parameter to return a list of specific users (see [SCIMv2 specification](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2) for details).\n\nIt is also possible to sort the results using the parameters `sortBy` and `sortOrder`. The attributes `attributes` and `excludedAttributes` can be set to select or exclude specific attributes.",
+        "operationId": "search_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "example": "{\n  \"schemas\": [\n    \"urn:ietf:params:scim:api:messages:2.0:SearchRequest\"\n  ],\n  \"attributes\": [\n    \"name\"\n  ],\n  \"filter\": \"name eq \\\"Operator\\\"\",\n  \"sortBy\": \"name\",\n  \"sortOrder\": \"ascending\",\n  \"startIndex\": 1,\n  \"count\": 10\n}"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseGenericScimResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/403Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/429TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/500InternalServerError"
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Roles"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserResource": {
+        "type": "object",
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "nickName": {
+            "type": "string"
+          },
+          "profileUrl": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "userType": {
+            "type": "string"
+          },
+          "preferredLanguage": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "password": {
+            "type": "string"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            }
+          },
+          "phoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneNumber"
+            }
+          },
+          "ims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstantMessagingAddress"
+            }
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Photo"
+            }
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Group"
+            }
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entitlement"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            }
+          },
+          "x509Certificates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/X509Certificate"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "formatted": {
+            "type": "string"
+          },
+          "streetAddress": {
+            "type": "string"
+          },
+          "locality": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Email": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Entitlement": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "InstantMessagingAddress": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Name": {
+        "type": "object",
+        "properties": {
+          "formatted": {
+            "type": "string"
+          },
+          "familyName": {
+            "type": "string"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "honorificPrefix": {
+            "type": "string"
+          },
+          "honorificSuffix": {
+            "type": "string"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "PhoneNumber": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Photo": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "X509Certificate": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Group": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "$ref": {
+            "type": "string"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "GroupResource": {
+        "type": "object",
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Member"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Groups"
+        }
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "$ref": {
+            "type": "string"
+          }
+        },
+        "x-talend": {
+          "section": "Groups"
+        }
+      },
+      "RoleResource": {
+        "type": "object",
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entitlement"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Roles"
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "GenericScimResource": {
+        "type": "object",
+        "properties": {
+          "objectNode": {
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "schemaUrns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "excludedAttributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "filter": {
+            "type": "string"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "ascending",
+              "descending"
+            ]
+          },
+          "startIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "ListResponseGenericScimResource": {
+        "type": "object",
+        "required": [
+          "Resources",
+          "totalResults"
+        ],
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "totalResults": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenericScimResource"
+            }
+          },
+          "startIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemsPerPage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "AddOperation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PatchOperation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "value": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          }
+        ],
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "JsonNode": {
+        "type": "object",
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "PatchOperation": {
+        "type": "object",
+        "required": [
+          "op"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "op": {
+            "type": "string"
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "RemoveOperation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PatchOperation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "value": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          }
+        ],
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "PatchRequest": {
+        "type": "object",
+        "required": [
+          "Operations"
+        ],
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "Operations": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/AddOperation"
+                },
+                {
+                  "$ref": "#/components/schemas/RemoveOperation"
+                },
+                {
+                  "$ref": "#/components/schemas/ReplaceOperation"
+                }
+              ]
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "ReplaceOperation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PatchOperation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "value": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          }
+        ],
+        "x-talend": {
+          "section": "Common"
+        }
+      },
+      "ScimResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "schemaUrns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Common"
+        }
+      }
+    },
+    "responses": {
+      "401Unauthorized": {
+        "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+      },
+      "403Forbidden": {
+        "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+      },
+      "400BadRequest": {
+        "description": "Invalid request body. The message varies depending on the cause of the bad request. For example, the cause could be a malformed body or parameter."
+      },
+      "404NotFound": {
+        "description": "Resource not found."
+      },
+      "429TooManyRequests": {
+        "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+      },
+      "500InternalServerError": {
+        "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Bearer <TOKEN>"
+      }
+    }
+  },
+  "x-talend": {
+    "sections": {
+      "Discovery": {},
+      "Users": {
+        "description": "As you might expect, users map to the individuals of your account (domain). Each user contains properties called attributes. You can list users, filter by attribute, add new users, update a user's profile information, or remove a user entirely.\n\nAttributes are the details associated with a user's account. These are the details that someone would typically set in their profile. The following table maps SCIM attributes with Talend Cloud user attributes:\n\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| login     | userName     | Singular     | **Required** |\n| firstName     | name.givenName     | Singular     | **Required** |\n| middleName     | name.middleName     | Singular     | |\n| lastName     | name.familyName     | Singular     | **Required** |\n| email     | \temails\\[primary=true\\].value     | Multi-Valued     | |\n| phone     | phoneNumbers\\[type='work'\\].value     | Multi-Valued     | |\n| active     | active     | Singular     | |\n| password     | password     | Singular     | |\n| title     | title     | Singular     | |\n| preferredLanguage     | preferredLanguage     | Singular   |   |\n| timezone     | timezone     | Singular     | |\n| groups     | groups     | Multi-Valued     | |\n| roles     | roles     | Multi-Valued     | |\n\nRequires the permission **Users - Manage** (**TMC_USER_MANAGEMENT**)."
+      },
+      "Groups": {
+        "description": "Groups map to Talend groups with the following attributes:\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| name     | displayName     | Singular     | **Required** |\n| userIds     | members.value     | Multi-Valued     | |\n\nRequires the permission **Groups - Manage** (**TMC_GROUP_MANAGEMENT**)."
+      },
+      "Roles": {
+        "description": "Roles map to Talend roles with the following attributes:\n| Talend user field | SCIM attribute | Attribute type |Required|\n| -------- | -------- | -------- | -------- |\n| name     | name     | Singular     | **Required** |\n| permissions     | entitlements     | Multi-Valued     | **Required**|\n\nRequires the permission **Roles - Manage** (**TMC_ROLE_MANAGEMENT**)."
+      },
+      "Common": {}
+    }
+  }
+}

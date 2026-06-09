@@ -1,0 +1,611 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Execution Logs",
+    "description": "Retrieve logs about task runs. ",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/monitoring/executions/{id}/logs": {
+      "get": {
+        "summary": "Get task execution logs",
+        "description": "Get run logs of a given task by its execution ID (also referred to as run ID)",
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Number of log entries to return. The default value is 50 and the maximum value is 200",
+            "schema": {
+              "type": "number",
+              "description": "Number of log entries to return. The default value is 50 and the maximum value is 200",
+              "default": 50
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "latest date and time of the logs to be retrieved. By default, current time is used",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "latest date and time of the logs to be retrieved. By default, current time is used"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "The way in which the returned logs are sorted by their timestamps. The default value is DESC, meaning the latest logs are put first",
+            "schema": {
+              "type": "string",
+              "description": "The way in which the returned logs are sorted by their timestamps. The default value is DESC, meaning the latest logs are put first",
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "startIndex",
+            "in": "query",
+            "description": "Start position of the pagination of the logs, greater or equal to 0",
+            "schema": {
+              "type": "number",
+              "description": "Start position of the pagination of the logs, greater or equal to 0",
+              "default": 0
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "Earliest date and time of the logs to be put in the generated log. By default, logs are retrieved from the start time of the run",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Earliest date and time of the logs to be put in the generated log. By default, logs are retrieved from the start time of the run"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "size",
+                    "totalSize"
+                  ],
+                  "properties": {
+                    "size": {
+                      "type": "number",
+                      "description": "Number of log entries in the current page"
+                    },
+                    "totalSize": {
+                      "type": "number",
+                      "description": "Total number of log entries for the give execution ID"
+                    },
+                    "totalSizeFiltered": {
+                      "type": "number",
+                      "description": "Total number of log entries for the given execution ID, for the specific time range defned in the request"
+                    },
+                    "data": {
+                      "type": "array",
+                      "description": "List of execution logs. Log messages are in raw format, including information about severity, message, timestamps and so on.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "severity": {
+                            "type": "string"
+                          },
+                          "logType": {
+                            "type": "string"
+                          },
+                          "logTimestamp": {
+                            "type": "integer"
+                          },
+                          "logMessage": {
+                            "type": "string"
+                          },
+                          "bundleName": {
+                            "type": "string"
+                          },
+                          "bundleVersion": {
+                            "type": "string"
+                          },
+                          "podName": {
+                            "type": "string"
+                          }
+                        },
+                        "example": "[\n   {\n      \"logTimestamp\":1614696623123,\n      \"severity\":\"INFO\",\n      \"logType\":\"type\",\n      \"logMessage\":\"message\",\n      \"bundleName\":\"bundleName\",\n      \"bundleVersion\":\"bundleId\",\n      \"podName\": \"podName\"\n   }\n]"
+                      }
+                    },
+                    "nextIndex": {
+                      "type": "number",
+                      "description": "Next index for pagination if it exists"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - no permissions to access resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error - something went wrong on server side",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Generate logs for a completed or ongoing execution",
+        "description": "This endpoint generates the log of a given task run and returns a download token for this log (maximum log size: 100,000).\n\nThis token is valid for one hour.    \n\nIf the desired log size exceeds the 100,000-entry limit, use the time range parameters (`startTime` or `endTime` or both) to split the requests. Adjust the time range for each request to retrieve all log entries by making multiple calls.    \nFor example, use `endTime` in each request to retrieve up to 100,000 log entries before that time. Repeat with earlier `endTime` values until you have retrieved the desired log history.",
+        "parameters": [
+          {
+            "name": "fileFormat",
+            "in": "query",
+            "required": false,
+            "description": "Format of the log file to be generated. The available formats are `json` and `text`.",
+            "schema": {
+              "type": "string",
+              "description": "Format of the log file to be generated. The available formats are `json` and `text`.",
+              "default": "JSON",
+              "enum": [
+                "JSON",
+                "TEXT"
+              ]
+            },
+            "example": "fileFormat=TEXT"
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "required": false,
+            "description": "Latest date and time of the logs to be put in the generated log. By default, current time is used",
+            "schema": {
+              "type": "string",
+              "description": "Latest date and time of the logs to be put in the generated log. By default, current time is used"
+            },
+            "example": "2021-06-14T15:04:45Z"
+          },
+          {
+            "name": "newFileName",
+            "in": "query",
+            "description": "This parameter indicates whether you need to include task IDs and execution IDs in the filename of the log to be generated. It generates a distinctive file name reading like: `taskID_executionID.log`\n\nIt is recommended to set this value to be true as the old filename format is going to be deprecated.",
+            "schema": {
+              "type": "boolean",
+              "description": "This parameter indicates whether you need to include task IDs and execution IDs in the filename of the log to be generated. It generates a distinctive file name reading like: `taskID_executionID.log`\n\nIt is recommended to set this value to be true as the old filename format is going to be deprecated.",
+              "default": false
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "Earliest date and time of the logs to be put in the generated log. By default, logs are retrieved from the start time of the run",
+            "schema": {
+              "type": "string",
+              "description": "Earliest date and time of the logs to be put in the generated log. By default, logs are retrieved from the start time of the run"
+            },
+            "example": "2021-06-14T07:01:45Z"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "size",
+                    "token"
+                  ],
+                  "properties": {
+                    "size": {
+                      "type": "integer",
+                      "description": "Number of lines in logs"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Token used to check the status of the log file generation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "The downloaded logs contain only partial content due to the maximum log size limit of 100,000 entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "size",
+                    "token"
+                  ],
+                  "properties": {
+                    "size": {
+                      "type": "integer",
+                      "description": "Number of lines in logs"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Token used to check the status of the log file generation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - no permissions to access resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error - something went wrong on server side",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete logs of a specified execution",
+        "description": "This endpoint allows users with the `Execution Logs - Delete` permission  (ID: `EXECUTION_LOGS_DELETE`) to delete logs for a given execution identified by its ID. ",
+        "responses": {
+          "200": {
+            "description": "The logs have been deleted successfully or there are no logs to be deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "execution ID is not a UUID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to access resources",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permissions to access resources",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Execution with provided ID, has not been found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong and some or none of the execution logs have been deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Logs"
+      }
+    },
+    "/monitoring/executions/{id}/logs/status": {
+      "post": {
+        "summary": "Check log generation status and return download URL",
+        "description": "Check the status of the generated log and return a download URL.\n\nYou need to put the download token in the body.",
+        "requestBody": {
+          "description": "Token returned to the request at the POST /monitoring/executions/{id}/logs endpoint.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "description": "Token returned to the request at the POST /monitoring/executions/{id}/logs endpoint."
+              },
+              "example": "aec20220-f745-4da6-a5e0-b6dfe083eee5"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "presignedURL": {
+                      "type": "string",
+                      "description": "URL to download full logs, valid for 60 minutes"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of full log file generation",
+                      "enum": [
+                        "READY",
+                        "IN_PROGRESS"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - no permissions to access resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error - something went wrong on server side",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Logs"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string",
+            "description": "detail message for 401 - unauthorized error"
+          }
+        },
+        "x-talend": {
+          "section": "Logs"
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This Bearer authentication can be set in the Authorization header of your requests. Authentication tokens and Personal Access Tokens are supported. Personal Access Tokens can be generated in the Profile Preferences page of the Talend Cloud Portal.",
+        "bearerFormat": "Bearer <token>"
+      }
+    }
+  },
+  "x-talend": {
+    "sections": {
+      "Logs": {
+        "description": "Retrieve logs of your completed and ongoing executions. "
+      }
+    }
+  }
+}

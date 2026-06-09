@@ -1,0 +1,286 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Seats and Subscription",
+    "description": "Retrieve information details on your subscription and its usage accross Talend Apps. ",
+    "contact": {},
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/account/subscription": {
+      "get": {
+        "tags": [
+          "account :: subscription "
+        ],
+        "summary": "Get account subscription information",
+        "description": "Retrieve details of your Talend license, such as:\n* Number of tokens you acquired\n* How they are allocated for various usage scenarios\n* Your current subscription options",
+        "operationId": "getAccountSubscription",
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - no permissions to access resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Subscription": {
+        "type": "object",
+        "required": [
+          "applications",
+          "endDate",
+          "enginesStatus",
+          "licenseType",
+          "seats",
+          "startDate",
+          "supportLevel",
+          "tokensStatus"
+        ],
+        "description": "Contains information related to token consumption, engines statuses and seat usages",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Subscription start date",
+            "example": "\"2019-09-25\""
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Subscription end date",
+            "example": "\"2019-09-25\""
+          },
+          "licenseType": {
+            "type": "string",
+            "description": "License type"
+          },
+          "applications": {
+            "type": "array",
+            "description": "Available applications",
+            "items": {
+              "type": "string",
+              "description": "List of applications",
+              "example": "[\"Data Inventory\",\n\"Data Preparation\",\n\"Data Stewardship\",\n\"Pipeline Designer\",\n\"Dictionary service\",\n\"API Designer / API Tester\",\n\"Management Console\",\n\"Studio\"]"
+            }
+          },
+          "supportLevel": {
+            "type": "string",
+            "description": "Level of support"
+          },
+          "tokensStatus": {
+            "$ref": "#/components/schemas/TokensStatus"
+          },
+          "enginesStatus": {
+            "type": "array",
+            "description": "Give number of engines used by type",
+            "items": {
+              "$ref": "#/components/schemas/EngineStatus"
+            }
+          },
+          "seats": {
+            "type": "array",
+            "description": "Seats information by application",
+            "items": {
+              "$ref": "#/components/schemas/Seat"
+            }
+          }
+        }
+      },
+      "EngineStatus": {
+        "type": "object",
+        "required": [
+          "consumed",
+          "type"
+        ],
+        "description": "Information about engine status",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Engine type",
+            "enum": [
+              "RE-GEN1",
+              "RE-GEN2",
+              "CLOUD",
+              "DYNAMIC-ENGINE-ENVIRONMENT"
+            ]
+          },
+          "consumed": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of engines used by type"
+          }
+        }
+      },
+      "TokensStatus": {
+        "type": "object",
+        "required": [
+          "consumed",
+          "total"
+        ],
+        "description": "Information about tokens",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of token allowed for the account"
+          },
+          "consumed": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of token currently consumed by the account"
+          }
+        }
+      },
+      "Seat": {
+        "type": "object",
+        "required": [
+          "application",
+          "currentUsers",
+          "maxUsers"
+        ],
+        "description": "Seat information",
+        "properties": {
+          "application": {
+            "type": "string",
+            "description": "Name of application",
+            "example": "[\"Data Inventory\",\n\"Data Preparation\",\n\"Data Stewardship\",\n\"Pipeline Designer\",\n\"Dictionary service\",\n\"API Designer / API Tester\",\n\"Management Console\",\n\"Studio\",\n\"Service Accounts\"]"
+          },
+          "maxUsers": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum of users allowed to use the application"
+          },
+          "currentUsers": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Count of users currently using the application"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "description": "Error response object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 401
+          },
+          "message": {
+            "type": "string",
+            "description": "Info about the error for user",
+            "example": "Forbidden"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Info about error for developer.",
+            "example": "Token authorization is required for access"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "The unique identification of the request involved with this error",
+            "example": "16fefb53-035a-4249-af9d-f80a3b47b132"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer authentification"
+      }
+    }
+  }
+}

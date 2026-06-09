@@ -1,0 +1,2246 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Identities Management",
+    "description": "Manage identity data related to users, groups and roles from your Talend Cloud account.",
+    "contact": {
+      "name": ""
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://github.com/Talend/tdf-platform-services#license"
+    },
+    "version": "2021-03"
+  },
+  "servers": [
+    {
+      "url": "https://api.eu.cloud.talend.com",
+      "description": "URL for the AWS Europe region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.ap.cloud.talend.com",
+      "description": "URL for the AWS Asia Pacific region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us.cloud.talend.com",
+      "description": "URL for the AWS United States East region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.au.cloud.talend.com",
+      "description": "URL for the AWS Australia region",
+      "x-talend": {
+        "isPublished": true
+      }
+    },
+    {
+      "url": "https://api.us-west.cloud.talend.com",
+      "description": "URL for the Azure United States West region",
+      "x-talend": {
+        "isPublished": true
+      }
+    }
+  ],
+  "security": [
+    {
+      "Public": []
+    }
+  ],
+  "paths": {
+    "/account/groups": {
+      "get": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Retrieve a list of filtered groups",
+        "operationId": "retrieveGroups",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/nameFilter"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Groups was successfully retrieved.",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Register a new group",
+        "operationId": "registerANewGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Group"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "New group was successfully registered.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid. The cause could vary. For example, at least one user in the list provided cannot be found."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "409": {
+            "description": "The group name is already used."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/account/groups/{id}": {
+      "get": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Retrieve details of a specific group",
+        "operationId": "retrieveGroup",
+        "responses": {
+          "200": {
+            "description": "The group was successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The group was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Delete a group",
+        "operationId": "deleteGroup",
+        "responses": {
+          "204": {
+            "description": "The group was successfully deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Rename a group",
+        "operationId": "renameGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameGroupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Group was successfully renamed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The payload was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header is missing or the provided token is incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The group was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Group id",
+          "schema": {
+            "type": "string",
+            "description": "Group id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/account/groups/{id}/users": {
+      "get": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Retrieve users of a specific group",
+        "operationId": "retrieveGroupUsers",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users were successfully retrieved from given group",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request URI was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The group was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Assign users to a group if not already in it",
+        "operationId": "assignUsersToAGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Users were successfully assigned to the group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request or the payload was invalid. For example, at least one user in the list provided does not exist."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The group was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Group id",
+          "schema": {
+            "type": "string",
+            "description": "Group id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/account/groups/{id}/users/{userId}": {
+      "delete": {
+        "tags": [
+          "Group Management"
+        ],
+        "summary": "Remove a user from a specific group",
+        "operationId": "removeUser",
+        "responses": {
+          "204": {
+            "description": "The user was successfully removed."
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The group was not found."
+          },
+          "500": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Group id",
+          "schema": {
+            "type": "string",
+            "description": "Group id"
+          }
+        },
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Groups"
+      }
+    },
+    "/account/users": {
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Retrieve users",
+        "operationId": "retrieveUsers_1",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users are retrieved successfully in the requested. range.",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Create a new user",
+        "operationId": "createANewUser_1",
+        "parameters": [
+          {
+            "name": "invite",
+            "in": "query",
+            "description": "Send invitation email to user",
+            "schema": {
+              "type": "boolean",
+              "description": "Send invitation email to user",
+              "default": true
+            }
+          },
+          {
+            "name": "admin",
+            "in": "query",
+            "required": false,
+            "description": "Assign admin roles to user",
+            "schema": {
+              "type": "string",
+              "description": "Assign admin roles to user",
+              "default": "false"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The user was successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid. The cause could vary."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "409": {
+            "description": "Provides more information about why the creation ended up in conflict"
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/account/users/{id}": {
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Retrieve user details",
+        "operationId": "retrieveUserDetails",
+        "responses": {
+          "200": {
+            "description": "The user was successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid. The cause could vary."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Update a user",
+        "operationId": "updateUser_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user was successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI or the request body was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Delete a user",
+        "operationId": "assignUser_1",
+        "responses": {
+          "204": {
+            "description": "The user was successfully deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/account/users/{id}/groups": {
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "List the groups to which a specific user belongs",
+        "operationId": "listUserGroups",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/nameFilter"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of user groups were successfully retrieved in the requested range.",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid. The cause could vary."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Add a specific user to the specified groups",
+        "operationId": "addUserToGroups",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user was successfully added to the specified groups.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The provided data is not correct. Ensure that all the specified groups exist."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/account/users/{id}/groups/{groupId}": {
+      "delete": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Remove a given user from a specific group",
+        "operationId": "removeUserFromGroup",
+        "responses": {
+          "204": {
+            "description": "The user was successfully removed."
+          },
+          "400": {
+            "description": "The request URI was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        },
+        {
+          "name": "groupId",
+          "in": "path",
+          "required": true,
+          "description": "Group id",
+          "schema": {
+            "type": "string",
+            "description": "Group id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/account/users/{id}/roles": {
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "List the roles assigned to a specific user",
+        "operationId": "listUserRoles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user roles were successfully retrieved in the requested range.",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Assign roles to a specific user",
+        "operationId": "assignRoles",
+        "requestBody": {
+          "description": "The format to be used is `[\"role_id_1\",\"role_id_2\"]`.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "The format to be used is `[\"role_id_1\",\"role_id_2\"]`.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "example": " [\n \"ab3f667f-6786-43b4-b51c-47cc0de5699c\",\n  \"a3461557-8ee1-4321-ba40-860e7151fc51\"\n]"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The roles were successfully assigned to the specified user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid. The cause could vary. For example, at least one role in the list provided was not found."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user  was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/account/users/{id}/roles/{roleId}": {
+      "delete": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Revoke a role from a specific user",
+        "operationId": "removeRole_1",
+        "responses": {
+          "204": {
+            "description": "The role was successfully removed."
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The user was not found"
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        },
+        {
+          "name": "roleId",
+          "in": "path",
+          "required": true,
+          "description": "Role id",
+          "schema": {
+            "type": "string",
+            "description": "Role id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Users"
+      }
+    },
+    "/account/roles": {
+      "get": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Retrieve a list of filtered roles",
+        "operationId": "retrieveRoles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/nameFilter"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles were successfully retrieved.",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Register a new role",
+        "operationId": "registerANewRole",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Role was successfully registered",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid. The cause could vary. For example, at least one permission in the list provided was not found."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "409": {
+            "description": "The role name is already used."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "x-talend": {
+        "section": "Roles"
+      }
+    },
+    "/account/roles/{id}": {
+      "get": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Get a role by its id",
+        "operationId": "getRoleById",
+        "responses": {
+          "200": {
+            "description": "Role was successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The role was not found."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Update a role",
+        "operationId": "updateRole",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The role was successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The role was not found."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Delete a role",
+        "operationId": "assignUser",
+        "responses": {
+          "204": {
+            "description": "The role was successfully deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request URI is invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Role id",
+          "schema": {
+            "type": "string",
+            "description": "Role id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Roles"
+      }
+    },
+    "/account/roles/{id}/users": {
+      "get": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Retrieve users with a specific role",
+        "operationId": "retrieveUsers",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The role users were successfully retrieved.",
+            "headers": {
+              "page-first": {
+                "$ref": "#/components/headers/page-first"
+              },
+              "page-number": {
+                "$ref": "#/components/headers/page-number"
+              },
+              "total-elements": {
+                "$ref": "#/components/headers/total-elements"
+              },
+              "total-pages": {
+                "$ref": "#/components/headers/total-pages"
+              },
+              "page-last": {
+                "$ref": "#/components/headers/page-last"
+              },
+              "page-total-elements": {
+                "$ref": "#/components/headers/page-total-elements"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid"
+          },
+          "401": {
+            "description": "IThe system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The role was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Assign role to users",
+        "operationId": "assignRoleToUsers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Users were successfully updated."
+          },
+          "400": {
+            "description": "The request body is invalid. The cause could vary, fore example, at least one user was not found."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "402": {
+            "description": "Action cannot be performed because it would bring your account above the limit allowed by your plan."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The role was not found."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Role id",
+          "schema": {
+            "type": "string",
+            "description": "Role id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Roles"
+      }
+    },
+    "/account/roles/{id}/users/{userId}": {
+      "delete": {
+        "tags": [
+          "Role Management"
+        ],
+        "summary": "Remove a specific role from a given user",
+        "operationId": "removeRole",
+        "responses": {
+          "204": {
+            "description": "The role was successfully removed."
+          },
+          "400": {
+            "description": "The request URI was invalid."
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "403": {
+            "description": "The system failed to authorize the user. The provided token was recognized but did not have the rights to perform the action. Contact your security administrator to get the appropriate rights."
+          },
+          "404": {
+            "description": "The role is not found."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        },
+        "security": [
+          {
+            "Public": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Role id",
+          "schema": {
+            "type": "string",
+            "description": "Role id"
+          }
+        },
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "description": "User id",
+          "schema": {
+            "type": "string",
+            "description": "User id"
+          }
+        }
+      ],
+      "x-talend": {
+        "section": "Roles"
+      }
+    },
+    "/account/me": {
+      "summary": "Me endpoint",
+      "get": {
+        "summary": "Get information about me",
+        "description": "Returns information about authenticated caller (user or service account).",
+        "responses": {
+          "200": {
+            "description": "Current user or service account has been successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The system failed to authenticate the user. Either the Authorization header was missing or the provided token was incorrect."
+          },
+          "429": {
+            "description": "Too many requests were sent. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers."
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request."
+          }
+        }
+      },
+      "x-talend": {
+        "section": "Me"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Group": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the group"
+          },
+          "userIds": {
+            "type": "array",
+            "description": "List of user ids belonging to the group",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Groups"
+        }
+      },
+      "RenameGroupRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the group"
+          }
+        },
+        "x-talend": {
+          "section": "Groups"
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "login"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "Boolean indicating if the user is active"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the user"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the user"
+          },
+          "login": {
+            "type": "string",
+            "description": "Login of the user"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone of the user"
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "Preferred language of the user",
+            "enum": [
+              "en",
+              "fr",
+              "ja",
+              "de",
+              "unsupported"
+            ]
+          },
+          "roleIds": {
+            "type": "array",
+            "description": "List of roles ids for the user",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone of the user"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the user"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "Boolean indicating if the user is active"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the user"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the user"
+          },
+          "login": {
+            "type": "string",
+            "description": "Login of the user"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone of the user"
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "Preferred language of the user",
+            "enum": [
+              "en",
+              "fr",
+              "ja",
+              "de",
+              "unsupported"
+            ],
+            "example": "en"
+          },
+          "roleIds": {
+            "type": "array",
+            "description": "List of roles ids for the user",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone of the user"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the user"
+          }
+        },
+        "x-talend": {
+          "section": "Users"
+        }
+      },
+      "Role": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the role"
+          },
+          "permissions": {
+            "type": "array",
+            "description": "List of permissions associated with the role",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-talend": {
+          "section": "Roles"
+        }
+      },
+      "MeResponse": {
+        "type": "object",
+        "required": [
+          "createdDate",
+          "id",
+          "lastModified",
+          "name",
+          "type"
+        ],
+        "description": "User or service account returned by Me endpoint",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of the resource",
+            "readOnly": true,
+            "enum": [
+              "USER",
+              "SERVICE_ACCOUNT"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "Id of the resource",
+            "readOnly": true
+          },
+          "login": {
+            "type": "string",
+            "description": "Login of the user (user only)",
+            "readOnly": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the user (user only)",
+            "readOnly": true
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the user (user only)",
+            "readOnly": true
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Middle name of the user (user only)",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of resource",
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user (user only)",
+            "readOnly": true
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "Preferred language of the user (user only)",
+            "readOnly": true
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone of the user (user only)",
+            "readOnly": true
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Status of the user (user only)",
+            "readOnly": true
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Permissions of the service account (service account only)",
+            "readOnly": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "description": "Roles of the user (user only)",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "description": "Account id of the user (user only)",
+            "readOnly": true
+          },
+          "applications": {
+            "type": "array",
+            "description": "Applications of the user (user only)",
+            "readOnly": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "lastModified": {
+            "type": "string",
+            "description": "Last modified date of the resource",
+            "readOnly": true
+          },
+          "createdDate": {
+            "type": "string",
+            "description": "Created date of the resource",
+            "readOnly": true
+          },
+          "lastSetPasswordDate": {
+            "type": "string",
+            "description": "Last set password date of the user (user only)",
+            "readOnly": true
+          },
+          "lastLoginAttempt": {
+            "type": "string",
+            "description": "Last login attempt (user only)",
+            "readOnly": true
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the user (user only)",
+            "readOnly": true
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone of the user (user only)",
+            "readOnly": true
+          }
+        },
+        "x-talend": {
+          "section": "Me"
+        }
+      }
+    },
+    "parameters": {
+      "nameFilter": {
+        "name": "nameFilter",
+        "in": "query",
+        "required": false,
+        "description": "Name of the entity to be retrieved",
+        "schema": {
+          "type": "string",
+          "description": "Name of the entity to be retrieved"
+        }
+      },
+      "page": {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "description": "Number of the page to be returned. If you put 2, the second page of the query result is returned.",
+        "schema": {
+          "type": "integer",
+          "description": "Number of the page to be returned. If you put 2, the second page of the query result is returned."
+        },
+        "example": 2
+      },
+      "size": {
+        "name": "size",
+        "in": "query",
+        "required": false,
+        "description": "Number of retrieved entities on each page. The range is from 1 to 100.",
+        "schema": {
+          "type": "integer",
+          "description": "Number of retrieved entities on each page. The range is from 1 to 100."
+        },
+        "example": 50
+      },
+      "page-first": {
+        "name": "page-first",
+        "in": "header",
+        "required": false,
+        "description": "Whether the current page is the first page: “true” if it is and “false” if it is not",
+        "schema": {
+          "type": "boolean",
+          "description": "Whether the current page is the first page: “true” if it is and “false” if it is not"
+        },
+        "example": true
+      },
+      "page-number": {
+        "name": "page-number",
+        "in": "header",
+        "required": false,
+        "description": "Current page number",
+        "schema": {
+          "type": "integer",
+          "description": "Current page number"
+        },
+        "example": 1
+      },
+      "total-elements": {
+        "name": "total-elements",
+        "in": "header",
+        "required": false,
+        "description": "Total number of elements that can be retrieved via API",
+        "schema": {
+          "type": "integer",
+          "description": "Total number of elements that can be retrieved via API"
+        }
+      },
+      "total-pages": {
+        "name": "total-pages",
+        "in": "header",
+        "required": false,
+        "description": "Number of pages",
+        "schema": {
+          "type": "integer",
+          "description": "Number of pages"
+        }
+      },
+      "page-last": {
+        "name": "page-last",
+        "in": "header",
+        "required": false,
+        "description": "Whether the current page is the last page: “true” if it is and “false” if it is not",
+        "schema": {
+          "type": "boolean",
+          "description": "Whether the current page is the last page: “true” if it is and “false” if it is not"
+        }
+      },
+      "page-total-elements": {
+        "name": "page-total-elements",
+        "in": "header",
+        "required": false,
+        "description": "Number of audit logs in the current page",
+        "schema": {
+          "type": "integer",
+          "description": "Number of audit logs in the current page"
+        }
+      }
+    },
+    "headers": {
+      "page-first": {
+        "description": "Whether the current page is the first page: “true” if it is and “false” if it is not",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "description": "Whether the current page is the first page: “true” if it is and “false” if it is not"
+        },
+        "example": true
+      },
+      "page-number": {
+        "description": "Current page number",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "description": "Current page number"
+        },
+        "example": 1
+      },
+      "total-elements": {
+        "description": "Total number of elements that can be retrieved via API",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "description": "Total number of elements that can be retrieved via API"
+        }
+      },
+      "total-pages": {
+        "description": "Number of pages",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "description": "Number of pages"
+        }
+      },
+      "page-last": {
+        "description": "Whether the current page is the last page: “true” if it is and “false” if it is not",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "description": "Whether the current page is the last page: “true” if it is and “false” if it is not"
+        }
+      },
+      "page-total-elements": {
+        "description": "Number of audit logs in the current page",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "description": "Number of audit logs in the current page"
+        }
+      }
+    },
+    "securitySchemes": {
+      "Public": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Bearer <TOKEN>"
+      }
+    }
+  },
+  "x-talend": {
+    "sections": {
+      "Groups": {},
+      "Users": {},
+      "Roles": {},
+      "Me": {}
+    }
+  }
+}

@@ -1,0 +1,101 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine-log-scraper
+  labels:
+    app.kubernetes.io/name: engine-log-scraper
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: engine-log-scraper
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: engine-log-scraper
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/part-of: talend-tmc-mcp
+        logging: promtail
+        service: tmc-engine-log-scraper
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9466"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: engine-log-scraper
+          image: talend-tmc-python-exporters:obs
+          imagePullPolicy: IfNotPresent
+          args: ["exporters/engine_log_scraper.py"]
+          ports:
+            - name: metrics
+              containerPort: 9466
+              protocol: TCP
+          env:
+            - name: TMC_EXPORTER_PORT
+              value: "9466"
+            - name: TMC_EXPORTER_HOST
+              value: "0.0.0.0"
+            - name: TALEND_ENGINE_LOG_DIR
+              value: "/engine-logs"
+            - name: TALEND_ENGINE_LOG_GLOB
+              value: "*.log:*.json"
+            - name: TALEND_ENGINE_SCRAPE_INTERVAL
+              value: "5"
+            - name: TALEND_ENGINE_FROM_BEGINNING
+              value: "0"
+            - name: LOG_FORMAT
+              value: "json"
+            - name: LOG_LEVEL
+              value: "info"
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            # Mount your Remote Engine's data/log directory here. The base
+            # manifest mounts an emptyDir so the pod starts; overlays should
+            # patch in a PVC or hostPath that points at a real engine.
+            - name: engine-logs
+              mountPath: /engine-logs
+              readOnly: true
+      volumes:
+        - name: engine-logs
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: engine-log-scraper
+  labels:
+    app.kubernetes.io/name: engine-log-scraper
+    app.kubernetes.io/part-of: talend-tmc-mcp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: engine-log-scraper
+  ports:
+    - name: metrics
+      port: 9466
+      targetPort: metrics
+      protocol: TCP

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: talend-tmc-mcp
+  labels:
+    name: talend-tmc-mcp
+    app.kubernetes.io/part-of: talend-tmc-mcp
