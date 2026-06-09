@@ -1,0 +1,100 @@
+# OpenTelemetry Collector (contrib) — exports the toolkit's observability
+# signals to Datadog AND Splunk Observability Cloud.
+#
+# Metrics need NO app changes: the collector scrapes the same Prometheus
+# /metrics endpoints the stack already exposes. Logs come from the container
+# json logs. Traces arrive over OTLP once the MCP server is instrumented
+# (set TMC_OTLP_ENDPOINT=http://otel-collector:4318 — see docs/otel-export.md).
+#
+# Required env (set in compose / k8s, never commit real values):
+#   DD_API_KEY, DD_SITE                 (Datadog)
+#   SPLUNK_ACCESS_TOKEN, SPLUNK_REALM   (Splunk Observability Cloud / SignalFx)
+
+receivers:
+  # Scrape the existing /metrics — zero application changes.
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: qlik-observability-toolkit
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                - tmc-mcp:9464
+                - business-exporter:9465
+                - engine-log-scraper:9466
+                - qvd-exporter:9467
+                - qlik-obs-exporter:9468
+
+  # App-emitted traces + metrics (OTLP). Used once the MCP server is
+  # instrumented with the OpenTelemetry SDK (optional, see docs).
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Container logs (Docker json-file driver). On non-Linux hosts, prefer
+  # shipping logs over OTLP instead of this host mount.
+  filelog:
+    include:
+      - /var/lib/docker/containers/*/*-json.log
+    include_file_path: true
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.time
+          layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+
+processors:
+  batch: {}
+  resourcedetection:
+    detectors: [env, system]
+    timeout: 2s
+  resource/toolkit:
+    attributes:
+      - key: service.namespace
+        value: qlik-observability-toolkit
+        action: upsert
+      - key: deployment.environment
+        value: ${env:DEPLOY_ENV}
+        action: upsert
+
+exporters:
+  # ---- Datadog (metrics + logs + traces) ----
+  datadog:
+    api:
+      key: ${env:DD_API_KEY}
+      site: ${env:DD_SITE}
+
+  # ---- Splunk Observability Cloud ----
+  # SignalFx carries metrics + traces (APM).
+  signalfx:
+    access_token: ${env:SPLUNK_ACCESS_TOKEN}
+    realm: ${env:SPLUNK_REALM}
+  # Logs go to the O11y Cloud log-ingest (HEC-compatible) endpoint.
+  splunk_hec/logs:
+    token: ${env:SPLUNK_ACCESS_TOKEN}
+    endpoint: https://ingest.${env:SPLUNK_REALM}.signalfx.com/v1/log
+    source: otel
+    sourcetype: otel
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [prometheus, otlp]
+      processors: [resourcedetection, resource/toolkit, batch]
+      exporters: [datadog, signalfx]
+    traces:
+      receivers: [otlp]
+      processors: [resourcedetection, resource/toolkit, batch]
+      exporters: [datadog, signalfx]
+    logs:
+      receivers: [filelog, otlp]
+      processors: [resourcedetection, resource/toolkit, batch]
+      exporters: [datadog, splunk_hec/logs]

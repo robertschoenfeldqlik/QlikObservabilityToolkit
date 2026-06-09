@@ -21,6 +21,7 @@ import { startMetricsServer, type MetricsServerHandle } from "./metrics-server.j
 import { QLIK_OBSERVABILITY_TOOLS } from "./qlik-tools.js";
 import { loadSpecs, parseApiList, parseApiPreset } from "./spec-loader.js";
 import { generateToolsForSpec, type ToolDescriptor } from "./tool-generator.js";
+import { startTracing } from "./tracing.js";
 import { PKG_NAME, PKG_VERSION } from "./version.js";
 
 const SHUTDOWN_DRAIN_MS = Number(process.env.TMC_SHUTDOWN_DRAIN_MS ?? 5_000);
@@ -34,6 +35,10 @@ const META_LIST_ENVIRONMENTS = "tmc_list_environments";
 
 async function main() {
   const log = createLogger({ base: { service: PKG_NAME, version: PKG_VERSION } });
+
+  // Optional OpenTelemetry tracing (no-ops unless TMC_OTLP_ENDPOINT is set AND
+  // the OTel SDK is installed). Exports to the collector → Datadog + Splunk.
+  await startTracing(log);
 
   const fileConfig = await loadConfigFile().catch((err: unknown) => {
     log.warn("config file unreadable, falling back to env vars", { err: errMsg(err) });

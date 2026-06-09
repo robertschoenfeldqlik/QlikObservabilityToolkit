@@ -246,6 +246,32 @@ services:
     depends_on:
       - prometheus
 
+  # OpenTelemetry Collector — fans the toolkit's metrics/logs/traces out to
+  # Datadog AND Splunk Observability Cloud. Opt in with --profile otel.
+  # Set DD_API_KEY/DD_SITE and SPLUNK_ACCESS_TOKEN/SPLUNK_REALM in the env.
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    container_name: tmc-mcp-otel-collector
+    profiles: ["otel", "all"]
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./deploy/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    environment:
+      DEPLOY_ENV: "${DEPLOY_ENV:-docker}"
+      DD_API_KEY: "${DD_API_KEY:-}"
+      DD_SITE: "${DD_SITE:-datadoghq.com}"
+      SPLUNK_ACCESS_TOKEN: "${SPLUNK_ACCESS_TOKEN:-}"
+      SPLUNK_REALM: "${SPLUNK_REALM:-us0}"
+    ports:
+      - "127.0.0.1:4317:4317"  # OTLP gRPC
+      - "127.0.0.1:4318:4318"  # OTLP HTTP
+      - "127.0.0.1:13133:13133"  # health_check
+    labels:
+      logging: "promtail"
+      service: "tmc-otel-collector"
+    restart: unless-stopped
+
 volumes:
   prometheus-data:
   loki-data:
