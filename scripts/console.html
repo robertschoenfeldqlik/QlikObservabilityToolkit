@@ -468,21 +468,46 @@ function renderHelp() {
   "arguments": { "tenant": "qlik-eu", "limit": 50 } }`)}
     ${helpNote(`Omit <span class="mono">tenant</span> to use the default (★ in the tenant lists). Discover ids with <span class="mono">tmc_list_environments</span>.`)}`);
 
-  const portRow = (port, what) => `<tr class="row"><td class="num" style="text-align:left">${esc(port)}</td><td style="color:var(--muted);font-size:12.5px">${esc(what)}</td></tr>`;
-  const dashboards = block("Dashboards, metrics & ports", "Reachable once the docker stack is up. Everything binds to localhost.", `
+  const explainRow = (name, what) => `<div class="kv" style="align-items:flex-start"><span class="k" style="width:150px;flex:0 0 150px;font-weight:600;color:var(--text)">${name}</span><span style="font-size:12.5px;color:var(--muted)">${what}</span></div>`;
+  const stackExplained = block("The stack, explained", "What each moving part actually is — for anyone who hasn't run these tools before.", `
+    ${explainRow("Prometheus", `A <b>time-series metrics database</b>. Every 10–15s it "scrapes" each service's <span class="mono">/metrics</span> page (plain text counters &amp; gauges) and stores the values with timestamps. That history is what lets you ask "how many Talend jobs failed in the last hour?" or "is this reload getting slower?". You query it with <b>PromQL</b>. It keeps ~14 days locally.`)}
+    ${explainRow("Grafana", `The <b>dashboard UI on top of Prometheus</b> (and Loki). It doesn't collect anything itself — it queries Prometheus and draws the charts, tables and alerts. This stack ships two pre-built dashboards and opens <b>without any login</b> on localhost.`)}
+    ${explainRow("Loki + Promtail", `The <b>log side</b> of the same idea: Promtail tails every container's logs and ships them to Loki (a log database). Grafana queries Loki too, so metrics and the matching log lines sit side by side.`)}
+    ${explainRow("Exporters", `Small Python services that <b>turn cloud APIs into Prometheus metrics</b> — they poll Talend Cloud / Qlik Cloud / Remote Engine logs and publish what they find on their own <span class="mono">/metrics</span> port for Prometheus to scrape.`)}
+    ${explainRow("OTel Collector", `An optional <b>forwarder</b>: it reads the same metrics/logs/traces and pushes them out to Datadog and Splunk Observability Cloud, for teams whose alerting already lives there.`)}
+    ${explainRow("QVD bridge", `The <b>Qlik path</b>: the qvd-exporter queries Prometheus, writes the results as a QVD file, and uploads it to Qlik Cloud — so analysts can explore the same observability data in a Qlik Cloud Analytics app.`)}`);
+
+  const commRow = (from, to, port, proto, why) => `<tr class="row">
+    <td style="font-size:12px;font-weight:500">${from}</td>
+    <td style="font-size:12px;font-weight:500">${to}</td>
+    <td class="num" style="text-align:left;font-size:12px">${esc(port)}</td>
+    <td style="font-size:11.5px;color:var(--muted)">${esc(proto)}</td>
+    <td style="font-size:12px;color:var(--muted)">${why}</td></tr>`;
+  const dashboards = block("Ports & communication map", "Every connection in the toolkit — who talks to whom, on which port. All listeners bind to localhost / the docker network; nothing is exposed to your LAN.", `
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
       <a class="btn" href="http://localhost:3000" target="_blank" rel="noopener">Grafana :3000</a>
       <a class="btn" href="http://localhost:9090" target="_blank" rel="noopener">Prometheus :9090</a>
       <a class="btn" href="http://localhost:3100/ready" target="_blank" rel="noopener">Loki :3100</a>
     </div>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Port</th><th>Service</th></tr></thead><tbody>
-      ${portRow(":8788", "This configuration console (loopback only).")}
-      ${portRow(":9464", "MCP server /metrics + /health (Prometheus format).")}
-      ${portRow(":9465 – :9468", "Python exporters /metrics — business · engine-logs · qvd · qlik-obs.")}
-      ${portRow(":9090 / :3000 / :3100", "Prometheus · Grafana (no login — opens straight to dashboards) · Loki.")}
-      ${portRow(":4317 / :4318", "OpenTelemetry Collector OTLP (gRPC / HTTP) — otel profile only.")}
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Inside the toolkit (localhost / docker network)</p>
+    <div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl"><thead><tr><th>From</th><th>To</th><th>Port</th><th>Protocol</th><th>Why</th></tr></thead><tbody>
+      ${commRow("Your browser", "This console", ":8788", "HTTP (loopback only)", "Manage tenants, exporters, data products.")}
+      ${commRow("MCP client (Claude)", "MCP server", "— none —", "stdio", "Tool calls travel over stdin/stdout of the spawned process — no network port at all.")}
+      ${commRow("Extractor agents", "This console", ":8788", "HTTP POST /api/extractors/register", "30s heartbeats + self-diagnosis from Remote Engine hosts.")}
+      ${commRow("Prometheus", "MCP server", ":9464", "HTTP scrape /metrics", "Server request/latency/retry metrics + /health.")}
+      ${commRow("Prometheus", "Exporters", ":9465–:9468", "HTTP scrape /metrics", "business :9465 · engine-logs :9466 · qvd :9467 · qlik-obs :9468.")}
+      ${commRow("Your browser", "Grafana", ":3000", "HTTP — no login", "Dashboards. Grafana queries Prometheus :9090 and Loki :3100 behind the scenes.")}
+      ${commRow("Your browser", "Prometheus", ":9090", "HTTP", "Raw PromQL + scrape-target status (/targets).")}
+      ${commRow("Promtail", "Loki", ":3100", "HTTP push", "Ships every container's logs into the log store.")}
+      ${commRow("Apps (traces)", "OTel Collector", ":4317 / :4318", "OTLP gRPC / HTTP", "Optional — otel profile only; health check on :13133.")}
     </tbody></table></div>
-    ${helpNote(`The MCP server itself has <b>no</b> network port — it speaks stdio to the client that spawns it.`)}`);
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Outbound (HTTPS 443 — the only traffic that leaves your machine)</p>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>From</th><th>To</th><th>Port</th><th>Protocol</th><th>Why</th></tr></thead><tbody>
+      ${commRow("MCP server + exporters", "Talend Cloud", ":443", "HTTPS · Bearer PAT", "Read-only observability APIs (metrics, exec logs, history).")}
+      ${commRow("MCP server + exporters", "Qlik Cloud", ":443", "HTTPS · Bearer API key", "Read-only platform APIs (apps, reloads, audits, quotas) + QVD upload via Data Files.")}
+      ${commRow("OTel Collector", "Datadog / Splunk", ":443", "HTTPS · API keys", "Optional telemetry export — only with the otel profile + credentials set.")}
+    </tbody></table></div>
+    ${helpNote(`Everything inbound binds to <span class="mono">127.0.0.1</span> (or stays inside the docker network) — the three rows above are the only outbound connections, and all are read-only against your clouds except the QVD upload.`)}`);
 
   const extractor = block("Remote Engine extractor", "A headless agent on each Talend Remote Engine host ships job-management logs and self-diagnoses.", `
     ${codeBlock(`npm i -g qlik-engine-extractor
@@ -498,6 +523,19 @@ npm run deploy -- --target docker --profile otel`)}
     ${codeBlock(`npm i @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node @opentelemetry/exporter-trace-otlp-http
 export TMC_OTLP_ENDPOINT=http://localhost:4318`)}
     ${helpNote(`Metrics need no app changes (the collector scrapes the same /metrics). Config: <span class="mono">deploy/otel-collector.yaml</span> · full guide: ${extLink(gh + "/blob/main/docs/otel-export.md", "docs/otel-export.md")}. Using Splunk Enterprise instead? Swap the <span class="mono">signalfx</span> exporter for <span class="mono">splunk_hec</span>.`)}`);
+
+  const grafanaHow = block("Getting to the Grafana dashboards", "From zero to charts in four clicks — no login anywhere.", `
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">1</span><span style="font-size:13px"><b>Start the stack</b> (once): ${codeInline("npm run deploy -- --target docker --profile all")} — wait ~15s for the containers to settle. Already running? Skip ahead.</span></div>
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">2</span><span style="font-size:13px"><b>Open Grafana</b> — ${extLink("http://localhost:3000", "localhost:3000")}. It lands directly on the app: no username, no password, no login form.</span></div>
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">3</span><span style="font-size:13px"><b>Open the dashboard list</b> — left sidebar → <b>Dashboards</b>, or jump straight there: ${extLink("http://localhost:3000/dashboards", "localhost:3000/dashboards")}.</span></div>
+    <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">4</span><span style="font-size:13px"><b>Pick one of the two pre-provisioned dashboards</b>:<br>
+      <span style="display:inline-block;margin-top:6px"><b>Qlik Observability Toolkit</b> — MCP server health: request rate, latency, errors, retries, with the matching Loki log stream underneath.<br>
+      <b>Talend TMC Business + Engine</b> — what your pipelines are doing: task/plan runs &amp; outcomes, Remote Engine job lifecycle, QVD export health.</span></span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn primary" href="http://localhost:3000/dashboards" target="_blank" rel="noopener">Open the dashboard list →</a>
+      <a class="btn" href="http://localhost:9090/targets" target="_blank" rel="noopener">Check scrape targets</a>
+    </div>
+    ${helpNote(`Empty charts? Prometheus may still be doing its first scrapes (~15s), or the exporter feeding that panel is stopped — check the <b>Exporters</b> tab here, and ${extLink("http://localhost:9090/targets", "Prometheus → targets")} should show every endpoint <b>UP</b>. The dashboards are provisioned from the repo (<span class="mono">deploy/grafana/dashboards/</span>), so they're there from first boot — nothing to import.`)}`);
 
   const fixRow = (q, a) => `<div class="kv" style="align-items:flex-start"><span class="k" style="width:230px;flex:0 0 230px;font-weight:600;color:var(--text)">${q}</span><span style="font-size:12.5px;color:var(--muted)">${a}</span></div>`;
   const trouble = block("Troubleshooting", "", `
@@ -517,7 +555,7 @@ export TMC_OTLP_ENDPOINT=http://localhost:4318`)}
     <div class="kv"><span class="k">Qlik Cloud APIs</span><span class="v">${extLink("https://qlik.dev/apis/", "qlik.dev/apis")} · ${extLink("https://qlik.dev/apis/rest/data-files/", "Data Files API")}</span></div>
     <div class="kv"><span class="k">All references</span><span class="v"><span class="mono">HELP.md</span> at the repo root — master index of every external doc</span></div>`, false);
 
-  $("#view").innerHTML = `<div class="panel-wrap">${overview}${quickStart}${connect}${tools}${dashboards}${extractor}${otel}${trouble}${refs}</div>`;
+  $("#view").innerHTML = `<div class="panel-wrap">${overview}${quickStart}${stackExplained}${grafanaHow}${dashboards}${connect}${tools}${extractor}${otel}${trouble}${refs}</div>`;
 }
 const codeInline = (t) => `<span class="mono" style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px">${esc(t)}</span>`;
 
