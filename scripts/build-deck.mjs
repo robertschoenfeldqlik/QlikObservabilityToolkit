@@ -23,6 +23,7 @@ const TEAL_BRIGHT = "10CFC9";
 const BLUE_DEEP = "19416C";
 const PURPLE = "93579C";
 const SLATE = "2D3543";
+const BODY = "545659"; // brand grey — body text (per template; MUTED is faint labels/dividers only)
 const MUTED = "A9B3B6";
 const BG_LIGHT = "F6F7F8";
 const WHITE = "FFFFFF";
@@ -46,15 +47,16 @@ pres.company = "Built on the Qlik stack";
   s.addShape("rect", { x: 0, y: 0, w: 0.5, h: 7.5, fill: { color: QLIK_GREEN } });
 
   // Title block
-  s.addText("Talend Cloud × Qlik Cloud", {
+  s.addText("TALEND CLOUD × QLIK CLOUD", {
     x: 1.0,
-    y: 1.4,
+    y: 1.5,
     w: 11.5,
-    h: 0.6,
+    h: 0.4,
     fontFace: FONT,
-    fontSize: 22,
-    color: TEAL_DEEP,
-    bold: false,
+    fontSize: 15,
+    color: QLIK_GREEN,
+    bold: true,
+    charSpacing: 2,
   });
   s.addText("Unified Observability Stack", {
     x: 1.0,
@@ -66,14 +68,14 @@ pres.company = "Built on the Qlik stack";
     color: SLATE,
     bold: true,
   });
-  s.addText("MCP server · Prometheus · Loki · Grafana · Python exporters · Qlik Sense apps", {
+  s.addText("MCP server · Prometheus · Loki · Grafana · Python exporters · OpenTelemetry · Qlik Sense", {
     x: 1.0,
     y: 3.5,
     w: 11.5,
     h: 0.6,
     fontFace: FONT,
     fontSize: 16,
-    color: MUTED,
+    color: BODY,
   });
 
   // GitHub callout — pinned high so it's the first non-title thing the
@@ -131,7 +133,7 @@ pres.company = "Built on the Qlik stack";
       h: 0.55,
       fontFace: FONT,
       fontSize: 11,
-      color: MUTED,
+      color: BODY,
     });
   };
   card(1.0, "8 + 8", "observability tools", "Read-only Talend (8) + Qlik Cloud (8) observability tools, tenancy-aware, + the tenant-discovery meta-tool.");
@@ -140,30 +142,25 @@ pres.company = "Built on the Qlik stack";
 }
 
 // ============================================================================
-// Slide 2 — Architecture diagram (Qlik-styled, real Qlik icons)
+// Slide 2 — Architecture diagram (Qlik icons + OpenTelemetry export lane)
 // ============================================================================
 {
   const s = pres.addSlide();
   s.background = { color: "FFFFFF" };
   const ICON = "deploy/assets/icons";
 
-  // Qlik logo, top-right (from the corporate template's media).
-  try {
-    s.addImage({ path: "deploy/assets/qlik-logo.svg", x: 11.5, y: 0.32, w: 1.35, h: 0.75 });
-  } catch {
-    /* logo optional */
-  }
-
+  // Title — offset right of the corporate master's top-left logo so they don't
+  // collide. Slate heading + brand-grey lead per the template brand spec.
   s.addText("Qlik Observability Toolkit — architecture", {
-    x: 0.5, y: 0.3, w: 10.6, h: 0.55, fontFace: FONT, fontSize: 25, color: TEAL_DEEP, bold: true,
+    x: 2.05, y: 0.34, w: 10.4, h: 0.55, fontFace: FONT, fontSize: 24, color: SLATE, bold: true, charSpacing: -0.3,
   });
-  s.addText("Three planes: data sources → collection & control → storage, visualization & analytics.", {
-    x: 0.5, y: 0.85, w: 10.6, h: 0.35, fontFace: FONT, fontSize: 12.5, color: MUTED,
+  s.addText("Data sources → collection & control → store, visualize & analyze — with telemetry export.", {
+    x: 2.05, y: 0.88, w: 10.4, h: 0.35, fontFace: FONT, fontSize: 12.5, color: BODY,
   });
 
   // ---- Plane backdrop panels ----
-  const planeY = 1.45;
-  const planeH = 5.0;
+  const planeY = 1.4;
+  const planeH = 4.3;
   const plane = (x, w, label, tint) => {
     s.addShape("roundRect", {
       x, y: planeY, w, h: planeH,
@@ -171,37 +168,26 @@ pres.company = "Built on the Qlik stack";
     });
     s.addText(label, {
       x: x + 0.15, y: planeY + 0.12, w: w - 0.3, h: 0.3,
-      fontFace: FONT, fontSize: 11, color: TEAL_DEEP, bold: true, charSpacing: 1,
+      fontFace: FONT, fontSize: 11, color: QLIK_GREEN, bold: true, charSpacing: 1,
     });
   };
   plane(0.5, 3.7, "DATA SOURCES", "F2F8F4");
   plane(4.5, 4.55, "COLLECTION + CONTROL PLANE", "F1F6F8");
   plane(9.35, 3.45, "STORE · VISUALIZE · ANALYZE", "F4F1F8");
 
-  // ---- Card with a real Qlik icon PNG ----
+  // ---- Card (icon optional) ----
   const card = (x, y, w, h, icon, title, sub, accent) => {
-    s.addShape("roundRect", {
-      x, y, w, h,
-      fill: { color: "FFFFFF" }, line: { color: accent, width: 1.25 }, rectRadius: 0.07,
-    });
+    s.addShape("roundRect", { x, y, w, h, fill: { color: "FFFFFF" }, line: { color: accent, width: 1.25 }, rectRadius: 0.07 });
     s.addShape("roundRect", { x, y, w: 0.1, h, fill: { color: accent }, line: { type: "none" }, rectRadius: 0.07 });
-    // Real Qlik icon in a soft tinted square.
-    s.addImage({ path: `${ICON}/${icon}`, x: x + 0.24, y: y + (h - 0.62) / 2, w: 0.62, h: 0.62 });
-    s.addText(title, {
-      x: x + 1.0, y: y + 0.12, w: w - 1.1, h: 0.34,
-      fontFace: FONT, fontSize: 12, color: SLATE, bold: true,
-    });
-    if (sub) {
-      s.addText(sub, {
-        x: x + 1.0, y: y + 0.44, w: w - 1.1, h: h - 0.52,
-        fontFace: FONT, fontSize: 9, color: MUTED, valign: "top",
-      });
-    }
+    if (icon) s.addImage({ path: `${ICON}/${icon}`, x: x + 0.24, y: y + (h - 0.58) / 2, w: 0.58, h: 0.58 });
+    const tx = icon ? x + 1.0 : x + 0.28;
+    s.addText(title, { x: tx, y: y + 0.12, w: x + w - tx - 0.1, h: 0.32, fontFace: FONT, fontSize: 12, color: SLATE, bold: true });
+    if (sub) s.addText(sub, { x: tx, y: y + 0.44, w: x + w - tx - 0.1, h: h - 0.52, fontFace: FONT, fontSize: 9, color: BODY, valign: "top" });
   };
 
   const cardH = 0.95;
   const gap = 0.3;
-  const rowY = (i) => planeY + 0.5 + i * (cardH + gap);
+  const rowY = (i) => planeY + 0.45 + i * (cardH + gap);
 
   // Sources plane
   card(0.65, rowY(0), 3.4, cardH, "talend-cloud.png", "Talend Cloud — N tenants", "Orchestration · Observability · Exec-history · Audit", PURPLE);
@@ -220,10 +206,7 @@ pres.company = "Built on the Qlik stack";
 
   // ---- Connector arrows between planes ----
   const arrow = (x1, y1, x2, y2, color) => {
-    s.addShape("line", {
-      x: x1, y: y1, w: x2 - x1, h: y2 - y1,
-      line: { color, width: 1.75, endArrowType: "triangle" },
-    });
+    s.addShape("line", { x: x1, y: y1, w: x2 - x1, h: y2 - y1, line: { color, width: 1.75, endArrowType: "triangle" } });
   };
   const midL = 4.05, midR = 4.65, sinkL = 8.9, sinkR = 9.5;
   const cy = (i) => rowY(i) + cardH / 2;
@@ -233,15 +216,18 @@ pres.company = "Built on the Qlik stack";
   arrow(sinkL, cy(0), sinkR, cy(0), BLUE_DEEP);
   arrow(sinkL, cy(1), sinkR, cy(0), BLUE_DEEP);
   arrow(sinkL, cy(2), sinkR, cy(0), BLUE_DEEP);
-  arrow(11.07, cy(0) + 0.45, 11.07, cy(1), BLUE_DEEP);
-  arrow(11.07, cy(1) + 0.45, 11.07, cy(2), QLIK_GREEN);
 
-  // QVD bridge caption with a small data-transfer icon.
-  s.addImage({ path: `${ICON}/qvd.png`, x: 0.5, y: 6.58, w: 0.42, h: 0.42 });
-  s.addText(
-    "QVD bridge: Prometheus PromQL → long-form (timestamp, metric, labels, value) rows → QVD via pyqvd → Qlik Cloud Data Files API → analyst sheets.",
-    { x: 1.0, y: 6.6, w: 11.8, h: 0.45, fontFace: FONT, fontSize: 10, color: SLATE, italic: true, valign: "middle" },
-  );
+  // ---- Telemetry export lane: OpenTelemetry Collector → Datadog / Splunk ----
+  const bandY = planeY + planeH + 0.45; // 6.15
+  s.addText("TELEMETRY EXPORT · OPENTELEMETRY COLLECTOR", {
+    x: 0.5, y: planeY + planeH + 0.12, w: 12.3, h: 0.28, fontFace: FONT, fontSize: 11, color: QLIK_GREEN, bold: true, charSpacing: 1,
+  });
+  card(0.65, bandY, 4.2, 0.92, null, "OpenTelemetry Collector", "OTLP receiver · scrapes every /metrics · batch + route", TEAL_DEEP);
+  card(5.4, bandY, 3.5, 0.92, null, "Datadog", "metrics · logs · APM  (datadog exporter)", PURPLE);
+  card(9.1, bandY, 3.55, 0.92, null, "Splunk", "HEC / Observability Cloud  (splunk_hec)", BLUE_DEEP);
+  arrow(4.85, bandY + 0.46, 5.4, bandY + 0.46, TEAL_DEEP);  // OTel → Datadog
+  arrow(8.9, bandY + 0.46, 9.1, bandY + 0.46, TEAL_DEEP);   // Datadog | Splunk (both = collector outputs)
+
   s.addShape("rect", { x: 0, y: 7.2, w: 13.333, h: 0.3, fill: { color: QLIK_GREEN } });
 }
 
@@ -253,13 +239,13 @@ pres.company = "Built on the Qlik stack";
   s.background = { color: BG_LIGHT };
 
   s.addText("Multi-tenant by design", {
-    x: 0.5,
-    y: 0.25,
-    w: 12.3,
+    x: 2.05,
+    y: 0.32,
+    w: 10.4,
     h: 0.6,
     fontFace: FONT,
     fontSize: 26,
-    color: TEAL_DEEP,
+    color: SLATE,
     bold: true,
   });
   s.addText(
@@ -407,13 +393,13 @@ pres.company = "Built on the Qlik stack";
   s.background = { color: BG_LIGHT };
 
   s.addText("MCP tool surface · configuration UI · Python control", {
-    x: 0.5,
-    y: 0.25,
-    w: 12.3,
+    x: 2.05,
+    y: 0.32,
+    w: 10.4,
     h: 0.6,
     fontFace: FONT,
     fontSize: 24,
-    color: TEAL_DEEP,
+    color: SLATE,
     bold: true,
   });
 
@@ -580,26 +566,26 @@ pres.company = "Built on the Qlik stack";
 // ============================================================================
 {
   const s = pres.addSlide();
-  s.background = { color: TEAL_DEEP };
+  s.background = { color: BG_LIGHT };
 
   s.addText("References", {
-    x: 0.5,
+    x: 2.05,
     y: 0.4,
-    w: 12.3,
+    w: 10.4,
     h: 0.7,
     fontFace: FONT,
     fontSize: 30,
-    color: WHITE,
+    color: SLATE,
     bold: true,
   });
   s.addText("Single index in HELP.md. Every external doc this project relies on, sorted by topic.", {
-    x: 0.5,
-    y: 1.15,
-    w: 12.3,
+    x: 2.05,
+    y: 0.98,
+    w: 10.4,
     h: 0.4,
     fontFace: FONT,
     fontSize: 13,
-    color: TEAL_BRIGHT,
+    color: BODY,
   });
 
   // Pinned repo URL — first reference, hyperlinked.
@@ -653,8 +639,8 @@ pres.company = "Built on the Qlik stack";
     const row = Math.floor(i / 2);
     const x = 0.5 + col * 6.3;
     const y = 2.55 + row * 0.55;
-    s.addText(r[0], { x, y, w: 2.6, h: 0.3, fontFace: FONT, fontSize: 11, color: TEAL_BRIGHT, bold: true });
-    s.addText(r[1], { x: x + 2.6, y, w: 3.7, h: 0.3, fontFace: FONT, fontSize: 10, color: WHITE });
+    s.addText(r[0], { x, y, w: 2.6, h: 0.3, fontFace: FONT, fontSize: 11, color: QLIK_GREEN, bold: true });
+    s.addText(r[1], { x: x + 2.6, y, w: 3.7, h: 0.3, fontFace: FONT, fontSize: 10, color: BODY });
   });
 
   // Footer
