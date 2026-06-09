@@ -31,6 +31,9 @@ import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { spawn } from "node:child_process";
 import http from "node:http";
+import { readFileSync } from "node:fs";
+import { dirname, extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { TMC_REGIONS, type TmcApi, type TmcRegion } from "../src/apis.js";
 import { TMC_API_PRESETS } from "../src/spec-loader.js";
@@ -54,6 +57,23 @@ const execAsync = promisify(exec);
 const PORT_DEFAULT = Number(process.env.TMC_CONFIG_PORT ?? 8788);
 const HOST = process.env.TMC_CONFIG_HOST ?? "127.0.0.1";
 const AUTO_OPEN = process.env.TMC_CONFIG_NO_OPEN !== "1";
+
+// ---------------------------------------------------------------------------
+// Static console assets — the "Signal" design-system UI lives in console.html
+// + console.css next to this file; brand logos/icons under deploy/assets/.
+// Read once at startup; served by the routes below.
+// ---------------------------------------------------------------------------
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(SCRIPT_DIR, "..");
+const ASSETS_DIR = join(REPO_ROOT, "deploy", "assets");
+const CONSOLE_HTML = readFileSync(join(SCRIPT_DIR, "console.html"), "utf8");
+const CONSOLE_CSS = readFileSync(join(SCRIPT_DIR, "console.css"), "utf8");
+const ASSET_CONTENT_TYPES: Record<string, string> = {
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".ico": "image/x-icon",
+};
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -745,7 +765,30 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse, shutd
   }
 
   try {
-    if (method === "GET" && url === "/") return send(res, 200, PAGE_HTML, "text/html; charset=utf-8");
+    if (method === "GET" && (url === "/" || url === "/index.html"))
+      return send(res, 200, CONSOLE_HTML, "text/html; charset=utf-8");
+    if (method === "GET" && url === "/console.css")
+      return send(res, 200, CONSOLE_CSS, "text/css; charset=utf-8");
+    // Legacy single-file UI kept as a fallback while the console is verified.
+    if (method === "GET" && url === "/legacy")
+      return send(res, 200, PAGE_HTML, "text/html; charset=utf-8");
+    // Brand assets (logos + icons) for the console, with a traversal guard.
+    if (method === "GET" && url.startsWith("/assets/")) {
+      const rel = decodeURIComponent(url.slice("/assets/".length).split("?")[0]);
+      const abs = join(ASSETS_DIR, rel);
+      if (!abs.startsWith(ASSETS_DIR)) return send(res, 403, "Forbidden", "text/plain");
+      try {
+        const buf = readFileSync(abs);
+        res.writeHead(200, {
+          "Content-Type": ASSET_CONTENT_TYPES[extname(abs).toLowerCase()] ?? "application/octet-stream",
+          "Content-Length": buf.length,
+          "Cache-Control": "max-age=3600",
+        });
+        return res.end(buf);
+      } catch {
+        return send(res, 404, "Not found", "text/plain");
+      }
+    }
 
     if (method === "GET" && url === "/api/config") {
       const snap = await snapshotConfig();
