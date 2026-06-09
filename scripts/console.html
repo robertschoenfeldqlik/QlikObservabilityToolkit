@@ -524,6 +524,48 @@ npm run deploy -- --target docker --profile otel`)}
 export TMC_OTLP_ENDPOINT=http://localhost:4318`)}
     ${helpNote(`Metrics need no app changes (the collector scrapes the same /metrics). Config: <span class="mono">deploy/otel-collector.yaml</span> · full guide: ${extLink(gh + "/blob/main/docs/otel-export.md", "docs/otel-export.md")}. Using Splunk Enterprise instead? Swap the <span class="mono">signalfx</span> exporter for <span class="mono">splunk_hec</span>.`)}`);
 
+  const apiRow = (method, path, what) => `<tr class="row">
+    <td style="font-size:11px"><span class="tag ${method === "GET" ? "" : "primary"}" style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.04em">${esc(method)}</span></td>
+    <td><span class="mono" style="font-size:12px">${esc(path)}</span></td>
+    <td style="font-size:12px;color:var(--muted)">${what}</td></tr>`;
+  const apiTbl = (rows) => `<div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl"><thead><tr><th style="width:64px">Method</th><th>Endpoint</th><th>What it does</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const apiRef = block("Console API reference", "Everything this console does in the browser is also scriptable — the same local REST API on <span class='mono'>127.0.0.1:8788</span>. Loopback-only, JSON in/out, cross-origin writes rejected.", `
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Config &amp; tenants</p>
+    ${apiTbl(`
+      ${apiRow("GET", "/api/config", "Full snapshot — tenants (secrets masked), regions, available APIs, keyring status, config path.")}
+      ${apiRow("POST", "/api/talend-tenants", "Create / update a Talend tenant. Body: <span class='mono'>{id, label, region, urlOverride?, pat, patStorage, apis[], timeoutMs?, makeDefault?}</span> — pass <span class='mono'>pat: null</span> to keep the stored token.")}
+      ${apiRow("DELETE", "/api/talend-tenants/{id}", "Delete the tenant + its PAT from file/keyring.")}
+      ${apiRow("POST", "/api/talend-tenants/default", "Set the default Talend tenant. Body: <span class='mono'>{id}</span>.")}
+      ${apiRow("POST", "/api/talend-tenants/{id}/test", "Live round-trip of a PAT against the region (no save). Body: <span class='mono'>{pat, region, urlOverride?}</span>.")}
+      ${apiRow("GET", "/api/talend-tenants/{id}/reveal", "Return the stored PAT in clear text — audited to the server log; the UI auto-hides after 30s.")}
+      ${apiRow("POST", "/api/qlik-tenants", "Create / update a Qlik tenant. Body: <span class='mono'>{id, label, tenantUrl, apiKey, apiKeyStorage, connectionId?, observability?, timeoutMs?, makeDefault?}</span>.")}
+      ${apiRow("DELETE", "/api/qlik-tenants/{id}", "Delete the tenant + its API key.")}
+      ${apiRow("POST", "/api/qlik-tenants/default", "Set the default Qlik tenant. Body: <span class='mono'>{id}</span>.")}
+      ${apiRow("POST", "/api/qlik-tenants/{id}/test", "Verify an API key against <span class='mono'>/api/v1/users/me</span>. Body: <span class='mono'>{apiKey, tenantUrl}</span>.")}
+      ${apiRow("GET", "/api/qlik-tenants/{id}/reveal", "Return the stored API key in clear text (audited).")}
+      ${apiRow("DELETE", "/api/config", "Danger zone — delete every tenant + secret from the config file and keyring.")}
+    `)}
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Exporters, agents &amp; data products</p>
+    ${apiTbl(`
+      ${apiRow("GET", "/api/exporters", "The four Python exporters with docker state, /metrics port, and last scrape sample count.")}
+      ${apiRow("POST", "/api/exporters/{service}/start", "docker compose --profile … up -d for that exporter.")}
+      ${apiRow("POST", "/api/exporters/{service}/stop", "docker compose stop for that exporter.")}
+      ${apiRow("GET", "/api/extractors", "Registered qlik-engine-extractor agents + their self-diagnosis verdicts; stale after 5 min without a heartbeat.")}
+      ${apiRow("POST", "/api/extractors/register", "Agent heartbeat (called by the extractor itself every 30s, not by you).")}
+      ${apiRow("DELETE", "/api/extractors/{host}", "Forget a registered agent.")}
+      ${apiRow("GET", "/api/data-products?qlik={id}", "List QVD files in that tenant's Data Files connection.")}
+      ${apiRow("POST", "/api/data-products/upload-now?qlik={id}", "Run the qvd-exporter container immediately.")}
+      ${apiRow("POST", "/api/data-products/publish?qlik={id}", "Publish a QVD to the Hub catalog. Body: <span class='mono'>{fileName}</span>.")}
+      ${apiRow("DELETE", "/api/data-products/{file}?qlik={id}", "Delete a QVD from the connection.")}
+      ${apiRow("POST", "/api/shutdown", "Stop this console server.")}
+    `)}
+    <p style="font-size:12.5px;font-weight:600;margin:0 0 6px">Example — add a Talend tenant from a script</p>
+    ${codeBlock(`curl -X POST http://127.0.0.1:8788/api/talend-tenants \\
+  -H "Content-Type: application/json" \\
+  -d '{"id":"prod-us","label":"Production US","region":"us",
+       "pat":"tcp_...","patStorage":"keychain","apis":[],"makeDefault":true}'`)}
+    ${helpNote(`Secrets are never echoed back except via the explicit <span class="mono">/reveal</span> endpoints (logged). The MCP server's read-only tool API is separate — see <b>MCP tool surface</b> above; the upstream Talend/Qlik REST APIs are catalogued in ${extLink(gh + "/blob/main/docs/observability-capabilities.md", "observability-capabilities.md")} and <span class="mono">docs/api-reference/</span>.`)}`);
+
   const grafanaHow = block("Getting to the Grafana dashboards", "From zero to charts in four clicks — no login anywhere.", `
     <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">1</span><span style="font-size:13px"><b>Start the stack</b> (once): ${codeInline("npm run deploy -- --target docker --profile all")} — wait ~15s for the containers to settle. Already running? Skip ahead.</span></div>
     <div class="kv"><span class="k" style="width:28px;flex:0 0 28px;font-weight:600;color:var(--primary)">2</span><span style="font-size:13px"><b>Open Grafana</b> — ${extLink("http://localhost:3000", "localhost:3000")}. It lands directly on the app: no username, no password, no login form.</span></div>
@@ -555,7 +597,7 @@ export TMC_OTLP_ENDPOINT=http://localhost:4318`)}
     <div class="kv"><span class="k">Qlik Cloud APIs</span><span class="v">${extLink("https://qlik.dev/apis/", "qlik.dev/apis")} · ${extLink("https://qlik.dev/apis/rest/data-files/", "Data Files API")}</span></div>
     <div class="kv"><span class="k">All references</span><span class="v"><span class="mono">HELP.md</span> at the repo root — master index of every external doc</span></div>`, false);
 
-  $("#view").innerHTML = `<div class="panel-wrap">${overview}${quickStart}${stackExplained}${grafanaHow}${dashboards}${connect}${tools}${extractor}${otel}${trouble}${refs}</div>`;
+  $("#view").innerHTML = `<div class="panel-wrap">${overview}${quickStart}${stackExplained}${grafanaHow}${dashboards}${connect}${tools}${apiRef}${extractor}${otel}${trouble}${refs}</div>`;
 }
 const codeInline = (t) => `<span class="mono" style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px">${esc(t)}</span>`;
 
