@@ -211,8 +211,24 @@ function normalizeHeartbeat(raw: unknown): ExtractorAgentHeartbeat | null {
   };
 }
 
+// Restrict server-side metrics probing to http(s) so a registered agent's
+// metricsUrl can't coerce the control plane into fetching file:// or other
+// schemes. Host is intentionally not pinned to loopback: agents may expose
+// /metrics on their own LAN address, but scheme is the SSRF-relevant lever.
+function isProbeableUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 async function probeAgentMetrics(url: string | undefined) {
   if (!url) return undefined;
+  if (!isProbeableUrl(url)) {
+    return { ok: false, ts: Date.now(), sampleCount: 0, error: "unsupported metricsUrl scheme" };
+  }
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(2500) });
     const body = res.ok ? await res.text() : "";
@@ -702,6 +718,27 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse, shutd
   const remote = req.socket.remoteAddress ?? "";
   if (remote !== "127.0.0.1" && remote !== "::1" && remote !== "::ffff:127.0.0.1") {
     return send(res, 403, "Forbidden: localhost only", "text/plain");
+  }
+
+  // CSRF guard: a malicious web page the operator visits could otherwise drive
+  // this loopback control plane via a cross-origin "simple" POST (the browser
+  // sends the request even though it can't read the response). Browsers always
+  // attach an Origin header to cross-origin state-changing requests, so for any
+  // mutating method we require the Origin (when present) to be loopback. Non-
+  // browser clients (the extractor agent, curl) omit Origin and are allowed.
+  if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+    const origin = req.headers.origin;
+    if (typeof origin === "string" && origin !== "" && origin !== "null") {
+      let host: string;
+      try {
+        host = new URL(origin).hostname;
+      } catch {
+        return send(res, 403, "Forbidden: bad Origin", "text/plain");
+      }
+      if (host !== "127.0.0.1" && host !== "localhost" && host !== "::1") {
+        return send(res, 403, "Forbidden: cross-origin request rejected", "text/plain");
+      }
+    }
   }
 
   try {

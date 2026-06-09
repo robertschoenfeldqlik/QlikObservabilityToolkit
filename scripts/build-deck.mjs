@@ -140,270 +140,109 @@ pres.company = "Built on the Qlik stack";
 }
 
 // ============================================================================
-// Slide 2 — Architecture diagram (Qlik-styled, icon-driven)
+// Slide 2 — Architecture diagram (Qlik-styled, real Qlik icons)
 // ============================================================================
 {
   const s = pres.addSlide();
   s.background = { color: "FFFFFF" };
+  const ICON = "deploy/assets/icons";
 
   // Qlik logo, top-right (from the corporate template's media).
   try {
-    s.addImage({ path: "deploy/assets/qlik-logo.svg", x: 11.55, y: 0.32, w: 1.3, h: 0.72 });
+    s.addImage({ path: "deploy/assets/qlik-logo.svg", x: 11.5, y: 0.32, w: 1.35, h: 0.75 });
   } catch {
     /* logo optional */
   }
 
-  // Title
   s.addText("Qlik Observability Toolkit — architecture", {
-    x: 0.5,
-    y: 0.3,
-    w: 10.8,
-    h: 0.55,
-    fontFace: FONT,
-    fontSize: 25,
-    color: TEAL_DEEP,
-    bold: true,
+    x: 0.5, y: 0.3, w: 10.6, h: 0.55, fontFace: FONT, fontSize: 25, color: TEAL_DEEP, bold: true,
   });
   s.addText("Three planes: data sources → collection & control → storage, visualization & analytics.", {
-    x: 0.5,
-    y: 0.85,
-    w: 10.8,
-    h: 0.35,
-    fontFace: FONT,
-    fontSize: 12.5,
-    color: MUTED,
+    x: 0.5, y: 0.85, w: 10.6, h: 0.35, fontFace: FONT, fontSize: 12.5, color: MUTED,
   });
-
-  // ---- Small drawn glyphs in Qlik colours (clipart-style component icons) ----
-  // Each returns after drawing into the card at (x,y).
-  const cylinder = (x, y, color) => {
-    s.addShape("cylinder", { x, y, w: 0.42, h: 0.5, fill: { color }, line: { type: "none" } });
-  };
-  const gear = (x, y, color) => {
-    s.addShape("gear6", { x, y, w: 0.5, h: 0.5, fill: { color }, line: { type: "none" } });
-  };
-  const chart = (x, y, color) => {
-    // three rising bars
-    s.addShape("rect", { x: x, y: y + 0.28, w: 0.1, h: 0.22, fill: { color }, line: { type: "none" } });
-    s.addShape("rect", {
-      x: x + 0.15,
-      y: y + 0.16,
-      w: 0.1,
-      h: 0.34,
-      fill: { color },
-      line: { type: "none" },
-    });
-    s.addShape("rect", { x: x + 0.3, y: y + 0.04, w: 0.1, h: 0.46, fill: { color }, line: { type: "none" } });
-  };
-  const docStack = (x, y, color) => {
-    s.addShape("rect", {
-      x: x + 0.08,
-      y: y,
-      w: 0.34,
-      h: 0.44,
-      fill: { color: "FFFFFF" },
-      line: { color, width: 1.5 },
-    });
-    s.addShape("rect", { x: x, y: y + 0.06, w: 0.34, h: 0.44, fill: { color }, line: { type: "none" } });
-  };
-  const cloud = (x, y, color) => {
-    s.addShape("cloud", { x, y, w: 0.6, h: 0.45, fill: { color }, line: { type: "none" } });
-  };
 
   // ---- Plane backdrop panels ----
   const planeY = 1.45;
-  const planeH = 5.05;
+  const planeH = 5.0;
   const plane = (x, w, label, tint) => {
     s.addShape("roundRect", {
-      x,
-      y: planeY,
-      w,
-      h: planeH,
-      fill: { color: tint },
-      line: { color: "E1E4E8", width: 1 },
-      rectRadius: 0.08,
+      x, y: planeY, w, h: planeH,
+      fill: { color: tint }, line: { color: "E1E4E8", width: 1 }, rectRadius: 0.08,
     });
     s.addText(label, {
-      x: x + 0.15,
-      y: planeY + 0.12,
-      w: w - 0.3,
-      h: 0.3,
-      fontFace: FONT,
-      fontSize: 11,
-      color: TEAL_DEEP,
-      bold: true,
-      charSpacing: 1,
+      x: x + 0.15, y: planeY + 0.12, w: w - 0.3, h: 0.3,
+      fontFace: FONT, fontSize: 11, color: TEAL_DEEP, bold: true, charSpacing: 1,
     });
   };
-  plane(0.5, 3.7, "DATA SOURCES", "F2F8F4"); // faint green
-  plane(4.5, 4.55, "COLLECTION + CONTROL PLANE", "F1F6F8"); // faint teal
-  plane(9.35, 3.45, "STORE · VISUALIZE · ANALYZE", "F4F1F8"); // faint purple
+  plane(0.5, 3.7, "DATA SOURCES", "F2F8F4");
+  plane(4.5, 4.55, "COLLECTION + CONTROL PLANE", "F1F6F8");
+  plane(9.35, 3.45, "STORE · VISUALIZE · ANALYZE", "F4F1F8");
 
-  // ---- Card helper with an icon glyph ----
-  const card = (x, y, w, h, title, sub, accent, glyph) => {
+  // ---- Card with a real Qlik icon PNG ----
+  const card = (x, y, w, h, icon, title, sub, accent) => {
     s.addShape("roundRect", {
-      x,
-      y,
-      w,
-      h,
-      fill: { color: "FFFFFF" },
-      line: { color: accent, width: 1.25 },
-      rectRadius: 0.07,
+      x, y, w, h,
+      fill: { color: "FFFFFF" }, line: { color: accent, width: 1.25 }, rectRadius: 0.07,
     });
-    // accent chip on the left edge
-    s.addShape("roundRect", {
-      x,
-      y,
-      w: 0.12,
-      h,
-      fill: { color: accent },
-      line: { type: "none" },
-      rectRadius: 0.07,
-    });
-    if (glyph) glyph(x + 0.26, y + (h - 0.5) / 2, accent);
+    s.addShape("roundRect", { x, y, w: 0.1, h, fill: { color: accent }, line: { type: "none" }, rectRadius: 0.07 });
+    // Real Qlik icon in a soft tinted square.
+    s.addImage({ path: `${ICON}/${icon}`, x: x + 0.24, y: y + (h - 0.62) / 2, w: 0.62, h: 0.62 });
     s.addText(title, {
-      x: x + 0.92,
-      y: y + 0.1,
-      w: w - 1.0,
-      h: 0.34,
-      fontFace: FONT,
-      fontSize: 12,
-      color: SLATE,
-      bold: true,
-      valign: "middle",
+      x: x + 1.0, y: y + 0.12, w: w - 1.1, h: 0.34,
+      fontFace: FONT, fontSize: 12, color: SLATE, bold: true,
     });
     if (sub) {
       s.addText(sub, {
-        x: x + 0.92,
-        y: y + 0.42,
-        w: w - 1.0,
-        h: h - 0.5,
-        fontFace: FONT,
-        fontSize: 9,
-        color: MUTED,
-        valign: "top",
+        x: x + 1.0, y: y + 0.44, w: w - 1.1, h: h - 0.52,
+        fontFace: FONT, fontSize: 9, color: MUTED, valign: "top",
       });
     }
   };
 
   const cardH = 0.95;
-  const gap = 0.28;
-  let yy;
+  const gap = 0.3;
+  const rowY = (i) => planeY + 0.5 + i * (cardH + gap);
 
   // Sources plane
-  yy = planeY + 0.5;
-  card(
-    0.65,
-    yy,
-    3.4,
-    cardH,
-    "Talend Cloud — N tenants",
-    "Orchestration · Observability · Exec-history · Audit",
-    PURPLE,
-    cloud,
-  );
-  card(
-    0.65,
-    yy + (cardH + gap),
-    3.4,
-    cardH,
-    "Qlik Cloud — N tenants",
-    "Apps · Reloads · Audit · Quotas",
-    QLIK_GREEN,
-    cloud,
-  );
-  card(
-    0.65,
-    yy + 2 * (cardH + gap),
-    3.4,
-    cardH,
-    "Remote Engine hosts",
-    "JSON job-management logs on Linux",
-    TEAL_DEEP,
-    docStack,
-  );
+  card(0.65, rowY(0), 3.4, cardH, "talend-cloud.png", "Talend Cloud — N tenants", "Orchestration · Observability · Exec-history · Audit", PURPLE);
+  card(0.65, rowY(1), 3.4, cardH, "qlik-cloud.png", "Qlik Cloud — N tenants", "Apps · Reloads · Audit · Quotas", QLIK_GREEN);
+  card(0.65, rowY(2), 3.4, cardH, "remote-engine.png", "Remote Engine hosts", "JSON job-management logs on Linux", TEAL_DEEP);
 
   // Collection plane
-  yy = planeY + 0.5;
-  card(
-    4.65,
-    yy,
-    4.25,
-    cardH,
-    "MCP server (TS)",
-    "stdio · per-tenant routing · observability preset",
-    BLUE_DEEP,
-    gear,
-  );
-  card(
-    4.65,
-    yy + (cardH + gap),
-    4.25,
-    cardH,
-    "Python exporters ×4",
-    "business · engine-logs · qlik-obs · qvd",
-    BLUE_DEEP,
-    gear,
-  );
-  card(
-    4.65,
-    yy + 2 * (cardH + gap),
-    4.25,
-    cardH,
-    "qlik-engine-extractor",
-    "headless agent · self-diagnosing · heartbeats",
-    QLIK_GREEN,
-    gear,
-  );
+  card(4.65, rowY(0), 4.25, cardH, "mcp.png", "MCP server (TS)", "stdio · per-tenant routing · observability preset", BLUE_DEEP);
+  card(4.65, rowY(1), 4.25, cardH, "exporters.png", "Python exporters ×4", "business · engine-logs · qlik-obs · qvd", BLUE_DEEP);
+  card(4.65, rowY(2), 4.25, cardH, "extractor.png", "qlik-engine-extractor", "headless agent · self-diagnosing · heartbeats", QLIK_GREEN);
 
   // Sink plane
-  yy = planeY + 0.5;
-  card(9.5, yy, 3.15, cardH, "Prometheus", "scrape all /metrics · 14d", SLATE, cylinder);
-  card(9.5, yy + (cardH + gap), 3.15, cardH, "Loki + Grafana", "logs + 2 dashboards", TEAL_BRIGHT, chart);
-  card(
-    9.5,
-    yy + 2 * (cardH + gap),
-    3.15,
-    cardH,
-    "Qlik Sense Cloud app",
-    "QVD-driven trend / BI",
-    QLIK_GREEN,
-    chart,
-  );
+  card(9.5, rowY(0), 3.15, cardH, "prometheus.png", "Prometheus", "scrape all /metrics · 14d", SLATE);
+  card(9.5, rowY(1), 3.15, cardH, "grafana.png", "Loki + Grafana", "logs + 2 dashboards", TEAL_BRIGHT);
+  card(9.5, rowY(2), 3.15, cardH, "qlik-app.png", "Qlik Sense Cloud app", "QVD-driven trend / BI", QLIK_GREEN);
 
   // ---- Connector arrows between planes ----
   const arrow = (x1, y1, x2, y2, color) => {
     s.addShape("line", {
-      x: x1,
-      y: y1,
-      w: x2 - x1,
-      h: y2 - y1,
+      x: x1, y: y1, w: x2 - x1, h: y2 - y1,
       line: { color, width: 1.75, endArrowType: "triangle" },
     });
   };
-  const midL = 4.05,
-    midR = 4.65,
-    sinkL = 9.0,
-    sinkR = 9.5;
-  const row = (i) => planeY + 0.5 + i * (cardH + gap) + cardH / 2;
-  // sources → collection
-  arrow(midL, row(0), midR, row(0), PURPLE);
-  arrow(midL, row(1), midR, row(2), QLIK_GREEN);
-  arrow(midL, row(2), midR, row(2), TEAL_DEEP);
-  // collection → sinks (everything funnels to Prometheus + logs to Loki)
-  arrow(sinkL, row(0), sinkR, row(0), BLUE_DEEP);
-  arrow(sinkL, row(1), sinkR, row(0), BLUE_DEEP);
-  arrow(sinkL, row(2), sinkR, row(0), BLUE_DEEP);
-  // Prometheus → Grafana + → Qlik (QVD)
-  arrow(11.07, row(0) + 0.45, 11.07, row(1), BLUE_DEEP);
-  arrow(11.07, row(1) + 0.45, 11.07, row(2), QLIK_GREEN);
+  const midL = 4.05, midR = 4.65, sinkL = 8.9, sinkR = 9.5;
+  const cy = (i) => rowY(i) + cardH / 2;
+  arrow(midL, cy(0), midR, cy(0), PURPLE);
+  arrow(midL, cy(1), midR, cy(2), QLIK_GREEN);
+  arrow(midL, cy(2), midR, cy(2), TEAL_DEEP);
+  arrow(sinkL, cy(0), sinkR, cy(0), BLUE_DEEP);
+  arrow(sinkL, cy(1), sinkR, cy(0), BLUE_DEEP);
+  arrow(sinkL, cy(2), sinkR, cy(0), BLUE_DEEP);
+  arrow(11.07, cy(0) + 0.45, 11.07, cy(1), BLUE_DEEP);
+  arrow(11.07, cy(1) + 0.45, 11.07, cy(2), QLIK_GREEN);
 
-  // Footer caption
+  // QVD bridge caption with a small data-transfer icon.
+  s.addImage({ path: `${ICON}/qvd.png`, x: 0.5, y: 6.58, w: 0.42, h: 0.42 });
   s.addText(
     "QVD bridge: Prometheus PromQL → long-form (timestamp, metric, labels, value) rows → QVD via pyqvd → Qlik Cloud Data Files API → analyst sheets.",
-    { x: 0.5, y: 6.62, w: 12.3, h: 0.5, fontFace: FONT, fontSize: 10, color: SLATE, italic: true },
+    { x: 1.0, y: 6.6, w: 11.8, h: 0.45, fontFace: FONT, fontSize: 10, color: SLATE, italic: true, valign: "middle" },
   );
-  s.addShape("rect", { x: 0, y: 7.25, w: 13.333, h: 0.25, fill: { color: QLIK_GREEN } });
+  s.addShape("rect", { x: 0, y: 7.2, w: 13.333, h: 0.3, fill: { color: QLIK_GREEN } });
 }
 
 // ============================================================================
