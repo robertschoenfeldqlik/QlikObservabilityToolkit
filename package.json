@@ -36,7 +36,8 @@
     "clean": "rimraf dist",
     "docker:build": "docker build -t talend-tmc-mcp:latest .",
     "docker:build:multiarch": "docker buildx build --platform linux/amd64,linux/arm64 -t talend-tmc-mcp:latest .",
-    "docker:run": "docker run -i --rm --env-file .env talend-tmc-mcp:latest"
+    "docker:run": "docker run -i --rm --env-file .env talend-tmc-mcp:latest",
+    "deploy": "node scripts/deploy.mjs"
   },
   "keywords": [
     "mcp",

@@ -1,0 +1,38 @@
+{
+  "name": "qlik-engine-extractor",
+  "version": "1.0.0",
+  "description": "Headless agent that tails Talend Remote Engine job logs on a Linux host and emits Prometheus metrics. Managed remotely from the Qlik Observability Toolkit UI control plane.",
+  "type": "module",
+  "bin": {
+    "qlik-engine-extractor": "bin/qlik-engine-extractor.mjs"
+  },
+  "scripts": {
+    "postinstall": "node bin/qlik-engine-extractor.mjs bootstrap --auto || true"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "talend",
+    "qlik",
+    "prometheus",
+    "remote-engine",
+    "observability",
+    "headless-agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit.git",
+    "directory": "packages/qlik-engine-extractor"
+  },
+  "homepage": "https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit#readme",
+  "files": [
+    "bin/",
+    "python/",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ]
+}

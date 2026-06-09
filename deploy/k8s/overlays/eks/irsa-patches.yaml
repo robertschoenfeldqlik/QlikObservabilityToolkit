@@ -1,47 +1,29 @@
 # IRSA (IAM Roles for Service Accounts) annotations.
 #
-# This file is the ONLY thing you have to touch when wiring the workloads
-# up to AWS. Replace the placeholder ARNs with the real role ARNs created
-# by your IaC. Each role's trust policy must allow the EKS OIDC provider
-# and the ServiceAccount (namespace + name) below.
+# Applied as a strategic-merge patch (see kustomization.yaml) — these
+# annotations merge INTO the existing ServiceAccounts created by base/.
 #
-# Roles you should provision:
+# Only the ServiceAccounts that actually exist in base/ are patched here:
 #
-#   tmc-mcp-eks-role
-#     - Read tmc-mcp-secrets/* from AWS Secrets Manager (TMC_PAT,
-#       GRAFANA_ADMIN_PASSWORD, QLIK_CLOUD_API_KEY).
-#     - kms:Decrypt on the KMS key encrypting those secrets.
+#   tmc-mcp — created by base/mcp-server.yaml. The role lets the MCP
+#             server fetch secrets from AWS Secrets Manager (via
+#             external-secrets-operator's IRSA, not the MCP's own role),
+#             and is in place for any future AWS-aware features.
 #
-#   external-secrets-eks-role
-#     - The role used by external-secrets-operator (if you go that route).
-#       Same Secrets Manager + KMS perms as above.
+# The Python exporters (business, engine-log-scraper, qvd, qlik-obs) use
+# the namespace default ServiceAccount because they only call Talend +
+# Qlik APIs over HTTPS using PATs / API keys mounted from a Secret. They
+# don't need IRSA. If you add an exporter that calls AWS (e.g. a future
+# S3-export variant), add an explicit ServiceAccount to base/ for that
+# exporter, then add an entry below.
 #
-# The MCP server itself currently has no other AWS API calls.
+# Replace <ACCOUNT_ID> with your AWS account id before applying. Easiest:
+#   kubectl kustomize deploy/k8s/overlays/eks \
+#     | sed 's|<ACCOUNT_ID>|123456789012|' | kubectl apply -f -
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: tmc-mcp
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: business-exporter
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: qlik-obs-exporter
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: qvd-exporter
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/tmc-mcp-eks-role

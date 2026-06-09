@@ -6,9 +6,15 @@ namespace: talend-tmc-mcp
 resources:
   - ../../base
   - storageclass.yaml
-  - irsa-patches.yaml
   - external-secret.yaml
   - ingress.yaml
+
+# IRSA annotations merge INTO the existing ServiceAccounts from base/ via a
+# strategic-merge patch. Listing irsa-patches.yaml under `resources:` would
+# create duplicate ServiceAccount manifests and trip kustomize's identity
+# conflict check.
+patchesStrategicMerge:
+  - irsa-patches.yaml
 
 # Production-friendly bumps to the resource asks the base ships with —
 # these match a small but real workload.

@@ -11,6 +11,24 @@ Status of the npm-audit and Trivy gates that run on every CI build.
 | Trivy image | `talend-tmc-mcp:latest` (vuln + secret) | HIGH / CRITICAL fails | **clean** (with [.trivyignore](../.trivyignore)) |
 | Trivy fs | repo (misconfig + secret) | HIGH / CRITICAL fails | **clean** (with [.trivyignore](../.trivyignore)) |
 
+Re-run command:
+
+```bash
+npm audit --omit=dev && npm audit --audit-level=high
+docker run --rm -v //var/run/docker.sock:/var/run/docker.sock -v "$PWD:/work:ro" \
+  aquasec/trivy:latest image --severity HIGH,CRITICAL --ignorefile /work/.trivyignore \
+  --exit-code 1 --no-progress talend-tmc-mcp:latest
+docker run --rm -v "$PWD:/work:ro" aquasec/trivy:latest \
+  fs --scanners misconfig,secret --severity HIGH,CRITICAL \
+  --ignorefile /work/.trivyignore --timeout 10m \
+  --skip-dirs /work/node_modules,/work/packages/qlik-engine-extractor/python \
+  --exit-code 1 --no-progress /work
+```
+
+> The Trivy fs scan needs `--timeout 10m` and `--skip-dirs` to skip vendored
+> Python trees (the engine-extractor package bundles `python/` for distribution).
+> Without the skip, the scan walks ~10× as many files for no real coverage gain.
+
 ## How to run locally
 
 ### npm audit

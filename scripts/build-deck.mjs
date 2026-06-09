@@ -76,6 +76,23 @@ pres.company = "Built on the Qlik stack";
     color: MUTED,
   });
 
+  // GitHub callout — pinned high so it's the first non-title thing the
+  // viewer reads. Hyperlinked.
+  s.addText("github.com/robertschoenfeldqlik/QlikObservabilityToolkit", {
+    x: 1.0,
+    y: 4.05,
+    w: 11.5,
+    h: 0.4,
+    fontFace: FONT,
+    fontSize: 14,
+    color: QLIK_GREEN,
+    bold: true,
+    hyperlink: {
+      url: "https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit",
+      tooltip: "Open repo",
+    },
+  });
+
   // Three callouts
   const card = (x, n, line1, line2) => {
     s.addShape("roundRect", {
@@ -717,6 +734,31 @@ pres.company = "Built on the Qlik stack";
     color: TEAL_BRIGHT,
   });
 
+  // Pinned repo URL — first reference, hyperlinked.
+  s.addShape("roundRect", {
+    x: 0.5,
+    y: 1.65,
+    w: 12.3,
+    h: 0.6,
+    fill: { color: QLIK_GREEN },
+    line: { type: "none" },
+    rectRadius: 0.08,
+  });
+  s.addText("▸  github.com/robertschoenfeldqlik/QlikObservabilityToolkit", {
+    x: 0.7,
+    y: 1.72,
+    w: 11.9,
+    h: 0.45,
+    fontFace: FONT,
+    fontSize: 16,
+    color: WHITE,
+    bold: true,
+    hyperlink: {
+      url: "https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit",
+      tooltip: "Open repo",
+    },
+  });
+
   const refs = [
     ["Talend Cloud APIs", "https://talend.qlik.dev/apis/"],
     [
@@ -742,7 +784,7 @@ pres.company = "Built on the Qlik stack";
     const col = i % 2;
     const row = Math.floor(i / 2);
     const x = 0.5 + col * 6.3;
-    const y = 2.0 + row * 0.55;
+    const y = 2.55 + row * 0.55;
     s.addText(r[0], { x, y, w: 2.6, h: 0.3, fontFace: FONT, fontSize: 11, color: TEAL_BRIGHT, bold: true });
     s.addText(r[1], { x: x + 2.6, y, w: 3.7, h: 0.3, fontFace: FONT, fontSize: 10, color: WHITE });
   });

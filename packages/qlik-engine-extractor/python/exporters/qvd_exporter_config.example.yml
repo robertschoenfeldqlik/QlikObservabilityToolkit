@@ -1,0 +1,54 @@
+# Config for the Prometheus -> Qlik Cloud QVD exporter.
+#
+# Each entry below becomes a row stream in the resulting QVD. The exporter
+# does NOT pre-aggregate — it lands long-form (timestamp, metric, label_set, value)
+# rows so the Qlik analyst owns the rollup logic in their app.
+#
+# Each query gets the same time-range / step controls, but you can override
+# per-query if needed.
+
+defaults:
+  # Query Prometheus for the last N seconds in each tick.
+  range_seconds: 3600
+  # Sample every step seconds. 60s is a good balance for trend dashboards.
+  step_seconds: 60
+
+queries:
+  # MCP server health
+  - name: mcp_tool_calls_rate
+    promql: sum by (tool, status) (rate(tmc_mcp_tool_calls_total[5m]))
+    labels_to_columns: [tool, status]
+
+  - name: mcp_tool_latency_p95
+    promql: histogram_quantile(0.95, sum by (le, tool) (rate(tmc_mcp_tool_call_duration_seconds_bucket[5m])))
+    labels_to_columns: [tool]
+
+  - name: mcp_tool_errors_rate
+    promql: sum by (tool) (rate(tmc_mcp_tool_calls_total{status="error"}[5m]))
+    labels_to_columns: [tool]
+
+  - name: mcp_retries_rate
+    promql: sum by (reason) (rate(tmc_mcp_tool_retries_total[5m]))
+    labels_to_columns: [reason]
+
+  # Talend business signals (from the business exporter)
+  - name: talend_executions_rate
+    promql: sum by (status, workspace) (rate(talend_executions_total[5m]))
+    labels_to_columns: [status, workspace]
+
+  - name: talend_failures_rate
+    promql: sum by (workspace, environment) (rate(talend_executions_failed_total[5m]))
+    labels_to_columns: [workspace, environment]
+
+  - name: talend_tasks_total
+    promql: talend_tasks_total
+    labels_to_columns: [workspace]
+
+  # Remote engine signals (from the engine log scraper)
+  - name: engine_jobs_failed_rate
+    promql: sum by (engine, workspace) (rate(talend_engine_jobs_failed_total[5m]))
+    labels_to_columns: [engine, workspace]
+
+  - name: engine_rejected_rows_p95
+    promql: histogram_quantile(0.95, sum by (le, engine) (rate(talend_engine_rejected_rows_bucket[5m])))
+    labels_to_columns: [engine]

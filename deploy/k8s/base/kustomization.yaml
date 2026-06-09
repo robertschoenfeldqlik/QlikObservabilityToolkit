@@ -33,8 +33,12 @@ resources:
 configMapGenerator:
   - name: grafana-dashboards
     files:
-      - ../../grafana/dashboards/tmc-mcp.json
-      - ../../grafana/dashboards/tmc-business.json
+      - grafana/dashboards/tmc-mcp.json
+      - grafana/dashboards/tmc-business.json
+      # NOTE: copies of deploy/grafana/dashboards/*.json. Kustomize rejects
+      # file references that escape the kustomization root (security:
+      # "must be in or below"). When the source dashboards change, re-copy:
+      #   cp deploy/grafana/dashboards/*.json deploy/k8s/base/grafana/dashboards/
     options:
       # Without this, kustomize appends a hash suffix to the ConfigMap name
       # for immutable rollout. Convenient for prod, but it means the

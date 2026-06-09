@@ -125,6 +125,90 @@ async function validateQlik(
 }
 
 // ---------------------------------------------------------------------------
+// Registered extractor agents
+//
+// The `qlik-engine-extractor` npm package — installed on each Talend Remote
+// Engine host — heartbeats here every 30s. We track the most recent payload
+// per agent in memory (keyed by hostname). Agents that haven't checked in
+// within STALE_AFTER_MS are flagged stale; the UI surfaces them anyway with
+// a warning pill so operators know to investigate.
+// ---------------------------------------------------------------------------
+
+interface ExtractorAgentHeartbeat {
+  hostname: string;
+  ip?: string;
+  platform?: string;
+  user?: string;
+  metricsUrl?: string;
+  sources?: Array<{ name: string; dir: string }>;
+  agentVersion?: string;
+  ts?: string;
+}
+
+interface RegisteredAgent extends ExtractorAgentHeartbeat {
+  firstSeen: number; // epoch ms
+  lastSeen: number;
+  stale: boolean;
+  lastMetricsScrape?: { ok: boolean; ts: number; sampleCount: number; error?: string };
+}
+
+const STALE_AFTER_MS = Number(process.env.TMC_AGENT_STALE_MS ?? 5 * 60 * 1000);
+const registeredAgents = new Map<string, RegisteredAgent>();
+
+function normalizeHeartbeat(raw: unknown): ExtractorAgentHeartbeat | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const hostname = typeof r.hostname === "string" ? r.hostname.trim() : "";
+  if (!hostname) return null;
+  const sources: Array<{ name: string; dir: string }> = [];
+  if (Array.isArray(r.sources)) {
+    for (const s of r.sources) {
+      if (s && typeof s === "object") {
+        const so = s as Record<string, unknown>;
+        sources.push({
+          name: String(so.name ?? ""),
+          dir: String(so.dir ?? ""),
+        });
+      }
+    }
+  }
+  return {
+    hostname,
+    ip: typeof r.ip === "string" ? r.ip : undefined,
+    platform: typeof r.platform === "string" ? r.platform : undefined,
+    user: typeof r.user === "string" ? r.user : undefined,
+    metricsUrl: typeof r.metricsUrl === "string" ? r.metricsUrl : undefined,
+    sources,
+    agentVersion: typeof r.agentVersion === "string" ? r.agentVersion : undefined,
+    ts: typeof r.ts === "string" ? r.ts : undefined,
+  };
+}
+
+async function probeAgentMetrics(url: string | undefined) {
+  if (!url) return undefined;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(2500) });
+    const body = res.ok ? await res.text() : "";
+    const sampleCount = body.split("\n").filter((l) => l && !l.startsWith("#")).length;
+    return {
+      ok: res.ok,
+      ts: Date.now(),
+      sampleCount,
+      error: res.ok ? undefined : `HTTP ${res.status}`,
+    };
+  } catch (err) {
+    return { ok: false, ts: Date.now(), sampleCount: 0, error: String(err) };
+  }
+}
+
+function listRegisteredAgents(): RegisteredAgent[] {
+  const now = Date.now();
+  return [...registeredAgents.values()]
+    .map((a) => ({ ...a, stale: now - a.lastSeen > STALE_AFTER_MS }))
+    .sort((a, b) => a.hostname.localeCompare(b.hostname));
+}
+
+// ---------------------------------------------------------------------------
 // Docker exporter control
 // ---------------------------------------------------------------------------
 
@@ -781,6 +865,36 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse, shutd
       }
     }
 
+    // Registered extractor agents (qlik-engine-extractor npm package).
+    // Agents POST a heartbeat here every 30s. localhost-only check happens above.
+    if (method === "POST" && url === "/api/extractors/register") {
+      const body = normalizeHeartbeat(await readBody(req));
+      if (!body) return sendJson(res, 400, { ok: false, message: "hostname is required" });
+      const now = Date.now();
+      const existing = registeredAgents.get(body.hostname);
+      const lastMetricsScrape = await probeAgentMetrics(body.metricsUrl);
+      const agent: RegisteredAgent = {
+        ...body,
+        firstSeen: existing?.firstSeen ?? now,
+        lastSeen: now,
+        stale: false,
+        lastMetricsScrape,
+      };
+      registeredAgents.set(body.hostname, agent);
+      return sendJson(res, 200, { ok: true, registered: agent });
+    }
+    if (method === "GET" && url === "/api/extractors") {
+      return sendJson(res, 200, { agents: listRegisteredAgents(), staleAfterMs: STALE_AFTER_MS });
+    }
+    {
+      const m = url.match(/^\/api\/extractors\/([^/]+)$/);
+      if (m && method === "DELETE") {
+        const host = decodeURIComponent(m[1]!);
+        const had = registeredAgents.delete(host);
+        return sendJson(res, 200, { ok: true, removed: had });
+      }
+    }
+
     // Shutdown
     if (method === "POST" && url === "/api/shutdown") {
       sendJson(res, 200, { ok: true });
@@ -1216,11 +1330,24 @@ const PAGE_HTML = `<!DOCTYPE html>
   </div>
 
   <div id="tab-exporters" class="tab-panel">
-    <p class="lead">Start, stop, and monitor the Python exporters. Requires <code>docker compose</code> on PATH and the compose file in the project root.</p>
+    <h2 style="margin-top:0;">Local Python exporters (Docker)</h2>
+    <p class="lead" style="margin-top:4px;">Start, stop, and monitor the Python exporters that run via <code>docker compose</code>.</p>
     <div class="form-actions" style="margin-top: 0; margin-bottom: 14px;">
       <button id="refreshExporters">Refresh status</button>
     </div>
     <div id="exporterList" class="exp-grid"></div>
+
+    <h2 style="margin-top:32px;">Registered extractor agents</h2>
+    <p class="lead" style="margin-top:4px;">
+      Headless <code>qlik-engine-extractor</code> agents running on Talend Remote
+      Engine hosts. Agents heartbeat to <code>POST /api/extractors/register</code>
+      every 30s. Stale = no heartbeat in <span id="staleAfterSpan">5</span> minutes.
+    </p>
+    <div class="form-actions" style="margin-top: 0; margin-bottom: 14px;">
+      <button id="refreshAgents">Refresh agents</button>
+      <span class="hint" style="align-self:center;">Install on an engine host: <code>npm i -g qlik-engine-extractor</code></span>
+    </div>
+    <div id="agentList" class="exp-grid"></div>
   </div>
 
   <div id="tab-about" class="tab-panel">
@@ -1489,7 +1616,7 @@ document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", (
   hideAllRevealedTokens();  // safety: hide any revealed tokens before leaving the tab
   document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b === btn));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab));
-  if (btn.dataset.tab === "exporters") loadExporters();
+  if (btn.dataset.tab === "exporters") { loadExporters(); loadAgents(); }
   if (btn.dataset.tab === "about") initThemePicker();
 }));
 
@@ -1765,6 +1892,52 @@ async function loadExporters() {
   \`).join("");
   $("refreshExporters").onclick = loadExporters;
 }
+
+// ---- Registered extractor agents -----------------------------------------
+async function loadAgents() {
+  const root = $("agentList");
+  if (!root) return;
+  const r = await fetch("/api/extractors");
+  const j = await r.json();
+  $("staleAfterSpan").textContent = Math.round((j.staleAfterMs || 300000) / 60000);
+  if (!j.agents.length) {
+    root.innerHTML = '<div class="empty">No extractor agents have registered yet. On a Talend Remote Engine host run <code>npm i -g qlik-engine-extractor</code> then <code>TMC_CONTROL_PLANE_URL=' + window.location.origin + ' qlik-engine-extractor heartbeat</code>.</div>';
+    $("refreshAgents").onclick = loadAgents;
+    return;
+  }
+  const fmtAgo = (ts) => {
+    const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+    if (s < 60) return s + "s ago";
+    if (s < 3600) return Math.round(s / 60) + "m ago";
+    return Math.round(s / 3600) + "h ago";
+  };
+  root.innerHTML = j.agents.map(a => \`
+    <div class="exp-card">
+      <div>
+        <div class="name">\${esc(a.hostname)} \${a.stale ? '<span class="pill stopped" style="vertical-align:middle;">stale</span>' : '<span class="pill running" style="vertical-align:middle;">live</span>'}</div>
+        <div class="desc">\${esc(a.platform || "?")} · \${esc(a.user || "?")}@\${esc(a.ip || "?")} · agent v\${esc(a.agentVersion || "?")}</div>
+        <div class="exp-meta">last seen <b>\${fmtAgo(a.lastSeen)}</b> · first seen \${fmtAgo(a.firstSeen)}</div>
+        <div class="exp-meta">metrics: <code>\${esc(a.metricsUrl || "?")}</code>\${a.lastMetricsScrape ? (a.lastMetricsScrape.ok
+          ? \` · <b>\${a.lastMetricsScrape.sampleCount}</b> series\`
+          : \` · <span style="color:var(--err)">scrape error: \${esc(a.lastMetricsScrape.error||"")}</span>\`) : ""}</div>
+        <div class="exp-meta">sources: \${a.sources && a.sources.length ? a.sources.map(s => \`<code>\${esc(s.name)}</code>=<code>\${esc(s.dir)}</code>\`).join(", ") : "<i>none configured</i>"}</div>
+      </div>
+      <div class="controls">
+        <button data-act="forget-agent" data-host="\${esc(a.hostname)}" class="danger">Forget</button>
+      </div>
+    </div>
+  \`).join("");
+  $("refreshAgents").onclick = loadAgents;
+}
+
+document.addEventListener("click", async (e) => {
+  const tgt = e.target.closest("[data-act='forget-agent']");
+  if (!tgt) return;
+  const host = tgt.dataset.host;
+  if (!confirm("Forget agent '" + host + "'? It will reappear at the next heartbeat.")) return;
+  await fetch("/api/extractors/" + encodeURIComponent(host), { method: "DELETE" });
+  await loadAgents();
+});
 
 document.addEventListener("click", async (e) => {
   const tgt = e.target.closest("[data-act='start-exporter'], [data-act='stop-exporter']");

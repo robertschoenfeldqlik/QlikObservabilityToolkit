@@ -5,10 +5,10 @@ namespace: talend-tmc-mcp
 
 resources:
   - ../../base
-  # The example Secret is suitable for local development — DO NOT use this
-  # path in any shared cluster. See base/secrets.example.yaml for the
-  # required keys.
-  - ../../base/secrets.example.yaml
+  # Local-dev-only example Secret. Copied from base/secrets.example.yaml
+  # because kustomize's security rule rejects file references that escape
+  # the overlay's root. DO NOT use in any shared cluster.
+  - secrets.example.yaml
   - ingress.yaml
 
 # Tighter resource asks for a 4 GB minikube VM. The base limits would
