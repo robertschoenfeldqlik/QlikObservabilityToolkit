@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "config-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "config-ui"],
+      "port": 8788
+    }
+  ]
+}
