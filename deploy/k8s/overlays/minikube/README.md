@@ -59,9 +59,10 @@ Or use the Ingress hosts (add to `/etc/hosts`):
 echo "$(minikube ip) grafana.tmc.local prometheus.tmc.local" | sudo tee -a /etc/hosts
 ```
 
-Grafana login: `admin / admin` (or whatever you set in the secret). The
-Prometheus + Loki datasources and both dashboards are provisioned on first
-boot.
+Grafana needs **no login** — anonymous access (Admin role) is enabled in the
+base, so it opens straight to the dashboards. The Prometheus + Loki
+datasources and both dashboards are provisioned on first boot. (The EKS
+overlay re-enables authentication since it sits behind a public ALB.)
 
 ## 6. Multi-tenant config
 

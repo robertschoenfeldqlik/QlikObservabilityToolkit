@@ -11,7 +11,7 @@ pre-provisioned.
 ```bash
 TMC_PAT=tcp_xxx docker compose -f docker-compose.observability.yml up -d
 # Wait ~10s for everything to settle
-open http://localhost:3000        # Grafana (admin / admin)
+open http://localhost:3000        # Grafana (no login — anonymous Admin on localhost)
 open http://localhost:9090        # Prometheus
 open http://localhost:9464/metrics  # Raw exposition from the MCP server
 open http://localhost:9464/health   # Readiness probe

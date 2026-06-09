@@ -10,7 +10,8 @@
 #   grafana     — pre-provisioned with the Prometheus + Loki datasources
 #                 and the Talend TMC dashboard                       (http://localhost:3000)
 #
-# Login to Grafana with admin / admin (change on first use).
+# Grafana needs NO login — anonymous access (Admin role) is enabled since the
+# stack binds to localhost only. Open http://localhost:3000 and you're in.
 #
 # This compose IS NOT how you'd talk to the MCP server from Claude Desktop —
 # stdio MCP wants a one-shot `docker run -i`. This stack runs the server
@@ -103,10 +104,17 @@ services:
     container_name: tmc-mcp-grafana
     restart: unless-stopped
     environment:
+      # No-login Grafana: the stack binds to 127.0.0.1 only, so anonymous
+      # access with the Admin role is safe and means the dashboards open
+      # straight away — no credentials, no login form. The admin account
+      # still exists underneath (GRAFANA_PASSWORD) for API/automation use.
       GF_SECURITY_ADMIN_USER: "admin"
       GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD:-admin}"
       GF_USERS_DEFAULT_THEME: "dark"
-      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_BASIC_ENABLED: "false"
       GF_FEATURE_TOGGLES_ENABLE: "publicDashboards"
     volumes:
       - ./deploy/grafana/datasources:/etc/grafana/provisioning/datasources:ro

@@ -54,7 +54,7 @@ docker compose -f docker-compose.observability.yml --profile all up -d
 ```
 
 Opens:
-- Grafana → http://localhost:3000 (admin / admin) — pre-loaded with two dashboards
+- Grafana → http://localhost:3000 (no login — anonymous access on localhost) — pre-loaded with two dashboards
 - Prometheus → http://localhost:9090
 - Loki → http://localhost:3100
 - MCP `/metrics` → http://localhost:9464/metrics

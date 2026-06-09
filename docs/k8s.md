@@ -130,7 +130,7 @@ kubectl apply -k deploy/k8s/overlays/minikube
 
 # 5. Reach the UIs
 kubectl -n talend-tmc-mcp port-forward svc/grafana 3000:3000
-# open http://localhost:3000  (admin / admin)
+# open http://localhost:3000  (no login — anonymous access enabled)
 ```
 
 Full instructions including the Ingress wiring are in

@@ -110,7 +110,17 @@ spec:
                   optional: true
             - name: GF_USERS_DEFAULT_THEME
               value: "dark"
+            # No-login Grafana: anonymous Admin access, login form hidden.
+            # Fine on minikube (port-forward / local ingress). For EKS or any
+            # network-reachable ingress, override these in the overlay to
+            # restore authentication.
             - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: "Admin"
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: "true"
+            - name: GF_AUTH_BASIC_ENABLED
               value: "false"
             - name: GF_FEATURE_TOGGLES_ENABLE
               value: "publicDashboards"

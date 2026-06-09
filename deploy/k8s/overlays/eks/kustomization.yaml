@@ -19,6 +19,25 @@ patchesStrategicMerge:
 # Production-friendly bumps to the resource asks the base ships with —
 # these match a small but real workload.
 patches:
+  # The base enables no-login Grafana (anonymous Admin) for local use. This
+  # overlay sits behind an internet-facing ALB, so RESTORE authentication:
+  # anonymous off, login form back, admin password from the external secret.
+  - target:
+      kind: Deployment
+      name: grafana
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/3/value
+        value: "false"
+      - op: replace
+        path: /spec/template/spec/containers/0/env/4/value
+        value: "Viewer"
+      - op: replace
+        path: /spec/template/spec/containers/0/env/5/value
+        value: "false"
+      - op: replace
+        path: /spec/template/spec/containers/0/env/6/value
+        value: "true"
   - target:
       kind: Deployment
       name: prometheus

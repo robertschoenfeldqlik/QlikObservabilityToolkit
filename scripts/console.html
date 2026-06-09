@@ -479,7 +479,7 @@ function renderHelp() {
       ${portRow(":8788", "This configuration console (loopback only).")}
       ${portRow(":9464", "MCP server /metrics + /health (Prometheus format).")}
       ${portRow(":9465 – :9468", "Python exporters /metrics — business · engine-logs · qvd · qlik-obs.")}
-      ${portRow(":9090 / :3000 / :3100", "Prometheus · Grafana (admin/admin on first run) · Loki.")}
+      ${portRow(":9090 / :3000 / :3100", "Prometheus · Grafana (no login — opens straight to dashboards) · Loki.")}
       ${portRow(":4317 / :4318", "OpenTelemetry Collector OTLP (gRPC / HTTP) — otel profile only.")}
     </tbody></table></div>
     ${helpNote(`The MCP server itself has <b>no</b> network port — it speaks stdio to the client that spawns it.`)}`);
