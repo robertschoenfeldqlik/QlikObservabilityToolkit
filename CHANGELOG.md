@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **MCP per-tool `tenant` parameter** — every auto-generated tool now accepts an optional `tenant` (string) input. Routes the call to the matching configured Talend tenant. Omit to use the default tenant. Per-tenant `TmcClient` instances cached on first use (and warmed for the default at startup).
 - **`tmc_list_environments` meta-tool** — first-class MCP tool that returns the full snapshot of Talend + Qlik tenants (ids, labels, regions, URL overrides, default flags, API filters) so the model can discover valid `tenant` IDs before calling other tools.
-- **MCP observability preset enforced** — `TMC_APIS_PRESET=observability` (default in observability mode) loads just `observability-metrics` + `execution-logs` + `execution-history-search`. Tool surface drops from 315 → 9 auto-generated tools + the meta-tool.
+- **MCP observability preset enforced** — `TMC_APIS_PRESET=observability` (default in observability mode) loads just `observability-metrics` + `execution-logs` + `execution-history-search`. Tool surface drops to just 8 auto-generated tools + the `tmc_list_environments` meta-tool (down from the full 20-API surface), so `tools/list` returns 9.
 - **Data Products tab** in the config UI — per Qlik tenant: lists the QVD files currently in the configured Data Files connection, trigger an immediate QVD export, optionally publish a curated catalog entry via Qlik `POST /api/v1/items` (`resourceType=qvd`), delete files. New endpoints: `GET /api/data-products`, `POST /api/data-products/upload-now`, `POST /api/data-products/publish`, `DELETE /api/data-products/{fileName}`.
 - **Kubernetes deployment** ([deploy/k8s/](deploy/k8s/)) — Kustomize layout with `base/` + `overlays/minikube/` + `overlays/eks/`. Deploys MCP server, all 4 Python exporters, Prometheus, Loki, Promtail (DaemonSet using `kubernetes_sd_configs` + `/var/log/pods` — CRI-compatible, works on EKS containerd), Grafana with both dashboards via configMapGenerator. EKS overlay covers ALB Ingress, gp3 storage class, IRSA annotations, and external-secrets pulling from AWS Secrets Manager. 22 manifest files, 2,280 LOC, documented in [docs/k8s.md](docs/k8s.md).
 - **Parallel build via subagents** — k8s manifests and Data Products UI built concurrently by background agents.
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Python exporter control panel** — UI tab lists every Python exporter with live state from `docker compose ps`, plus active series count from `/metrics`. Start / Stop buttons fire `docker compose --profile X up -d / stop`.
 - **Qlik Cloud observability exporter** ([python/exporters/qlik_obs_exporter.py](python/exporters/qlik_obs_exporter.py)) — polls Qlik Cloud platform APIs (apps, reloads, audits, quotas) for every configured tenant and emits `qlik_apps_total`, `qlik_reloads_total{status, app_id, space_id}`, `qlik_reload_duration_seconds`, `qlik_audit_events_total`, `qlik_quotas`. Each metric tagged with the `tenant` label.
 - **Shared multi-tenant loader** ([python/common/tenants.py](python/common/tenants.py)) — reads the same v2 config file the UI writes. Soft-imports `keyring` so file-backed tenants work even when the native lib isn't installed.
-- **MCP `observability` preset** — pure read-only: `observability-metrics`, `execution-logs`, `execution-history-search`. Drops `audit-logs` (identity events). The observability compose now uses this preset by default — tool surface drops from 315 → 9.
+- **MCP `observability` preset** — pure read-only: `observability-metrics`, `execution-logs`, `execution-history-search`. Drops `audit-logs` (identity events). The observability compose now uses this preset by default — tool surface drops to just 9 observability tools (down from the full 20-API surface).
 - **HELP.md** — master index of every external doc reference (Talend, Qlik, MCP, Prometheus, Loki, Grafana, prom-client, pyqvd, keyring, Trivy, etc.) at the project root.
 - **PowerPoint architecture deck** — `Qlik-Observability-Toolkit-Architecture.pptx` (standalone, 186 KB) and `Qlik-Observability-Toolkit-Architecture-Qlik.pptx` (with the Qlik corporate template applied — 37 layouts + 29 media files, 3.8 MB). 5 slides: Cover, end-to-end architecture diagram, multi-tenant model, MCP presets + UI tabs, references. Built via [scripts/build-deck.mjs](scripts/build-deck.mjs); template applied via [scripts/apply-pptx-template.mjs](scripts/apply-pptx-template.mjs).
 
@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **engine-log-scraper** tails Talend Remote Engine JSON logs on Linux (per [Qlik's docs](https://help.qlik.com/talend/en-US/remote-engine-user-guide-linux/Cloud/job-management-logs)) and exposes `talend_engine_jobs_(started|succeeded|failed|terminated)_total`, `talend_engine_job_attempts`, `talend_engine_rejected_rows`, `talend_engine_last_event_timestamp`, etc.
   - **qvd-exporter** queries Prometheus on a schedule, writes long-form `(Timestamp, Metric, labels..., Value)` rows to a Qlik QVD via `pyqvd`, and uploads to Qlik Cloud via the Data Files API. Built specifically so analysts can pull DevOps/server/app performance data into a Qlik Sense app for deep BI / correlation / historical trend analysis.
 - **Two new Grafana dashboards**: "Qlik Observability Toolkit" (server/infra, already existed) and "Talend TMC Business + Engine" (new). The latter has rows for TMC inventory + runs, Remote Engine job lifecycle, and QVD export health.
-- **`TMC_APIS_PRESET=logging`** shortcut on the MCP server. The observability compose now uses it by default, trimming the tool surface to ~10 read-only logging/observability/audit tools instead of all 315.
+- **`TMC_APIS_PRESET=logging`** shortcut on the MCP server. The observability compose now uses it by default, trimming the tool surface to ~10 read-only logging/observability/audit tools (down from the full 20-API surface).
 - New docs: [docs/business-metrics.md](docs/business-metrics.md), [docs/qlik-export.md](docs/qlik-export.md).
 - Compose profiles `business`, `engine`, `qlik`, `all` for opt-in exporter startup.
 
@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 First production release.
 
 ### Added
-- MCP server wrapping all 20 Talend Cloud API products — 315 auto-generated tools.
+- MCP server wrapping the Talend Cloud API products, auto-generated from OpenAPI specs, observability-scoped by default.
 - Personal Access Token authentication (env var or config file).
 - CLI setup wizard (`npm run setup`) with interactive masked input and non-interactive flags.
 - Browser-based config page (`npm run config-ui`) bound to `127.0.0.1`.

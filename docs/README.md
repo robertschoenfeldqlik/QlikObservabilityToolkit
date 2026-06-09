@@ -1,8 +1,12 @@
 # Qlik Observability Toolkit — Documentation
 
 An [MCP](https://modelcontextprotocol.io) server that exposes the **Talend
-Cloud (TMC) REST API** as 315 strongly-typed tools, auto-generated from the
-upstream OpenAPI 3.0 specs at <https://talend.qlik.dev/apis/>.
+Cloud (TMC) REST API** as strongly-typed tools auto-generated from the
+upstream OpenAPI 3.0 specs at <https://talend.qlik.dev/apis/>. It is
+observability-scoped by default: the default `observability` preset loads 3
+Talend API specs and exposes 8 tools, plus a `tmc_list_environments`
+meta-tool (so `tools/list` returns 9). Power users can widen the surface
+with an explicit `TMC_APIS` list.
 
 ## Where to start
 
@@ -88,5 +92,5 @@ startup; restart to pick up changes.
 
 - **MCP SDK:** `@modelcontextprotocol/sdk` ≥ 1.29
 - **Talend API version:** `2021-03` (default — override via `TMC_API_VERSION`)
-- **Tool count:** 315 across 20 APIs (verified by smoke test)
+- **Tool count:** 9 by default — the `observability` preset's 8 auto-generated tools plus the `tmc_list_environments` meta-tool (verified by smoke test). Widen via `TMC_APIS`; all 20 APIs are catalogued in [api-reference/](./api-reference/README.md).
 - **Auth:** Personal Access Token (Bearer header). Service-account OAuth flow not yet implemented — see [development.md](./development.md#future-work).

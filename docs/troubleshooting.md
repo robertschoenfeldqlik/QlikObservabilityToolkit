@@ -110,10 +110,11 @@ Usually the client is filtering or sorting tools strangely.
    ```bash
    TMC_PAT=... TMC_REGION=us node "C:/Claude/TMC MPC/dist/index.js"
    ```
-   Look for `Loaded 20 Talend API spec(s), exposing 315 tools.` on stderr.
+   Look for `Loaded 3 Talend API spec(s), exposing 8 tools.` on stderr.
    If that's missing, the client's env wiring is the problem.
 2. If your client supports an MCP inspector / debug pane, check `tools/list`
-   response — it should have 315 entries.
+   response — it should have 9 entries by default (the `observability`
+   preset's 8 tools plus the `tmc_list_environments` meta-tool).
 
 ### Claude doesn't pick the right tool
 

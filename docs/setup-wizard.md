@@ -50,8 +50,8 @@ Paste your token below. Input is hidden — you won't see characters.
 
 Personal Access Token: ****************************
 
-Optional: comma-separated list of APIs to enable (blank = all 20).
-Examples: orchestration,observability-metrics,execution-logs
+Optional: comma-separated list of observability APIs to enable (blank = observability default).
+Examples: observability-metrics,execution-logs,execution-history-search
 Valid:    orchestration, dataset, connections, audit-logs, ...
 APIs (blank for all): 
 
@@ -68,7 +68,7 @@ Next:
 
 1. **Region** — pick where your Talend tenant lives. Wrong region = 401s. You can type the name (`us`) or the number (`2`).
 2. **Personal Access Token** — input is masked with `*`. Backspace works. Ctrl-C cancels without saving.
-3. **APIs** — optional. Leaving it blank loads all 20. Useful narrowing: `orchestration,observability-metrics,execution-logs` for "run tasks and watch them."
+3. **APIs** — optional. Leaving it blank loads the observability default (8 tools). You can widen with an explicit list, e.g. `observability-metrics,execution-logs,audit-logs`.
 4. **Validation** — the wizard makes one live call (`GET /orchestration/environments`) to confirm:
    - **HTTP 200** → token works, config saved.
    - **HTTP 401** → token rejected. Re-check the token; the wizard offers to save anyway.
@@ -112,7 +112,7 @@ Flags:
 | --- | --- |
 | `--pat=<token>` | Personal Access Token. Required for non-interactive mode. |
 | `--region=<r>` | One of the five regions. Required for non-interactive mode. |
-| `--apis=<csv|all>` | API filter. `all` or omit = all 20. |
+| `--apis=<csv>` | Observability API filter. Omit for the observability default (8 tools). |
 | `--cred-store=<store>` | `file` (default) or `keychain` (OS credential manager — see [pat-storage.md](./pat-storage.md)). |
 | `--no-verify` | Skip the live HTTP check. Useful when CI doesn't have outbound access. |
 | `--print-path` | Print the resolved config path and exit. |

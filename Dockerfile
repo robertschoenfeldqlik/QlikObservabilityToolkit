@@ -94,7 +94,7 @@ ENTRYPOINT ["dumb-init", "--", "node", "dist/index.js"]
 
 # Image labels for `docker inspect` / registry metadata.
 LABEL org.opencontainers.image.title="Qlik Observability Toolkit Server"
-LABEL org.opencontainers.image.description="MCP server exposing the Talend Cloud REST API as 315 tools, auto-generated from OpenAPI specs."
+LABEL org.opencontainers.image.description="MCP server exposing the Talend Cloud REST API as auto-generated tools, observability-scoped by default (8 tools + a tenant-discovery meta-tool)."
 LABEL org.opencontainers.image.source="https://github.com/<owner>/<repo>"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.vendor="Qlik Observability Toolkit contributors"

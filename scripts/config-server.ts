@@ -32,7 +32,8 @@ import { promisify } from "node:util";
 import { spawn } from "node:child_process";
 import http from "node:http";
 
-import { TMC_APIS, TMC_REGIONS, type TmcApi, type TmcRegion } from "../src/apis.js";
+import { TMC_REGIONS, type TmcApi, type TmcRegion } from "../src/apis.js";
+import { TMC_API_PRESETS } from "../src/spec-loader.js";
 import { isValidApi, loadConfigFile, type QlikTenant } from "../src/config.js";
 import {
   deleteCredentials,
@@ -749,7 +750,9 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse, shutd
       return sendJson(res, 200, {
         ...snap,
         regions: Object.entries(TMC_REGIONS).map(([region, baseUrl]) => ({ region, baseUrl })),
-        availableApis: TMC_APIS,
+        // Observability Toolkit: the UI only offers the observability API
+        // families. The MCP server defaults to these too.
+        availableApis: TMC_API_PRESETS.observability,
       });
     }
 
@@ -1366,6 +1369,7 @@ const PAGE_HTML = `<!DOCTYPE html>
     <button class="tab" data-tab="qlik">Qlik Cloud</button>
     <button class="tab" data-tab="data-products">Data Products</button>
     <button class="tab" data-tab="exporters">Exporters</button>
+    <button class="tab" data-tab="help">Help</button>
     <button class="tab" data-tab="about">About</button>
   </div>
 
@@ -1420,6 +1424,94 @@ const PAGE_HTML = `<!DOCTYPE html>
     <div id="agentList" class="exp-grid"></div>
   </div>
 
+  <div id="tab-help" class="tab-panel">
+    <div class="panel">
+      <h2 style="margin-top:0;">Qlik Observability Toolkit — help</h2>
+      <p class="lead" style="margin-top:4px;">An observability toolkit for Talend Cloud and Qlik Cloud. It surfaces read-only operational signals — task/job runs, execution logs, execution history, Remote Engine job logs, and Qlik app reloads — to an MCP client, to Prometheus + Grafana, and to Qlik Sense via QVD.</p>
+      <p class="hint" style="margin-bottom:0;">Everything here is scoped to <strong>observability</strong>. The MCP server loads only the observability endpoints by default — 8 read-only tools plus the <code>tmc_list_environments</code> tenant-discovery tool. No orchestration or admin endpoints are exposed.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Dashboards &amp; metrics — Prometheus &amp; Grafana</h2>
+      <p class="hint" style="margin:0 0 12px;">These open the local observability stack started by <code>npm run deploy -- --target docker</code> (or minikube). They are reachable once that stack is up. All bind to localhost only.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <a href="http://localhost:3000" target="_blank" rel="noopener" style="display:block;flex:1 1 220px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--code-bg);color:var(--text);text-decoration:none;">
+          <div style="font-weight:700;color:var(--accent);">Grafana →</div>
+          <div>Dashboards (Talend + engine + Qlik)</div>
+          <div class="hint" style="margin:4px 0 0;">localhost:3000 · login <code>admin</code> / <code>admin</code> (change on first use)</div>
+        </a>
+        <a href="http://localhost:9090" target="_blank" rel="noopener" style="display:block;flex:1 1 220px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--code-bg);color:var(--text);text-decoration:none;">
+          <div style="font-weight:700;color:var(--accent);">Prometheus →</div>
+          <div>Metrics, targets &amp; PromQL</div>
+          <div class="hint" style="margin:4px 0 0;">localhost:9090 · try <code>/targets</code></div>
+        </a>
+        <a href="http://localhost:3100/ready" target="_blank" rel="noopener" style="display:block;flex:1 1 220px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--code-bg);color:var(--text);text-decoration:none;">
+          <div style="font-weight:700;color:var(--accent);">Loki →</div>
+          <div>Log aggregation (via Grafana)</div>
+          <div class="hint" style="margin:4px 0 0;">localhost:3100</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Quick start</h2>
+      <h3>1 · Add a Talend tenant</h3>
+      <p>Open the <strong>Talend Cloud</strong> tab → <em>+ Add Talend tenant</em>. Generate a Personal Access Token in the Talend Cloud Portal under <em>Profile preferences → Personal Access Tokens</em>, paste it, pick the region (or a custom URL), and choose where to store it (config file or OS keyring). Only observability APIs are offered.</p>
+      <h3>2 · Add a Qlik tenant</h3>
+      <p>Open the <strong>Qlik Cloud</strong> tab → <em>+ Add Qlik tenant</em>. Create an API key in your Qlik Cloud tenant under <em>Settings → API keys</em>, paste it with the tenant URL. Qlik tenants feed the QVD uploader and the Qlik observability exporter (apps, reloads, audit) — both read-only.</p>
+      <h3>3 · Start the stack</h3>
+      <p>From the repo root:</p>
+      <pre style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0;">npm run deploy -- --target docker</pre>
+      <p class="hint" style="margin:0;">Then use the <strong>Exporters</strong> tab to start/stop exporters and watch Remote Engine agents.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Connect an MCP client</h2>
+      <p>The server speaks MCP over <strong>stdio</strong> (no network port). Point a client such as Claude Desktop at the built server:</p>
+      <pre style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0;">{
+  "mcpServers": {
+    "qlik-observability": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": { "TMC_REGION": "us" }
+    }
+  }
+}</pre>
+      <p class="hint" style="margin:0;">Default surface = 8 observability tools + <code>tmc_list_environments</code>. Pass a <code>tenant</code> argument on any tool to target a specific tenant. Set <code>TMC_APIS_PRESET=logging</code> to also include audit identity events.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Remote Engine extractor</h2>
+      <p>Install the headless agent on each Talend Remote Engine host to ship job-management logs:</p>
+      <pre style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0;">npm i -g qlik-engine-extractor
+qlik-engine-extractor doctor   # checks the log path + that job logging is ON
+qlik-engine-extractor run</pre>
+      <p class="hint" style="margin:0;">Agents heartbeat to this UI every 30s — watch them under <strong>Exporters → Registered extractor agents</strong>. The agent is headless; manage it only from this control plane.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Troubleshooting</h2>
+      <h3>The UI didn't come up on 8788</h3>
+      <p>If port 8788 is busy (usually a previous instance still running), the server starts on the next free port and prints a <code>NOTE</code> with the real URL — open that, not <code>:8788</code>. To stop a stale instance, press Ctrl-C in its window, or kill any <code>node</code> process whose command line contains <code>config-server</code>.</p>
+      <h3>No Remote Engine metrics in Grafana</h3>
+      <p>Run <code>qlik-engine-extractor doctor</code> on the engine host. It verifies the log pickup directory exists and that job-management logging is actually enabled on the Remote Engine. The verdict also shows per-source in the Exporters tab.</p>
+      <h3>MCP tools missing</h3>
+      <p>The server is observability-scoped by design. To widen the surface set <code>TMC_APIS</code> to an explicit comma-separated API list, or <code>TMC_APIS_PRESET=logging</code>.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Reference links</h2>
+      <ul style="margin:6px 0 0;padding-left:18px;line-height:1.9;">
+        <li><a href="https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">GitHub — QlikObservabilityToolkit</a> (full README + docs)</li>
+        <li><a href="https://talend.qlik.dev/apis/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Talend Cloud APIs</a></li>
+        <li><a href="https://help.qlik.com/talend/en-US/remote-engine-user-guide-linux/Cloud/job-management-logs" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Talend Remote Engine — job-management logs</a></li>
+        <li><a href="https://qlik.dev/apis/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Qlik Cloud APIs (qlik.dev)</a></li>
+        <li><a href="https://qlik.dev/apis/rest/data-files/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Qlik Cloud Data Files API</a> (QVD upload)</li>
+      </ul>
+      <p class="hint" style="margin:12px 0 0;">A master index of every external doc this project uses is in <code>HELP.md</code> at the repo root.</p>
+    </div>
+  </div>
+
   <div id="tab-about" class="tab-panel">
     <div class="panel">
       <h2>Appearance</h2>
@@ -1459,7 +1551,7 @@ const PAGE_HTML = `<!DOCTYPE html>
     </div>
     <div class="panel">
       <h2>About this UI</h2>
-      <p>This config page is served by <code>npm run config-ui</code>. It reads + writes the same config file the MCP server consumes on startup. Server: stdio MCP, scoped to logging/observability endpoints when run from the observability stack.</p>
+      <p>This config page is served by <code>npm run config-ui</code>. It reads + writes the same config file the MCP server consumes on startup. Server: stdio MCP, scoped to read-only observability endpoints by default. See the <strong>Help</strong> tab for setup, dashboards, and troubleshooting.</p>
       <p class="hint" style="margin-top: 14px;">Config file location: <code id="aboutPath">…</code></p>
       <p class="hint">OS keyring: <span id="aboutKeychain">…</span></p>
       <div class="form-actions" style="margin-top: 14px;">
@@ -1762,11 +1854,11 @@ function openTalendForm(existing) {
         <label class="storage-opt \${kc.available ? "" : "disabled"}"><input type="radio" name="t_storage" value="keychain" \${(!isNew && existing.patStorage === "keychain") ? "checked" : ""} \${kc.available ? "" : "disabled"}/><div><div class="storage-title">OS keyring \${kc.available ? "" : "<i>(unavailable)</i>"}</div><div class="hint" style="margin:0">\${kc.available ? esc(kc.backend) : esc(kc.reason || "no backend")}</div></div></label>
       </div>
 
-      <label class="field" style="margin-top:14px;">APIs to expose to the MCP server <span style="font-weight:normal;color:var(--muted);">(blank = all)</span></label>
+      <label class="field" style="margin-top:14px;">Observability APIs to expose to the MCP server <span style="font-weight:normal;color:var(--muted);">(blank = all observability tools)</span></label>
+      <div class="hint" style="margin:-4px 0 6px;">This is an observability toolkit — only read-only observability endpoints (metrics, execution logs, execution history) are offered.</div>
       <div class="apis-controls">
         <button type="button" onclick="apisAll()">Select all</button>
         <button type="button" onclick="apisNone()">Clear</button>
-        <button type="button" onclick="apisObservability()">Observability only</button>
       </div>
       <div class="apis-grid" id="t_apis"></div>
 
@@ -1798,10 +1890,6 @@ function openTalendForm(existing) {
 }
 function apisAll()  { document.querySelectorAll("#t_apis input").forEach(cb => cb.checked = true); }
 function apisNone() { document.querySelectorAll("#t_apis input").forEach(cb => cb.checked = false); }
-function apisObservability() {
-  const set = new Set(["observability-metrics","execution-logs","execution-history-search"]);
-  document.querySelectorAll("#t_apis input").forEach(cb => cb.checked = set.has(cb.value));
-}
 function selectedTalendApis() {
   return [...document.querySelectorAll("#t_apis input:checked")].map(cb => cb.value);
 }

@@ -66,7 +66,7 @@ Two options:
 
 ## Verify
 
-Run the smoke test — it boots the server and confirms `tools/list` returns 315 tools:
+Run the smoke test — it boots the server and confirms `tools/list` returns the default 9 tools (the `observability` preset's 8 tools plus the `tmc_list_environments` meta-tool):
 
 ```bash
 npm run build
@@ -76,9 +76,9 @@ npx tsx scripts/smoke-test.ts
 Expected output:
 
 ```
-stderr: Loaded 20 Talend API spec(s), exposing 315 tools. Region: us (https://api.us.cloud.talend.com).
-tools/list returned 315 tools
-First tool: orchestration__getAvailableArtifacts
+stderr: Loaded 3 Talend API spec(s), exposing 8 tools. Region: us (https://api.us.cloud.talend.com).
+tools/list returned 9 tools
+First tool: observability_metrics__get_monitoring_observability_executions_e
 ```
 
 If you see `ERROR: No Personal Access Token found`, your credentials aren't

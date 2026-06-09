@@ -110,7 +110,7 @@ before connecting, or rely on the config file written by `npm run setup`.
 
 Once connected, you can:
 
-- Browse all 315 tools (filter by `orchestration__`, `dataset__`, etc.)
+- Browse the observability tools (filter by `observability_metrics__`, `execution_logs__`, `execution_history_search__`, etc.)
 - See each tool's JSON Schema
 - Call a tool with arbitrary arguments
 - Inspect raw JSON-RPC traffic
@@ -138,7 +138,7 @@ TMC_PAT=<your-pat> TMC_REGION=us node "C:/Claude/TMC MPC/dist/index.js"
 You should see one line on stderr:
 
 ```
-Loaded 20 Talend API spec(s), exposing 315 tools. Region: us (https://api.us.cloud.talend.com).
+Loaded 3 Talend API spec(s), exposing 8 tools. Region: us (https://api.us.cloud.talend.com).
 ```
 
 …and then the process should block waiting for JSON-RPC on stdin. Press

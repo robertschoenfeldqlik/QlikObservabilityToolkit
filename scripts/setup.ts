@@ -194,7 +194,7 @@ Usage:
 Flags:
   --pat=<token>          Personal Access Token (required for non-interactive).
   --region=<r>           One of: ${Object.keys(TMC_REGIONS).join(", ")}.
-  --apis=<csv|all>       Comma-separated APIs; "all" or omit for all 20.
+  --apis=<csv>           Comma-separated observability APIs; omit for the observability default.
   --cred-store=<store>   "file" (default) or "keychain" (OS credential manager).
   --no-verify            Skip the live HTTP check against Talend.
   --print-path           Print the resolved config file path and exit.
@@ -268,13 +268,13 @@ async function askRegion(rl: readline.Interface, current?: TmcRegion): Promise<T
 }
 
 async function askApis(rl: readline.Interface, current?: TmcApi[]): Promise<TmcApi[] | undefined> {
-  console.log("\nOptional: comma-separated list of APIs to enable (blank = all 20).");
-  console.log("Examples: orchestration,observability-metrics,execution-logs");
+  console.log("\nOptional: comma-separated list of observability APIs to enable (blank = observability default).");
+  console.log("Examples: observability-metrics,execution-logs,execution-history-search");
   console.log(`Valid:    ${TMC_APIS.join(", ")}`);
   const defaultStr = current?.join(",") ?? "";
   const promptText = defaultStr
-    ? `APIs (blank to keep "${defaultStr}", "all" to reset): `
-    : "APIs (blank for all): ";
+    ? `APIs (blank to keep "${defaultStr}", "all" to reset to the observability default): `
+    : "APIs (blank for the observability default): ";
   const answer = await ask(rl, promptText);
   const trimmed = answer.trim();
   if (!trimmed) return current;

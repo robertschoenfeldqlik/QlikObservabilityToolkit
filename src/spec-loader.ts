@@ -59,21 +59,21 @@ export function parseApiList(env: string | undefined): TmcApi[] | undefined {
  * Named bundles of APIs for common use cases. Spares the user from having to
  * memorize which slugs go together for a given workflow.
  */
+// The Qlik Observability Toolkit deliberately ships observability-scoped
+// presets only. `observability` is the default tool surface; `logging` adds
+// audit-logs (identity events) for teams that want them. Non-observability
+// loadouts (orchestration, the full 20-API surface) are intentionally not
+// offered as presets — a power user can still pass an explicit TMC_APIS list,
+// but the product's named bundles all reflect observability.
 export const TMC_API_PRESETS: Record<string, TmcApi[]> = {
   // PURE observability — just the three endpoint families that emit data
   // about runs/jobs/metrics. Drops audit-logs (which contains
   // identity-management events you may not want exposed to the model).
-  // This is the recommended preset for the observability-stack sidecar.
+  // This is the default preset and the recommended one for the stack sidecar.
   observability: ["observability-metrics", "execution-logs", "execution-history-search"],
 
-  // Observability + audit (the previous "logging" alias for back-compat).
+  // Observability + audit identity events.
   logging: ["observability-metrics", "execution-logs", "execution-history-search", "audit-logs"],
-
-  // Day-to-day "run things and watch them" loadout.
-  orchestrate: ["orchestration", "execution-logs", "observability-metrics", "execution-history-search"],
-
-  // Everything (same as not setting TMC_APIS at all).
-  all: [...TMC_APIS],
 };
 
 export function parseApiPreset(env: string | undefined): TmcApi[] | undefined {

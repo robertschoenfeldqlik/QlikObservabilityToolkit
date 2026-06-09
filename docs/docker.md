@@ -91,7 +91,7 @@ printf '%s\n' \
 | docker run -i --rm -e TMC_PAT=dummy -e TMC_REGION=us talend-tmc-mcp
 ```
 
-Expected: `tools/list` returns 315 tools.
+Expected: `tools/list` returns 9 tools (the default `observability` preset's 8 tools plus the `tmc_list_environments` meta-tool).
 
 ## Configuration
 

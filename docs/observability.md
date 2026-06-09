@@ -154,8 +154,9 @@ If you already run Prometheus / Loki / Grafana elsewhere:
 - **Run one MCP container per user.** The metrics are per-process. If you
   multiplex multiple PATs through a single container (don't), they'll all
   pile into the same series.
-- **Cardinality.** `tmc_mcp_tool_calls_total` has `tool` as a label (315
-  values). That's fine for Prometheus, but `http_status` × `tool` × `api`
+- **Cardinality.** `tmc_mcp_tool_calls_total` has `tool` as a label (≈9
+  values by default, growing if you widen the API surface via `TMC_APIS`).
+  That's fine for Prometheus, but `http_status` × `tool` × `api`
   × `method` × `status` gets large. If you scale to many tenants, drop
   `http_status` and `method` via metric_relabel_configs.
 - **Retention.** The bundled Prometheus keeps 14 days. Loki keeps 7. Tune

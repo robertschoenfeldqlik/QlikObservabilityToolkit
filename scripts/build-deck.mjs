@@ -134,7 +134,7 @@ pres.company = "Built on the Qlik stack";
       color: MUTED,
     });
   };
-  card(1.0, "315", "MCP tools", "Auto-generated from all 20 Talend Cloud OpenAPI specs.");
+  card(1.0, "9", "observability tools", "Read-only Talend observability surface (+ tenant-discovery meta-tool), auto-generated from OpenAPI specs.");
   card(4.7, "N+N", "tenants", "Multiple Talend + multiple Qlik tenants in one config.");
   card(8.4, "4", "Python exporters", "Business · Engine logs · QVD upload · Qlik observability.");
 }
@@ -469,7 +469,7 @@ pres.company = "Built on the Qlik stack";
       color: MUTED,
     });
     if (recommended) {
-      s.addText("RECOMMENDED IN OBSERVABILITY MODE", {
+      s.addText("DEFAULT — LOADED OUT OF THE BOX", {
         x: x + 0.15,
         y: y + 1.95,
         w: 2.65,
@@ -485,13 +485,23 @@ pres.company = "Built on the Qlik stack";
     0.5,
     1.5,
     "observability",
-    "~9",
-    "Pure read-only: observability-metrics, execution-logs, execution-history-search. Drops audit.",
+    "9",
+    "Default. Pure read-only: observability-metrics, execution-logs, execution-history-search, plus the tenant-discovery meta-tool. Drops audit.",
     true,
   );
-  presetCard(3.6, 1.5, "logging", "~10", "Same as observability + audit-logs (identity events).");
-  presetCard(6.7, 1.5, "orchestrate", "~100", "Run things: orchestration tools + the observability trio.");
-  presetCard(9.8, 1.5, "all", "315", "Every endpoint across all 20 TMC API products.");
+  presetCard(3.6, 1.5, "logging", "10", "Same as observability + audit-logs (identity events).");
+  // Observability-only by design — the legacy orchestrate / all bundles were removed.
+  s.addShape("roundRect", {
+    x: 6.7, y: 1.5, w: 6.13, h: 2.3,
+    fill: { color: WHITE }, line: { color: MUTED, width: 0.5 }, rectRadius: 0.06,
+  });
+  s.addText("Observability-only by design", {
+    x: 6.85, y: 1.65, w: 5.8, h: 0.35, fontFace: FONT, fontSize: 14, color: SLATE, bold: true,
+  });
+  s.addText(
+    "No orchestration or admin endpoints are exposed. The MCP server defaults to the observability preset; only the observability and logging presets ship. Need a wider surface? Pass an explicit TMC_APIS=<comma,list> — but the product is scoped to read-only observability.",
+    { x: 6.85, y: 2.05, w: 5.8, h: 1.6, fontFace: FONT, fontSize: 10, color: MUTED },
+  );
 
   // UI tab row
   s.addText("CONFIGURATION UI (npm run config-ui)", {

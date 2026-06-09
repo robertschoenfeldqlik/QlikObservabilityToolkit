@@ -28,7 +28,7 @@ in the page) when done.
 | **Region** | Dropdown of all five regions. Pre-selected to the existing config or `us`. |
 | **Personal Access Token** | Password-style input with show/hide. Blank = keep the existing token. |
 | **Where to store the token** | Radio buttons: config file (default) or OS keyring. Keyring option is disabled with a reason if the platform backend isn't available. See [pat-storage.md](./pat-storage.md). |
-| **APIs to load** | Checkbox grid for all 20 TMC APIs. Quick buttons: *Select all*, *Clear*, *Core* (orchestration + observability + logs). Blank = all 20. |
+| **Observability APIs** | Checkbox grid of the observability APIs (observability-metrics, execution-logs, execution-history-search). Quick buttons: *Select all*, *Clear*. Blank = all observability tools. The UI is observability-scoped — orchestration/admin endpoints are not offered. |
 | **HTTP timeout** | Numeric input (milliseconds). |
 | **Test connection** | Hits `GET /orchestration/environments` against the chosen region with the entered PAT. Reports 200/401/403 with a human-readable explanation. |
 | **Save** | Writes the same JSON config that `npm run setup` produces. |

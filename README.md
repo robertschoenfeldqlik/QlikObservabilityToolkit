@@ -21,7 +21,7 @@ A complete, production-shaped observability stack for **Talend Cloud + Talend Re
 
 | Layer | What it does |
 |---|---|
-| **MCP server** ([src/](src/)) | Auto-generates 315 MCP tools from Talend Cloud's published OpenAPI specs. Every tool routes by tenant. Restartable to one of four observability presets. Includes a `tmc_list_environments` meta-tool so the model can discover configured tenants. |
+| **MCP server** ([src/](src/)) | Auto-generates MCP tools from Talend Cloud's published OpenAPI specs, observability-scoped by default (the observability preset exposes 8 tools). Every tool routes by tenant. Ships two named presets — `observability` (default) and `logging` — and can be widened with an explicit `TMC_APIS` list. Includes a `tmc_list_environments` meta-tool so the model can discover configured tenants. |
 | **Python exporters** ([python/](python/)) | 4 exporters that emit Prometheus metrics: TMC business (tasks/plans/executions), Remote Engine job logs (multi-source on one /metrics endpoint), Qlik Cloud platform (apps/reloads/audits/quotas), and Prometheus→QVD (lands time-series in Qlik Cloud for analyst BI). |
 | **Observability stack** ([docker-compose.observability.yml](docker-compose.observability.yml)) | Prometheus + Loki + Promtail + Grafana, all pre-provisioned with two dashboards and the right scrape targets. Profile-gated so you opt into exporters individually. |
 | **Configuration UI** ([scripts/config-server.ts](scripts/config-server.ts)) | Local web UI bound to `127.0.0.1`. Manages N Talend tenants + N Qlik tenants, controls Python exporters via `docker compose`, triggers QVD uploads, publishes data products, picks themes (light/dark/high-contrast), reveals stored tokens on demand. |

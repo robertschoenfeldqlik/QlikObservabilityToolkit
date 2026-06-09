@@ -1,7 +1,7 @@
 {
   "name": "talend-tmc-mcp",
   "version": "1.0.0",
-  "description": "MCP server wrapping the Talend Cloud (TMC) REST API. Auto-generates 315 tools from Talend's published OpenAPI 3.0 specs.",
+  "description": "MCP server wrapping the Talend Cloud (TMC) REST API, observability-scoped by default. Auto-generates tools from Talend's published OpenAPI 3.0 specs; the default observability preset exposes 8 tools plus a tenant-discovery meta-tool.",
   "type": "module",
   "bin": {
     "talend-tmc-mcp": "dist/index.js"

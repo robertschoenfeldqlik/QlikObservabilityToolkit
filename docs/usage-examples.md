@@ -176,9 +176,10 @@ mirror the SCIM 2.0 spec one-to-one.
 
 - **Be specific about IDs.** Claude can't guess workspace or task IDs — ask it
   to list first, then act.
-- **Limit the API surface.** If you're only going to ask about tasks and runs,
-  set `TMC_APIS="orchestration,observability-metrics,execution-logs"` so
-  Claude isn't choosing between 315 tools.
+- **Limit the API surface.** The toolkit defaults to the observability set, so
+  Claude isn't choosing between hundreds of tools — just the focused
+  observability set. If you widen it with `TMC_APIS`, keep the list as narrow
+  as your workflow needs.
 - **Watch for pagination.** Listing endpoints take `limit`/`offset`; ask
   Claude to fetch more pages if results look truncated.
 - **Check the response shape** in the corresponding `api-reference/<api>.md` —

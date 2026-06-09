@@ -103,6 +103,13 @@ async function main() {
       apiFilter = parseApiPreset(process.env.TMC_APIS_PRESET);
     } else if (fileConfig?.apis && fileConfig.apis.length > 0) {
       apiFilter = fileConfig.apis;
+    } else {
+      // Qlik Observability Toolkit: observability is the default tool surface.
+      // With nothing configured we load just the observability APIs rather than
+      // all 20 TMC products. Power users can still opt into a wider surface via
+      // TMC_APIS / TMC_APIS_PRESET, but the out-of-the-box product is scoped to
+      // read-only observability (metrics, execution logs, execution history).
+      apiFilter = parseApiPreset("observability");
     }
   } catch (err) {
     log.error("invalid TMC_APIS / TMC_APIS_PRESET", { err: errMsg(err) });

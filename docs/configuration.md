@@ -16,7 +16,7 @@ JSON config.
 | --- | --- | --- | --- | --- | --- |
 | Personal Access Token | `TMC_PAT` | `pat` | — | ✔ (one of) | Bearer token sent as `Authorization: Bearer <PAT>` on every request. |
 | Region | `TMC_REGION` | `region` | `us` | ✔ (one of) | One of `us`, `eu`, `ap`, `au`, `us-west`. Selects the base URL. |
-| API filter | `TMC_APIS` | `apis` | (all 20) | — | Comma-separated subset, e.g. `orchestration,observability-metrics`. |
+| API filter | `TMC_APIS` | `apis` | (observability) | — | Defaults to the observability preset (8 tools). Comma-separated subset to override, e.g. `observability-metrics,execution-logs,audit-logs`. |
 | API version | `TMC_API_VERSION` | — | `2021-03` | — | OpenAPI spec version segment (read at fetch/load time). |
 | HTTP timeout (ms) | `TMC_TIMEOUT_MS` | `timeoutMs` | `60000` | — | Per-request timeout. |
 | PAT storage backend | `TMC_CRED_STORE` | `patStorage` | `file` | — | `file` (plaintext in config.json) or `keychain` (OS credential manager). See [pat-storage.md](./pat-storage.md). |
@@ -63,11 +63,13 @@ Location:
 Run `npm run config-path` to print the resolved path on your system. The
 wizard creates the parent directory and `chmod 600`s the file on POSIX.
 
-## TMC_APIS — trimming the tool surface
+## TMC_APIS — widening (or trimming) the tool surface
 
-315 tools is a lot of context for the model to consider. If your usage is
-narrow (e.g. just running tasks and reading metrics), turn off APIs you don't
-need:
+The full 20-API surface is a lot of context for the model to consider —
+which is exactly why this toolkit defaults to the `observability` preset
+(8 tools + the `tmc_list_environments` meta-tool). If you need more than the
+default observability scope, set `TMC_APIS` to an explicit comma-separated
+list of the APIs you want:
 
 ```bash
 # PowerShell
@@ -110,7 +112,7 @@ transport. Don't pipe stdout anywhere you'll be tempted to grep.
 A normal boot prints one stderr line like:
 
 ```
-Loaded 20 Talend API spec(s), exposing 315 tools. Region: us (https://api.us.cloud.talend.com).
+Loaded 3 Talend API spec(s), exposing 8 tools. Region: us (https://api.us.cloud.talend.com).
 ```
 
 Errors are written to stderr with an `ERROR:` prefix and a non-zero exit.

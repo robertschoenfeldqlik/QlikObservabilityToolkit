@@ -15,7 +15,7 @@ All logs go to **stderr**. stdout is reserved for the MCP JSON-RPC transport.
 ### JSON format
 
 ```
-{"ts":"2026-05-13T10:42:18.001Z","level":"info","msg":"server starting","service":"talend-tmc-mcp","version":"1.0.0","specs":20,"tools":315,"region":"us","baseUrl":"https://api.us.cloud.talend.com","timeoutMs":60000,"maxRetries":3}
+{"ts":"2026-05-13T10:42:18.001Z","level":"info","msg":"server starting","service":"talend-tmc-mcp","version":"1.0.0","specs":3,"tools":8,"region":"us","baseUrl":"https://api.us.cloud.talend.com","timeoutMs":60000,"maxRetries":3}
 ```
 
 Every line has `ts`, `level`, `msg`. Extra fields depend on the call site
@@ -147,7 +147,7 @@ This is the operator-facing one:
 | --- | --- | --- |
 | `TMC_PAT` | — | **Required** unless config file has one. Redacted from logs. |
 | `TMC_REGION` | `us` | `us`, `eu`, `ap`, `au`, `us-west`. |
-| `TMC_APIS` | (all 20) | Trim the tool surface. |
+| `TMC_APIS` | (observability) | Override the tool surface; defaults to the observability preset (8 tools). |
 | `TMC_API_VERSION` | `2021-03` | Used at spec-fetch time. |
 | `TMC_TIMEOUT_MS` | `60000` | Per-request HTTP timeout. |
 | `TMC_MAX_RETRIES` | `3` | 0–8. |

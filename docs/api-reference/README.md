@@ -6,7 +6,7 @@
 Auto-generated catalog of every MCP tool exposed by this server. Each tool maps
 one-to-one to an OpenAPI operation in the upstream Talend Cloud spec.
 
-**20 APIs · 315 tools** (version `2021-03` unless overridden).
+**Reference catalog for all 20 Talend Cloud APIs** (version `2021-03` unless overridden). Note this catalogs the full API surface for reference; the server is observability-scoped by default, exposing the `observability` preset's 8 tools plus the `tmc_list_environments` meta-tool. Widen the surface with an explicit `TMC_APIS` list.
 
 See [../setup-wizard.md](../setup-wizard.md) to install credentials, and
 [../usage-examples.md](../usage-examples.md) for common workflows.
