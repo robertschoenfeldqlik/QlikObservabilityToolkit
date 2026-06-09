@@ -325,6 +325,8 @@ export interface QlikTenantSnapshot {
   apiKeySet: boolean;
   apiKeyHint: string | null;
   isDefault: boolean;
+  /** Whether Qlik Cloud observability tools/exporter are enabled (default true). */
+  observability: boolean;
 }
 
 export interface ConfigSnapshot {
@@ -383,6 +385,7 @@ export async function snapshotConfig(): Promise<ConfigSnapshot> {
         apiKeySet: !!key,
         apiKeyHint: key ? `••••${key.slice(-4)}` : null,
         isDefault: t.id === cfg?.defaultQlikId,
+        observability: t.observability !== false,
       };
     }),
   );
@@ -486,6 +489,8 @@ export interface SaveQlikTenantInput {
   /** New API key value; pass null to keep the existing one. */
   apiKey: string | null;
   makeDefault?: boolean;
+  /** Expose this tenant's Qlik observability tools on the MCP server (default true). */
+  observability?: boolean;
 }
 
 export async function saveTalendTenant(input: SaveTalendTenantInput): Promise<{ path: string }> {
@@ -570,6 +575,7 @@ export async function saveQlikTenant(input: SaveQlikTenantInput): Promise<{ path
   };
   if (input.connectionId && input.connectionId.trim()) next.connectionId = input.connectionId.trim();
   if (input.timeoutMs !== undefined) next.timeoutMs = input.timeoutMs;
+  if (input.observability !== undefined) next.observability = input.observability;
   if (input.apiKeyStorage === "file") next.apiKey = await maybeEncryptForFile(effectiveKey);
 
   if (idx >= 0) cfg.qlikTenants[idx] = next;

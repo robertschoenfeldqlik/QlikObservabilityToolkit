@@ -53,6 +53,12 @@ export interface QlikTenant {
   connectionId?: string;
   /** Optional per-tenant timeout. */
   timeoutMs?: number;
+  /**
+   * Whether to expose this tenant's Qlik Cloud observability tools on the MCP
+   * server (apps, reloads, audits, quotas, …). Defaults to true when absent.
+   * Toggled by the "Qlik Cloud observability" checkbox in the config UI.
+   */
+  observability?: boolean;
 }
 
 export interface TmcFileConfig {
@@ -86,6 +92,11 @@ export interface TmcFileConfig {
  *   macOS/Linux: $XDG_CONFIG_HOME/talend-tmc-mcp/config.json (falls back to ~/.config/...)
  */
 export function configPath(): string {
+  // Explicit override (matches the Python exporters' TMC_CONFIG_PATH). Lets the
+  // MCP server, config UI and exporters all share one path, and keeps tests off
+  // the real user config.
+  const override = process.env.TMC_CONFIG_PATH;
+  if (override && override.trim()) return override.trim();
   if (platform() === "win32") {
     const base = process.env.APPDATA ?? homedir();
     return join(base, "talend-tmc-mcp", "config.json");

@@ -22,6 +22,12 @@ export interface ToolDescriptor {
   queryParams: string[];
   headerParams: string[];
   bodyContentType?: string;
+  /**
+   * Which service this tool talks to. Determines which tenant pool the
+   * dispatcher routes the call to. Defaults to "talend" when absent (every
+   * spec-generated Talend tool); Qlik observability tools set "qlik".
+   */
+  product?: "talend" | "qlik";
 }
 
 const MAX_TOOL_NAME_LEN = 64;

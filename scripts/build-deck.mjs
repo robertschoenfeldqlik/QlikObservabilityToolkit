@@ -134,7 +134,7 @@ pres.company = "Built on the Qlik stack";
       color: MUTED,
     });
   };
-  card(1.0, "9", "observability tools", "Read-only Talend observability surface (+ tenant-discovery meta-tool), auto-generated from OpenAPI specs.");
+  card(1.0, "8 + 8", "observability tools", "Read-only Talend (8) + Qlik Cloud (8) observability tools, tenancy-aware, + the tenant-discovery meta-tool.");
   card(4.7, "N+N", "tenants", "Multiple Talend + multiple Qlik tenants in one config.");
   card(8.4, "4", "Python exporters", "Business · Engine logs · QVD upload · Qlik observability.");
 }
@@ -209,7 +209,7 @@ pres.company = "Built on the Qlik stack";
   card(0.65, rowY(2), 3.4, cardH, "remote-engine.png", "Remote Engine hosts", "JSON job-management logs on Linux", TEAL_DEEP);
 
   // Collection plane
-  card(4.65, rowY(0), 4.25, cardH, "mcp.png", "MCP server (TS)", "stdio · per-tenant routing · observability preset", BLUE_DEEP);
+  card(4.65, rowY(0), 4.25, cardH, "mcp.png", "MCP server (TS)", "stdio · per-tenant routing · Talend + Qlik obs tools", BLUE_DEEP);
   card(4.65, rowY(1), 4.25, cardH, "exporters.png", "Python exporters ×4", "business · engine-logs · qlik-obs · qvd", BLUE_DEEP);
   card(4.65, rowY(2), 4.25, cardH, "extractor.png", "qlik-engine-extractor", "headless agent · self-diagnosing · heartbeats", QLIK_GREEN);
 
@@ -499,8 +499,8 @@ pres.company = "Built on the Qlik stack";
     x: 6.85, y: 1.65, w: 5.8, h: 0.35, fontFace: FONT, fontSize: 14, color: SLATE, bold: true,
   });
   s.addText(
-    "No orchestration or admin endpoints are exposed. The MCP server defaults to the observability preset; only the observability and logging presets ship. Need a wider surface? Pass an explicit TMC_APIS=<comma,list> — but the product is scoped to read-only observability.",
-    { x: 6.85, y: 2.05, w: 5.8, h: 1.6, fontFace: FONT, fontSize: 10, color: MUTED },
+    "No orchestration or admin endpoints are exposed. Talend presets: observability (default) + logging. Qlik Cloud adds a read-only qlik_observability__* tool family (apps, reloads, audits, quotas, spaces, users) — every tool is tenancy-aware. Need a wider Talend surface? Pass an explicit TMC_APIS=<comma,list>.",
+    { x: 6.85, y: 2.05, w: 5.8, h: 1.65, fontFace: FONT, fontSize: 10, color: MUTED },
   );
 
   // UI tab row

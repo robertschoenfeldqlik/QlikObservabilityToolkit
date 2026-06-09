@@ -6,16 +6,19 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { TMC_REGIONS, type TmcApi, type TmcRegion } from "./apis.js";
 import {
   configPath,
+  defaultQlikTenant,
   defaultTalendTenant,
   loadConfigFile,
+  type QlikTenant,
   type TalendTenant,
   type TmcFileConfig,
 } from "./config.js";
-import { loadPat, loadTalendPat, snapshotConfig } from "./credential-store.js";
-import { TmcCallError, TmcClient, type CallResult } from "./http-client.js";
+import { loadPat, loadQlikApiKey, loadTalendPat, snapshotConfig } from "./credential-store.js";
+import { QlikClient, TmcCallError, TmcClient, type CallResult } from "./http-client.js";
 import { createLogger, type Logger } from "./logger.js";
 import { setServerInfo } from "./metrics.js";
 import { startMetricsServer, type MetricsServerHandle } from "./metrics-server.js";
+import { QLIK_OBSERVABILITY_TOOLS } from "./qlik-tools.js";
 import { loadSpecs, parseApiList, parseApiPreset } from "./spec-loader.js";
 import { generateToolsForSpec, type ToolDescriptor } from "./tool-generator.js";
 import { PKG_NAME, PKG_VERSION } from "./version.js";
@@ -83,6 +86,12 @@ async function main() {
     process.exit(78);
   }
 
+  // Qlik Cloud tenants — feed the read-only Qlik observability tools. Loaded
+  // alongside Talend; each Qlik tool routes to one of these by id, exactly like
+  // the Talend tools do. Optional: the server still runs Talend-only.
+  const qlikTenants: QlikTenant[] = [...(fileConfig?.qlikTenants ?? [])];
+  const defaultQlikId = defaultQlikTenant(fileConfig)?.id;
+
   const timeoutMs = parseOptionalPositiveInt(process.env.TMC_TIMEOUT_MS, fileConfig?.timeoutMs);
   if (timeoutMs === "invalid") {
     log.error("TMC_TIMEOUT_MS not a positive number", { value: process.env.TMC_TIMEOUT_MS });
@@ -126,6 +135,18 @@ async function main() {
     }
   }
 
+  // Qlik Cloud observability tools — registered when at least one Qlik tenant
+  // has observability enabled (the "Qlik Cloud observability" checkbox). They
+  // share the dispatch + per-tenant routing with the Talend tools; the
+  // dispatcher selects the Qlik tenant pool via tool.product === "qlik".
+  const qlikObsEnabled = qlikTenants.some((t) => t.observability !== false);
+  if (qlikObsEnabled) {
+    for (const tool of QLIK_OBSERVABILITY_TOOLS) {
+      tools.push(tool);
+      toolIndex.set(tool.name, tool);
+    }
+  }
+
   // -------------------------------------------------------------------------
   // Per-tenant TmcClient cache
   //
@@ -138,7 +159,31 @@ async function main() {
 
   async function clientForTenant(
     tenantId: string,
-  ): Promise<{ client: TmcClient; tenant: TalendTenant } | null> {
+    product: "talend" | "qlik" = "talend",
+  ): Promise<{ client: TmcClient; tenant: { id: string } } | null> {
+    // Qlik branch: resolve in the Qlik tenant pool with a QlikClient. Cached
+    // under a "qlik:" prefix so it never collides with a same-named Talend id.
+    if (product === "qlik") {
+      const qt = qlikTenants.find((x) => x.id === tenantId);
+      if (!qt) return null;
+      const qkey = `qlik:${qt.id}`;
+      const cachedQlik = clients.get(qkey);
+      if (cachedQlik) return { client: cachedQlik, tenant: qt };
+      const apiKey = await loadQlikApiKey(qt.id).catch(() => null);
+      if (!apiKey) {
+        throw new Error(`No API key available for Qlik tenant "${qt.id}".`);
+      }
+      const qclient = new QlikClient({
+        apiKey,
+        tenantUrl: qt.tenantUrl,
+        timeoutMs: qt.timeoutMs ?? (typeof timeoutMs === "number" ? timeoutMs : undefined),
+        maxRetries: typeof maxRetries === "number" ? maxRetries : undefined,
+        logger: log.child({ tenant: qt.id, product: "qlik" }),
+      });
+      clients.set(qkey, qclient);
+      return { client: qclient, tenant: qt };
+    }
+
     const t = tenants.find((x) => x.id === tenantId);
     if (!t) return null;
     const existing = clients.get(t.id);
@@ -298,13 +343,17 @@ async function main() {
       };
     }
 
-    // Multi-tenant routing. args.tenant (if set) picks which TmcClient
-    // services this call. Default tenant otherwise.
-    const requestedTenantId = (typeof args.tenant === "string" && args.tenant.trim()) || defaultTenantId;
+    // Multi-tenant routing. args.tenant (if set) picks which client services
+    // this call. The tenant pool + default depend on the tool's product so a
+    // Qlik tool resolves against Qlik tenants and a Talend tool against Talend.
+    const product: "talend" | "qlik" = tool.product === "qlik" ? "qlik" : "talend";
+    const defaultId = product === "qlik" ? defaultQlikId : defaultTenantId;
+    const requestedTenantId = (typeof args.tenant === "string" && args.tenant.trim()) || defaultId;
     if (!requestedTenantId) {
+      const svc = product === "qlik" ? "Qlik Cloud" : "Talend";
       return {
         isError: true,
-        content: [{ type: "text", text: 'No default Talend tenant configured. Pass `tenant: "<id>"`.' }],
+        content: [{ type: "text", text: `No default ${svc} tenant configured. Pass \`tenant: "<id>"\`.` }],
       };
     }
 
@@ -316,7 +365,7 @@ async function main() {
     const work = (async () => {
       let resolved: Awaited<ReturnType<typeof clientForTenant>>;
       try {
-        resolved = await clientForTenant(requestedTenantId);
+        resolved = await clientForTenant(requestedTenantId, product);
       } catch (err) {
         return {
           isError: true,

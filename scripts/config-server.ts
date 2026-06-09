@@ -679,6 +679,7 @@ interface QlikSaveBody {
   connectionId?: string;
   timeoutMs?: unknown;
   makeDefault?: boolean;
+  observability?: boolean;
 }
 
 function parseQlikSave(raw: unknown) {
@@ -706,6 +707,7 @@ function parseQlikSave(raw: unknown) {
     connectionId: b.connectionId?.trim() || undefined,
     timeoutMs,
     makeDefault: !!b.makeDefault,
+    observability: b.observability !== false,
   };
 }
 
@@ -1467,17 +1469,26 @@ const PAGE_HTML = `<!DOCTYPE html>
 
     <div class="panel">
       <h2>Connect an MCP client</h2>
-      <p>The server speaks MCP over <strong>stdio</strong> (no network port). Point a client such as Claude Desktop at the built server:</p>
+      <p>The server speaks MCP over <strong>stdio</strong> (no network port). Build it once with <code>npm run build</code>, then point a client such as Claude Desktop at <code>dist/index.js</code>:</p>
       <pre style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0;">{
   "mcpServers": {
     "qlik-observability": {
       "command": "node",
-      "args": ["dist/index.js"],
-      "env": { "TMC_REGION": "us" }
+      "args": ["C:/Claude/TMC MPC/dist/index.js"],
+      "env": {
+        "TMC_REGION": "us",
+        "TMC_CONFIG_PATH": "C:/Users/you/AppData/Roaming/talend-tmc-mcp/config.json"
+      }
     }
   }
 }</pre>
-      <p class="hint" style="margin:0;">Default surface = 8 observability tools + <code>tmc_list_environments</code>. Pass a <code>tenant</code> argument on any tool to target a specific tenant. Set <code>TMC_APIS_PRESET=logging</code> to also include audit identity events.</p>
+      <ol style="margin:6px 0 0;padding-left:18px;line-height:1.7;">
+        <li>Add at least one Talend tenant (and optionally Qlik tenants) here in the config UI, or run <code>npm run setup</code>.</li>
+        <li>Use the absolute path to <code>dist/index.js</code> as the command arg.</li>
+        <li><code>TMC_CONFIG_PATH</code> is optional — set it to share one config file with the UI and exporters; omit it to use the default location shown on the About tab.</li>
+        <li>Restart the MCP client so it spawns the server.</li>
+      </ol>
+      <p class="hint" style="margin:10px 0 0;">Tools surface: <strong>8 Talend observability tools</strong> + <code>tmc_list_environments</code>, plus <strong>8 Qlik observability tools</strong> (<code>qlik_observability__*</code>) when a Qlik tenant has observability enabled. Every tool takes an optional <code>tenant</code> id — call <code>tmc_list_environments</code> to discover them, then pass <code>tenant: "&lt;id&gt;"</code> to target a specific Talend or Qlik tenant. <code>TMC_APIS_PRESET=logging</code> adds Talend audit events.</p>
     </div>
 
     <div class="panel">
@@ -1503,6 +1514,7 @@ qlik-engine-extractor run</pre>
       <h2>Reference links</h2>
       <ul style="margin:6px 0 0;padding-left:18px;line-height:1.9;">
         <li><a href="https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">GitHub — QlikObservabilityToolkit</a> (full README + docs)</li>
+        <li><a href="https://github.com/robertschoenfeldqlik/QlikObservabilityToolkit/blob/main/docs/observability-capabilities.md" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Observability capabilities — Talend &amp; Qlik</a> (what's observed + every MCP tool)</li>
         <li><a href="https://talend.qlik.dev/apis/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Talend Cloud APIs</a></li>
         <li><a href="https://help.qlik.com/talend/en-US/remote-engine-user-guide-linux/Cloud/job-management-logs" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Talend Remote Engine — job-management logs</a></li>
         <li><a href="https://qlik.dev/apis/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none;">Qlik Cloud APIs (qlik.dev)</a></li>
@@ -1647,6 +1659,9 @@ function renderQlik() {
           ? \`<span class="token-slot" data-token-kind="qlik" data-token-id="\${esc(t.id)}"><span class="token-hint">\${esc(t.apiKeyHint)}</span> (\${esc(t.apiKeyStorage)})</span>\${revealButtonHtml("qlik", t.id)}\`
           : '<span style="color:var(--err)">not set</span>'}
         \${t.connectionId ? \`&nbsp;·&nbsp; Connection: <code>\${esc(t.connectionId)}</code>\` : ''}
+        &nbsp;·&nbsp; Observability: \${t.observability === false
+          ? '<span class="pill stopped">off</span>'
+          : '<span class="pill running">on</span>'}
       </div>
       <div class="actions">
         \${!t.isDefault ? \`<button data-act="default-qlik" data-id="\${esc(t.id)}">Make default</button>\` : ''}
@@ -1962,6 +1977,15 @@ function openQlikForm(existing) {
       <input type="text" id="q_conn" value="\${isNew ? "" : esc(existing.connectionId || "")}" placeholder="11111111-2222-3333-4444-..." />
       <div class="hint">Required for the QVD exporter to upload. Find via the Qlik Cloud Hub → Catalog → connection details.</div>
 
+      <label class="field" style="margin-top:14px;">Qlik Cloud observability</label>
+      <label class="storage-opt" style="display:flex;gap:10px;align-items:flex-start;">
+        <input type="checkbox" id="q_obs" \${isNew || existing.observability !== false ? "checked" : ""} style="margin-top:3px;"/>
+        <div>
+          <div class="storage-title">Enable Qlik Cloud observability</div>
+          <div class="hint" style="margin:0">Exposes this tenant's apps, reloads, audit events and quotas as read-only MCP tools (<code>qlik_observability__*</code>) and lets the Qlik observability exporter scrape it. Read-only — nothing is mutated.</div>
+        </div>
+      </label>
+
       <label class="field" style="margin-top:14px;">Timeout (ms)</label>
       <input type="number" id="q_timeout" min="1000" step="1000" value="\${isNew ? 60000 : (existing.timeoutMs || 60000)}" />
 
@@ -2006,6 +2030,7 @@ async function saveQlik(isNew, existing) {
     connectionId: $("q_conn").value.trim() || undefined,
     timeoutMs: Number($("q_timeout").value),
     makeDefault: $("q_default").checked,
+    observability: $("q_obs").checked,
   };
   if (isNew && !body.apiKey) { setModalStatus("err", "API key required for new tenant."); return; }
   const r = await fetch("/api/qlik-tenants", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });

@@ -4,8 +4,14 @@ import { recordRetry, recordToolCall, toolInFlight } from "./metrics.js";
 import type { ToolDescriptor } from "./tool-generator.js";
 
 export interface TmcClientOptions {
+  /** Bearer token: a Talend PAT, or a Qlik Cloud API key when `baseUrl` is set. */
   pat: string;
-  region: TmcRegion;
+  /** Talend region (resolves the base URL). Optional when `baseUrl` is supplied. */
+  region?: TmcRegion;
+  /** Explicit base URL (e.g. a Qlik tenant URL). When set, `region` is only a metrics label. */
+  baseUrl?: string;
+  /** Overrides the Prometheus `region` label. Defaults to `region`, else "custom". */
+  regionLabel?: string;
   timeoutMs?: number;
   /** Maximum retry attempts on 429 / 5xx / transient network errors. Default 3 (so up to 4 total tries). */
   maxRetries?: number;
@@ -45,18 +51,24 @@ export class TmcClient {
   private readonly retryMaxMs: number;
   private readonly log: Logger;
   private readonly fetchImpl: typeof fetch;
-  private readonly region: TmcRegion;
+  private readonly regionLabel: string;
   private readonly metricsEnabled: boolean;
 
   constructor(opts: TmcClientOptions) {
-    if (!opts.pat) throw new Error("TMC_PAT is required");
-    if (!TMC_REGIONS[opts.region]) {
-      throw new Error(
-        `Unknown TMC region "${opts.region}". Expected one of: ${Object.keys(TMC_REGIONS).join(", ")}`,
-      );
+    if (!opts.pat) throw new Error("an auth token (PAT or API key) is required");
+    if (opts.baseUrl) {
+      // Explicit base URL (e.g. a Qlik tenant). `region` is only a metrics label here.
+      this.baseUrl = opts.baseUrl.replace(/\/+$/, "");
+      this.regionLabel = opts.regionLabel ?? opts.region ?? "custom";
+    } else {
+      if (!opts.region || !TMC_REGIONS[opts.region]) {
+        throw new Error(
+          `Unknown TMC region "${opts.region}". Expected one of: ${Object.keys(TMC_REGIONS).join(", ")}`,
+        );
+      }
+      this.baseUrl = TMC_REGIONS[opts.region];
+      this.regionLabel = opts.regionLabel ?? opts.region;
     }
-    this.baseUrl = TMC_REGIONS[opts.region];
-    this.region = opts.region;
     this.pat = opts.pat;
     this.timeoutMs = opts.timeoutMs ?? 60_000;
     this.maxRetries = clampInt(opts.maxRetries, 0, 8, 3);
@@ -133,7 +145,7 @@ export class TmcClient {
               httpStatus: result.status,
               durationMs: result.durationMs,
               attempts: attempt,
-              region: this.region,
+              region: this.regionLabel,
             });
           }
           return result;
@@ -170,7 +182,7 @@ export class TmcClient {
               httpStatus: null,
               durationMs: Date.now() - start,
               attempts: attempt,
-              region: this.region,
+              region: this.regionLabel,
             });
           }
           throw new TmcCallError(
@@ -256,6 +268,35 @@ export class TmcClient {
     // tools fire concurrently against a recovering API).
     const exp = Math.min(this.retryMaxMs, this.retryBaseMs * 2 ** attempt);
     return Math.floor(Math.random() * exp);
+  }
+}
+
+/**
+ * Qlik Cloud REST client. Identical retry/timeout/metrics engine as TmcClient,
+ * but it targets a tenant URL and authenticates with a Qlik Cloud API key
+ * (Bearer). Used by the read-only Qlik observability tools. Every call still
+ * flows through the same per-tenant routing as Talend, so tenancy is preserved.
+ */
+export class QlikClient extends TmcClient {
+  constructor(opts: {
+    apiKey: string;
+    tenantUrl: string;
+    timeoutMs?: number;
+    maxRetries?: number;
+    logger?: Logger;
+    fetchImpl?: typeof fetch;
+    disableMetrics?: boolean;
+  }) {
+    super({
+      pat: opts.apiKey,
+      baseUrl: opts.tenantUrl,
+      regionLabel: "qlik",
+      timeoutMs: opts.timeoutMs,
+      maxRetries: opts.maxRetries,
+      logger: opts.logger,
+      fetchImpl: opts.fetchImpl,
+      disableMetrics: opts.disableMetrics,
+    });
   }
 }
 
